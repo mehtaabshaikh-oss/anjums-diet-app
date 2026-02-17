@@ -76,9 +76,9 @@ export async function POST(req: Request) {
     const body = await req.json()
     const { name, email, phone, message, source = 'contact_form' } = body
 
-    if (!name || !message) {
+    if (!name || !phone || !message) {
       return NextResponse.json(
-        { error: 'Missing required fields' },
+        { error: 'Missing required fields (name, phone, message)' },
         { status: 400 }
       )
     }
@@ -89,7 +89,7 @@ export async function POST(req: Request) {
       .insert([
         {
           name,
-          email,
+          email: email || null,
           phone,
           message,
           source,
@@ -98,7 +98,10 @@ export async function POST(req: Request) {
       ])
       .select()
 
-    if (error) throw error
+    if (error) {
+      console.error('Supabase error:', error)
+      throw error
+    }
 
     return NextResponse.json(data[0], { status: 201 })
   } catch (error) {
