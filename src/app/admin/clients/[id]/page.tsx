@@ -1410,7 +1410,17 @@ export default function ClientDetailPage() {
                         <p className="text-gray-600 text-sm mt-1">{plan.description}</p>
                       )}
                     </div>
-                    <div className="flex items-center gap-4 ml-4">
+                    <div className="flex items-center gap-3 ml-4">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          generateDietPlanPDF(plan, dietPlanItems[plan.id] || [], client?.name || 'Client')
+                        }}
+                        className="px-3 py-1 bg-blue-50 text-blue-600 text-sm font-semibold rounded-lg hover:bg-blue-100 transition-colors flex items-center gap-1"
+                        title="Download PDF"
+                      >
+                        📄 PDF
+                      </button>
                       <span className={`px-3 py-1 rounded-full text-sm font-medium ${
                         plan.active
                           ? 'bg-green-100 text-green-800'
