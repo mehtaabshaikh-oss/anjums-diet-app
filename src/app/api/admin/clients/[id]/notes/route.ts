@@ -141,13 +141,17 @@ export async function GET(
     }
 
     // Add lead notes
-    if (leadNotes.data?.leads?.notes) {
-      allNotes.push({
-        id: `lead-${leadNotes.data.lead_id}`,
-        type: 'lead',
-        content: leadNotes.data.leads.notes,
-        created_at: leadNotes.data.leads.created_at,
-        metadata: {},
+    if (leadNotes.data?.leads) {
+      leadNotes.data.leads.forEach((lead: any) => {
+        if (lead.notes) {
+          allNotes.push({
+            id: `lead-${lead.id}`,
+            type: 'lead',
+            content: lead.notes,
+            created_at: lead.created_at,
+            metadata: {},
+          })
+        }
       })
     }
 

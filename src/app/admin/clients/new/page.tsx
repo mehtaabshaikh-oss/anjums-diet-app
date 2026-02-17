@@ -105,7 +105,7 @@ function NewClientPageContent() {
         body: JSON.stringify({
           ...formData,
           password: generatedPassword,
-          duration_months: formData.duration_months ? parseInt(formData.duration_months) : null,
+          duration_months: formData.duration_months ? formData.duration_months : null,
           age: formData.age ? parseInt(formData.age) : null,
           height_cm: formData.height_cm ? parseFloat(formData.height_cm) : null,
           weight_kg: formData.weight_kg ? parseFloat(formData.weight_kg) : null,
