@@ -213,32 +213,6 @@ export default function AdminDashboard() {
             </svg>
           }
         />
-
-        <StatCard
-          label="Logs Submitted"
-          value={stats.logsSubmittedToday}
-          unit="today"
-          color="accent"
-          gradient
-          icon={
-            <svg className="w-6 h-6 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
-            </svg>
-          }
-        />
-
-        <StatCard
-          label="Upcoming"
-          value={stats.upcomingAppointments}
-          unit="next 7 days"
-          color="danger"
-          gradient
-          icon={
-            <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h18M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-            </svg>
-          }
-        />
       </div>
 
       {/* Analytics Section */}
@@ -246,16 +220,9 @@ export default function AdminDashboard() {
         <div className="space-y-8">
           <h2 className="text-3xl font-bold text-gray-900">Analytics & Insights</h2>
 
-          {/* 1. Average Weight Loss Card */}
-          <div className="grid md:grid-cols-3 gap-6">
-            <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-8 border border-green-200 shadow-lg">
-              <p className="text-sm font-semibold text-green-700 uppercase tracking-wider">Average Weight Loss</p>
-              <p className="text-5xl font-bold text-green-900 mt-3">{analytics.averageWeightLoss}</p>
-              <p className="text-green-700 mt-2">across {analytics.clientsWithProgressData} clients</p>
-              <p className="text-xs text-green-600 mt-4">📊 Based on initial vs current weight</p>
-            </div>
-
-            {/* 2. Total Revenue Card */}
+          {/* Total Revenue and New Leads Cards */}
+          <div className="grid md:grid-cols-2 gap-6">
+            {/* Total Revenue Card */}
             <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-8 border border-blue-200 shadow-lg">
               <p className="text-sm font-semibold text-blue-700 uppercase tracking-wider">Total Revenue</p>
               <p className="text-5xl font-bold text-blue-900 mt-3">
@@ -265,7 +232,7 @@ export default function AdminDashboard() {
               <p className="text-xs text-blue-600 mt-4">💰 Actual revenue from payments</p>
             </div>
 
-            {/* 3. New Leads This Week Card */}
+            {/* New Leads This Week Card */}
             <Link href="/admin/leads" className="block">
               <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-8 border border-purple-200 shadow-lg hover:shadow-xl transition-shadow cursor-pointer">
                 <p className="text-sm font-semibold text-purple-700 uppercase tracking-wider">New Leads This Week</p>
