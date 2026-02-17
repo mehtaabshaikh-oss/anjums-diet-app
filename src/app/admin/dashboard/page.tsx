@@ -186,7 +186,7 @@ export default function AdminDashboard() {
         />
       )}
 
-      {/* Stats Grid */}
+      {/* Stats Grid - 4 cards in one row */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard
           label="Total Clients"
@@ -213,37 +213,34 @@ export default function AdminDashboard() {
             </svg>
           }
         />
+
+        {analytics && (
+          <>
+            <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-6 border border-blue-200 shadow-sm hover:shadow-md transition-shadow">
+              <p className="text-xs font-semibold text-blue-700 uppercase tracking-wider">Total Revenue</p>
+              <p className="text-3xl font-bold text-blue-900 mt-2">
+                ₹{(analytics.revenueByPackage.reduce((acc, pkg) => acc + pkg.revenue, 0) / 1000).toFixed(1)}k
+              </p>
+              <p className="text-sm text-blue-700 mt-1">from {analytics.revenueByPackage.reduce((acc, pkg) => acc + pkg.clients, 0)} clients</p>
+            </div>
+
+            <Link href="/admin/leads" className="block">
+              <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-6 border border-purple-200 shadow-sm hover:shadow-md transition-shadow cursor-pointer h-full">
+                <p className="text-xs font-semibold text-purple-700 uppercase tracking-wider">New Leads</p>
+                <p className="text-3xl font-bold text-purple-900 mt-2">
+                  {analytics.newLeadsThisWeek}
+                </p>
+                <p className="text-sm text-purple-700 mt-1">this week</p>
+              </div>
+            </Link>
+          </>
+        )}
       </div>
 
       {/* Analytics Section */}
       {analytics && (
         <div className="space-y-8">
           <h2 className="text-3xl font-bold text-gray-900">Analytics & Insights</h2>
-
-          {/* Total Revenue and New Leads Cards */}
-          <div className="grid md:grid-cols-2 gap-6">
-            {/* Total Revenue Card */}
-            <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-8 border border-blue-200 shadow-lg">
-              <p className="text-sm font-semibold text-blue-700 uppercase tracking-wider">Total Revenue</p>
-              <p className="text-5xl font-bold text-blue-900 mt-3">
-                ₹{(analytics.revenueByPackage.reduce((acc, pkg) => acc + pkg.revenue, 0) / 1000).toFixed(1)}k
-              </p>
-              <p className="text-blue-700 mt-2">from {analytics.revenueByPackage.reduce((acc, pkg) => acc + pkg.clients, 0)} clients</p>
-              <p className="text-xs text-blue-600 mt-4">💰 Actual revenue from payments</p>
-            </div>
-
-            {/* New Leads This Week Card */}
-            <Link href="/admin/leads" className="block">
-              <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-8 border border-purple-200 shadow-lg hover:shadow-xl transition-shadow cursor-pointer">
-                <p className="text-sm font-semibold text-purple-700 uppercase tracking-wider">New Leads This Week</p>
-                <p className="text-5xl font-bold text-purple-900 mt-3">
-                  {analytics.newLeadsThisWeek}
-                </p>
-                <p className="text-purple-700 mt-2">leads in last 7 days</p>
-                <p className="text-xs text-purple-600 mt-4">📊 Click to view leads →</p>
-              </div>
-            </Link>
-          </div>
 
           {/* Charts Grid */}
           <div className="grid lg:grid-cols-2 gap-8">
