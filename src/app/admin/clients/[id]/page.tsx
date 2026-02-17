@@ -13,6 +13,7 @@ interface ClientData {
   email: string
   phone: string
   package: string
+  duration_months?: number
   start_date: string
   end_date: string
   next_appointment_date: string | null
