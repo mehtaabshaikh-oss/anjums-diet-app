@@ -1487,6 +1487,12 @@ export default function ClientDetailPage() {
                         📄 Download PDF
                       </button>
                       <button
+                        onClick={() => router.push(`/admin/clients/${clientId}/diet-plans?action=edit&plan_id=${plan.id}`)}
+                        className="px-4 py-2 bg-amber-50 text-amber-600 font-semibold rounded-lg hover:bg-amber-100 transition-colors"
+                      >
+                        Edit Plan
+                      </button>
+                      <button
                         onClick={() => handleDeletePlan(plan.id)}
                         className="px-4 py-2 bg-red-50 text-red-600 font-semibold rounded-lg hover:bg-red-100 transition-colors"
                       >
