@@ -11,6 +11,7 @@ function NewClientPageContent() {
     phone: '',
     package: 'gold',
     duration_months: 3,
+    nutritionist: 'anjum',
     start_date: new Date().toISOString().split('T')[0],
     end_date: '',
     gender: '',
@@ -252,6 +253,25 @@ function NewClientPageContent() {
                 <option value="gold">Gold</option>
                 <option value="hybrid">Hybrid</option>
                 <option value="platinum">Platinum</option>
+              </select>
+            </div>
+
+            {/* Nutritionist */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Assigned Nutritionist *
+              </label>
+              <select
+                name="nutritionist"
+                value={formData.nutritionist}
+                onChange={handleInputChange}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                required
+              >
+                <option value="anjum">Anjum</option>
+                <option value="nutritionist_1">Nutritionist 1</option>
+                <option value="nutritionist_2">Nutritionist 2</option>
+                <option value="nutritionist_3">Nutritionist 3</option>
               </select>
             </div>
 
