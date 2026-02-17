@@ -208,17 +208,19 @@ export default function ClientDetailPage() {
     }
   }
 
-  const handleDeletePlan = async (planId: string) => {
-    if (!confirm('Are you sure you want to delete this diet plan?')) return
+  const handleArchivePlan = async (planId: string) => {
+    if (!confirm('Are you sure you want to archive this diet plan? It will no longer be active.')) return
 
     try {
       const response = await fetch(`/api/admin/diet-plans/${planId}`, {
-        method: 'DELETE',
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ active: false })
       })
-      if (!response.ok) throw new Error('Failed to delete')
+      if (!response.ok) throw new Error('Failed to archive')
       await fetchDietPlans()
     } catch (err) {
-      console.error('Error deleting plan:', err)
+      console.error('Error archiving plan:', err)
     }
   }
 
@@ -226,28 +228,46 @@ export default function ClientDetailPage() {
     try {
       // Create a temporary container for HTML to PDF conversion
       const element = document.createElement('div')
-      element.style.padding = '20px'
-      element.style.fontFamily = 'Arial, sans-serif'
+      element.style.padding = '40px'
+      element.style.fontFamily = '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif'
       element.style.backgroundColor = 'white'
       element.style.width = '800px'
+      element.style.lineHeight = '1.6'
 
       // Build HTML content
       let html = `
-        <div style="text-align: center; margin-bottom: 30px; border-bottom: 2px solid #1b6940; padding-bottom: 20px;">
-          <h1 style="color: #1b6940; margin: 0 0 10px 0; font-size: 28px;">Anjum's Diet & Wellness</h1>
-          <p style="color: #666; margin: 0;">Client Diet Plan</p>
+        <div style="text-align: center; margin-bottom: 40px; border-bottom: 3px solid #1b6940; padding-bottom: 30px;">
+          <h1 style="color: #1b6940; margin: 0 0 5px 0; font-size: 32px; font-weight: bold;">Anjum's Diet & Wellness</h1>
+          <p style="color: #666; margin: 0; font-size: 14px;">Diet & Wellness Solutions</p>
         </div>
 
-        <div style="margin-bottom: 20px;">
-          <p style="margin: 5px 0;"><strong>Client Name:</strong> ${clientName}</p>
-          <p style="margin: 5px 0;"><strong>Plan Name:</strong> ${plan.name}</p>
-          <p style="margin: 5px 0;"><strong>Description:</strong> ${plan.description || 'N/A'}</p>
-          <p style="margin: 5px 0;"><strong>Status:</strong> <span style="color: ${plan.active ? '#16a34a' : '#6b7280'};">${plan.active ? 'Active' : 'Inactive'}</span></p>
-          <p style="margin: 5px 0;"><strong>Generated on:</strong> ${new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+        <div style="margin-bottom: 30px; background-color: #f9fafb; padding: 20px; border-radius: 8px;">
+          <table style="width: 100%; border-collapse: collapse;">
+            <tr>
+              <td style="padding: 8px 0; width: 30%;"><strong>Client Name:</strong></td>
+              <td style="padding: 8px 0;">${clientName}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px 0;"><strong>Plan Name:</strong></td>
+              <td style="padding: 8px 0;">${plan.name}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px 0;"><strong>Description:</strong></td>
+              <td style="padding: 8px 0;">${plan.description || 'N/A'}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px 0;"><strong>Status:</strong></td>
+              <td style="padding: 8px 0;"><span style="color: ${plan.active ? '#16a34a' : '#6b7280'}; font-weight: bold;">${plan.active ? '✓ Active' : '○ Inactive'}</span></td>
+            </tr>
+            <tr>
+              <td style="padding: 8px 0;"><strong>Generated on:</strong></td>
+              <td style="padding: 8px 0;">${new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</td>
+            </tr>
+          </table>
         </div>
 
         <div style="margin-top: 30px;">
-          <h2 style="color: #1b6940; font-size: 18px; margin-bottom: 15px; border-bottom: 1px solid #ddd; padding-bottom: 10px;">Diet Plan Items</h2>
+          <h2 style="color: #1b6940; font-size: 20px; margin-bottom: 20px; border-bottom: 2px solid #1b6940; padding-bottom: 10px; font-weight: bold;">Diet Plan Items</h2>
       `
 
       // Group items by meal type
@@ -259,16 +279,17 @@ export default function ClientDetailPage() {
         mealGroups[item.meal_type].push(item)
       })
 
-      // Add meals to HTML
+      // Add meals to HTML with improved formatting
       Object.keys(mealGroups).forEach(mealType => {
-        html += `<h3 style="color: #333; font-size: 16px; margin-top: 20px; margin-bottom: 10px; text-transform: capitalize;">${mealType}</h3><table style="width: 100%; border-collapse: collapse; margin-bottom: 15px;">`
-        html += '<tr style="background-color: #f3f4f6; border: 1px solid #ddd;"><th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Item</th><th style="padding: 10px; text-align: center; border: 1px solid #ddd;">Quantity</th><th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Notes</th></tr>'
+        html += `<h3 style="color: #333; font-size: 16px; margin-top: 25px; margin-bottom: 12px; text-transform: capitalize; font-weight: bold; border-left: 4px solid #1b6940; padding-left: 10px;">${mealType}</h3><table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">`
+        html += '<tr style="background-color: #1b6940; color: white;"><th style="padding: 12px; text-align: left; font-weight: bold;">Item</th><th style="padding: 12px; text-align: center; font-weight: bold;">Quantity</th><th style="padding: 12px; text-align: left; font-weight: bold;">Notes</th></tr>'
 
-        mealGroups[mealType].forEach(item => {
-          html += `<tr style="border: 1px solid #ddd;">
-            <td style="padding: 10px; border: 1px solid #ddd;">${item.item_name}</td>
-            <td style="padding: 10px; text-align: center; border: 1px solid #ddd;">${item.quantity} ${item.unit}</td>
-            <td style="padding: 10px; border: 1px solid #ddd; color: #666; font-size: 12px;">${item.notes || '—'}</td>
+        mealGroups[mealType].forEach((item, idx) => {
+          const bgColor = idx % 2 === 0 ? '#ffffff' : '#f9fafb'
+          html += `<tr style="background-color: ${bgColor}; border-bottom: 1px solid #e5e7eb;">
+            <td style="padding: 12px; border-bottom: 1px solid #e5e7eb; font-weight: 500;">${item.item_name}</td>
+            <td style="padding: 12px; text-align: center; border-bottom: 1px solid #e5e7eb;">${item.quantity} ${item.unit}</td>
+            <td style="padding: 12px; border-bottom: 1px solid #e5e7eb; color: #666; font-size: 13px;">${item.notes || '—'}</td>
           </tr>`
         })
 
@@ -277,8 +298,10 @@ export default function ClientDetailPage() {
 
       html += `
         </div>
-        <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #ddd; color: #666; font-size: 12px; text-align: center;">
-          <p>This diet plan is personalized for ${clientName}. Please follow the plan as recommended by your nutritionist.</p>
+        <div style="margin-top: 50px; padding-top: 20px; border-top: 2px solid #ddd; color: #666; font-size: 13px; text-align: center; line-height: 1.8;">
+          <p style="margin: 0;"><strong>Important Guidelines:</strong></p>
+          <p style="margin: 5px 0;">This diet plan is personalized for ${clientName}. Please follow the plan as recommended by your nutritionist.</p>
+          <p style="margin: 10px 0; font-size: 12px;">Contact: anjumsdiet@gmail.com | Phone: +91 93262 30557</p>
         </div>
       `
 
@@ -1493,10 +1516,10 @@ export default function ClientDetailPage() {
                         Edit Plan
                       </button>
                       <button
-                        onClick={() => handleDeletePlan(plan.id)}
+                        onClick={() => handleArchivePlan(plan.id)}
                         className="px-4 py-2 bg-red-50 text-red-600 font-semibold rounded-lg hover:bg-red-100 transition-colors"
                       >
-                        Delete Plan
+                        Archive Plan
                       </button>
                     </div>
                   </div>
