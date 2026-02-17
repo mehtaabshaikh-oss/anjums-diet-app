@@ -1,0 +1,2188 @@
+'use client'
+
+import { useState, useEffect } from 'react'
+import { useRouter, useParams, useSearchParams } from 'next/navigation'
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
+import jsPDF from 'jspdf'
+import html2canvas from 'html2canvas'
+import AppointmentScheduler from '@/components/AppointmentScheduler'
+
+interface ClientData {
+  id: string | number
+  name: string
+  email: string
+  phone: string
+  package: string
+  start_date: string
+  end_date: string
+  next_appointment_date: string | null
+  status: string
+  client_profiles: any
+  weight_logs?: Array<{
+    id: string
+    logged_date: string
+    weight_kg: number
+    created_at: string
+  }>
+  measurements_logs?: Array<{
+    id: string
+    logged_date: string
+    chest_cm: number | null
+    waist_cm: number | null
+    hip_cm: number | null
+    thigh_cm: number | null
+    notes: string | null
+    created_at: string
+  }>
+}
+
+interface DietPlan {
+  id: string
+  name: string
+  description: string | null
+  active: boolean
+  created_at: string
+}
+
+interface DietPlanItem {
+  id: string
+  meal_type: string
+  sequence: number
+  item_name: string
+  quantity: number
+  unit: string
+  notes: string | null
+}
+
+export default function ClientDetailPage() {
+  const router = useRouter()
+  const params = useParams()
+  const searchParams = useSearchParams()
+  const [client, setClient] = useState<ClientData | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState('')
+
+  // Get tab from URL query param, default to 'profile'
+  const initialTab = searchParams.get('tab') || 'profile'
+  const [activeTab, setActiveTab] = useState(initialTab)
+  const [showAppointmentScheduler, setShowAppointmentScheduler] = useState(false)
+
+  // Diet Plans states
+  const [dietPlans, setDietPlans] = useState<DietPlan[]>([])
+  const [dietPlanItems, setDietPlanItems] = useState<{ [key: string]: DietPlanItem[] }>({})
+  const [expandedPlanId, setExpandedPlanId] = useState<string | null>(null)
+  const [dietPlansLoading, setDietPlansLoading] = useState(false)
+
+  // Weight tracking states
+  const [showAddWeight, setShowAddWeight] = useState(false)
+  const [weightFormData, setWeightFormData] = useState({
+    weight_kg: '',
+    logged_date: new Date().toISOString().split('T')[0],
+    notes: '',
+  })
+  const [submittingWeight, setSubmittingWeight] = useState(false)
+  const [weightError, setWeightError] = useState('')
+
+  // Measurements tracking states
+  const [showAddMeasurements, setShowAddMeasurements] = useState(false)
+  const [measurementsFormData, setMeasurementsFormData] = useState({
+    chest_cm: '',
+    waist_cm: '',
+    hip_cm: '',
+    thigh_cm: '',
+    logged_date: new Date().toISOString().split('T')[0],
+    notes: '',
+  })
+  const [submittingMeasurements, setSubmittingMeasurements] = useState(false)
+  const [measurementsError, setMeasurementsError] = useState('')
+
+  // Notes states
+  const [notes, setNotes] = useState<any[]>([])
+  const [notesLoading, setNotesLoading] = useState(false)
+  const [newNoteContent, setNewNoteContent] = useState('')
+  const [submittingNote, setSubmittingNote] = useState(false)
+  const [notesError, setNotesError] = useState('')
+
+  // Payments states
+  const [payments, setPayments] = useState<any[]>([])
+  const [paymentsLoading, setPaymentsLoading] = useState(false)
+  const [showPaymentForm, setShowPaymentForm] = useState(false)
+  const [editingPaymentId, setEditingPaymentId] = useState<number | null>(null)
+  const [paymentForm, setPaymentForm] = useState({
+    amount: '',
+    date: new Date().toISOString().split('T')[0],
+    method: 'cash',
+    status: 'paid',
+    notes: '',
+  })
+  const [submittingPayment, setSubmittingPayment] = useState(false)
+  const [paymentsError, setPaymentsError] = useState('')
+
+  // Profile edit states
+  const [isEditingProfile, setIsEditingProfile] = useState(false)
+  const [editFormData, setEditFormData] = useState({
+    email: '',
+    phone: '',
+    package: '',
+    duration_months: '',
+    status: '',
+    start_date: '',
+    end_date: '',
+    age: '',
+    gender: '',
+    height_cm: '',
+    weight_kg: '',
+    target_weight_kg: '',
+    allergies: '',
+    medical_conditions: '',
+    dietary_preference: '',
+    chest_cm: '',
+    waist_cm: '',
+    hip_cm: '',
+    thigh_cm: '',
+  })
+  const [submittingProfile, setSubmittingProfile] = useState(false)
+  const [profileEditError, setProfileEditError] = useState('')
+
+  const clientId = params.id as string | number
+
+  useEffect(() => {
+    if (clientId) {
+      fetchClientData()
+    }
+  }, [clientId])
+
+  useEffect(() => {
+    if (activeTab === 'diet-plans' && clientId) {
+      fetchDietPlans()
+    }
+    if (activeTab === 'notes' && clientId) {
+      fetchNotes()
+    }
+    if (activeTab === 'payments' && clientId) {
+      fetchPayments()
+    }
+    if (activeTab === 'profile' && clientId) {
+      // Fetch recent payments for profile summary
+      fetchPayments()
+    }
+  }, [activeTab, clientId])
+
+  const fetchClientData = async () => {
+    try {
+      const response = await fetch(`/api/client/profile?client_id=${clientId}`)
+      if (!response.ok) {
+        throw new Error('Failed to fetch client')
+      }
+      const data = await response.json()
+      setClient(data)
+    } catch (err) {
+      setError('Failed to load client details')
+      console.error(err)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const fetchDietPlans = async () => {
+    try {
+      setDietPlansLoading(true)
+      const response = await fetch(`/api/admin/diet-plans?client_id=${clientId}`)
+      if (!response.ok) throw new Error('Failed to fetch diet plans')
+      const plans = await response.json()
+      setDietPlans(plans)
+
+      // Fetch items for each plan
+      for (const plan of plans) {
+        const itemsResponse = await fetch(`/api/admin/diet-plans/${plan.id}/items`)
+        if (itemsResponse.ok) {
+          const items = await itemsResponse.json()
+          setDietPlanItems((prev) => ({ ...prev, [plan.id]: items }))
+        }
+      }
+    } catch (err) {
+      console.error('Error fetching diet plans:', err)
+    } finally {
+      setDietPlansLoading(false)
+    }
+  }
+
+  const handleDeletePlan = async (planId: string) => {
+    if (!confirm('Are you sure you want to delete this diet plan?')) return
+
+    try {
+      const response = await fetch(`/api/admin/diet-plans/${planId}`, {
+        method: 'DELETE',
+      })
+      if (!response.ok) throw new Error('Failed to delete')
+      await fetchDietPlans()
+    } catch (err) {
+      console.error('Error deleting plan:', err)
+    }
+  }
+
+  const generateDietPlanPDF = async (plan: any, items: any[], clientName: string) => {
+    try {
+      // Create a temporary container for HTML to PDF conversion
+      const element = document.createElement('div')
+      element.style.padding = '20px'
+      element.style.fontFamily = 'Arial, sans-serif'
+      element.style.backgroundColor = 'white'
+      element.style.width = '800px'
+
+      // Build HTML content
+      let html = `
+        <div style="text-align: center; margin-bottom: 30px; border-bottom: 2px solid #1b6940; padding-bottom: 20px;">
+          <h1 style="color: #1b6940; margin: 0 0 10px 0; font-size: 28px;">Anjum's Diet & Wellness</h1>
+          <p style="color: #666; margin: 0;">Client Diet Plan</p>
+        </div>
+
+        <div style="margin-bottom: 20px;">
+          <p style="margin: 5px 0;"><strong>Client Name:</strong> ${clientName}</p>
+          <p style="margin: 5px 0;"><strong>Plan Name:</strong> ${plan.name}</p>
+          <p style="margin: 5px 0;"><strong>Description:</strong> ${plan.description || 'N/A'}</p>
+          <p style="margin: 5px 0;"><strong>Status:</strong> <span style="color: ${plan.active ? '#16a34a' : '#6b7280'};">${plan.active ? 'Active' : 'Inactive'}</span></p>
+          <p style="margin: 5px 0;"><strong>Generated on:</strong> ${new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+        </div>
+
+        <div style="margin-top: 30px;">
+          <h2 style="color: #1b6940; font-size: 18px; margin-bottom: 15px; border-bottom: 1px solid #ddd; padding-bottom: 10px;">Diet Plan Items</h2>
+      `
+
+      // Group items by meal type
+      const mealGroups: { [key: string]: any[] } = {}
+      items.forEach(item => {
+        if (!mealGroups[item.meal_type]) {
+          mealGroups[item.meal_type] = []
+        }
+        mealGroups[item.meal_type].push(item)
+      })
+
+      // Add meals to HTML
+      Object.keys(mealGroups).forEach(mealType => {
+        html += `<h3 style="color: #333; font-size: 16px; margin-top: 20px; margin-bottom: 10px; text-transform: capitalize;">${mealType}</h3><table style="width: 100%; border-collapse: collapse; margin-bottom: 15px;">`
+        html += '<tr style="background-color: #f3f4f6; border: 1px solid #ddd;"><th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Item</th><th style="padding: 10px; text-align: center; border: 1px solid #ddd;">Quantity</th><th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Notes</th></tr>'
+
+        mealGroups[mealType].forEach(item => {
+          html += `<tr style="border: 1px solid #ddd;">
+            <td style="padding: 10px; border: 1px solid #ddd;">${item.item_name}</td>
+            <td style="padding: 10px; text-align: center; border: 1px solid #ddd;">${item.quantity} ${item.unit}</td>
+            <td style="padding: 10px; border: 1px solid #ddd; color: #666; font-size: 12px;">${item.notes || '—'}</td>
+          </tr>`
+        })
+
+        html += '</table>'
+      })
+
+      html += `
+        </div>
+        <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #ddd; color: #666; font-size: 12px; text-align: center;">
+          <p>This diet plan is personalized for ${clientName}. Please follow the plan as recommended by your nutritionist.</p>
+        </div>
+      `
+
+      element.innerHTML = html
+      document.body.appendChild(element)
+
+      // Convert HTML to canvas, then to PDF
+      const canvas = await html2canvas(element, {
+        scale: 2,
+        backgroundColor: '#ffffff',
+      })
+
+      const imgData = canvas.toDataURL('image/png')
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4',
+      })
+
+      const imgWidth = 210 - 20 // A4 width minus margins
+      const imgHeight = (canvas.height * imgWidth) / canvas.width
+      let heightLeft = imgHeight
+      let position = 10 // Top margin
+
+      // Add image to PDF, handling multiple pages if needed
+      pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight)
+      heightLeft -= 297 - 20 // A4 height minus margins
+
+      while (heightLeft > 0) {
+        position = heightLeft - imgHeight
+        pdf.addPage()
+        pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight)
+        heightLeft -= 297 - 20
+      }
+
+      // Download the PDF
+      pdf.save(`${clientName}_${plan.name.replace(/\s+/g, '_')}.pdf`)
+
+      // Clean up
+      document.body.removeChild(element)
+    } catch (err) {
+      console.error('Error generating PDF:', err)
+      alert('Failed to generate PDF')
+    }
+  }
+
+  const handleAddWeight = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setWeightError('')
+
+    if (!weightFormData.weight_kg) {
+      setWeightError('Please enter a weight')
+      return
+    }
+
+    try {
+      setSubmittingWeight(true)
+      const response = await fetch(`/api/admin/clients/${clientId}/weight-logs`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          weight_kg: parseFloat(weightFormData.weight_kg),
+          logged_date: weightFormData.logged_date,
+          notes: weightFormData.notes || null,
+        }),
+      })
+
+      if (!response.ok) {
+        const data = await response.json()
+        throw new Error(data.error || 'Failed to record weight')
+      }
+
+      // Refresh client data to get updated weight logs
+      await fetchClientData()
+      setWeightFormData({
+        weight_kg: '',
+        logged_date: new Date().toISOString().split('T')[0],
+        notes: '',
+      })
+      setShowAddWeight(false)
+    } catch (err: any) {
+      setWeightError(err.message || 'Failed to add weight')
+      console.error(err)
+    } finally {
+      setSubmittingWeight(false)
+    }
+  }
+
+  const handleAddMeasurements = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setMeasurementsError('')
+
+    // Check if at least one measurement is entered
+    const hasAnyMeasurement = measurementsFormData.chest_cm || measurementsFormData.waist_cm ||
+                              measurementsFormData.hip_cm || measurementsFormData.thigh_cm
+
+    if (!hasAnyMeasurement) {
+      setMeasurementsError('Please enter at least one measurement')
+      return
+    }
+
+    try {
+      setSubmittingMeasurements(true)
+      const response = await fetch(`/api/admin/clients/${clientId}/measurements`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          chest_cm: measurementsFormData.chest_cm ? parseFloat(measurementsFormData.chest_cm) : null,
+          waist_cm: measurementsFormData.waist_cm ? parseFloat(measurementsFormData.waist_cm) : null,
+          hip_cm: measurementsFormData.hip_cm ? parseFloat(measurementsFormData.hip_cm) : null,
+          thigh_cm: measurementsFormData.thigh_cm ? parseFloat(measurementsFormData.thigh_cm) : null,
+          logged_date: measurementsFormData.logged_date,
+          notes: measurementsFormData.notes || null,
+        }),
+      })
+
+      if (!response.ok) {
+        const data = await response.json()
+        throw new Error(data.error || 'Failed to record measurements')
+      }
+
+      // Refresh client data
+      await fetchClientData()
+      setMeasurementsFormData({
+        chest_cm: '',
+        waist_cm: '',
+        hip_cm: '',
+        thigh_cm: '',
+        logged_date: new Date().toISOString().split('T')[0],
+        notes: '',
+      })
+      setShowAddMeasurements(false)
+    } catch (err: any) {
+      setMeasurementsError(err.message || 'Failed to add measurements')
+      console.error(err)
+    } finally {
+      setSubmittingMeasurements(false)
+    }
+  }
+
+  const fetchNotes = async () => {
+    try {
+      setNotesLoading(true)
+      const response = await fetch(`/api/admin/clients/${clientId}/notes`)
+      if (!response.ok) throw new Error('Failed to fetch notes')
+      const data = await response.json()
+      setNotes(data)
+    } catch (err) {
+      setNotesError('Failed to load notes')
+      console.error(err)
+    } finally {
+      setNotesLoading(false)
+    }
+  }
+
+  const handleAddNote = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!newNoteContent.trim()) return
+
+    try {
+      setSubmittingNote(true)
+      setNotesError('')
+      const response = await fetch(`/api/admin/clients/${clientId}/notes`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content: newNoteContent }),
+      })
+
+      if (!response.ok) throw new Error('Failed to add note')
+
+      setNewNoteContent('')
+      await fetchNotes()
+    } catch (err: any) {
+      setNotesError(err.message || 'Failed to add note')
+      console.error(err)
+    } finally {
+      setSubmittingNote(false)
+    }
+  }
+
+  const fetchPayments = async () => {
+    try {
+      setPaymentsLoading(true)
+      const response = await fetch(`/api/admin/clients/${clientId}/payments`)
+      if (!response.ok) throw new Error('Failed to fetch payments')
+      const data = await response.json()
+      setPayments(data)
+    } catch (err) {
+      setPaymentsError('Failed to load payments')
+      console.error(err)
+    } finally {
+      setPaymentsLoading(false)
+    }
+  }
+
+  const handlePaymentSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    try {
+      setSubmittingPayment(true)
+      setPaymentsError('')
+
+      const url = editingPaymentId
+        ? `/api/admin/clients/${clientId}/payments/${editingPaymentId}`
+        : `/api/admin/clients/${clientId}/payments`
+      const method = editingPaymentId ? 'PUT' : 'POST'
+
+      const response = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...paymentForm,
+          amount: parseFloat(paymentForm.amount),
+        }),
+      })
+
+      if (!response.ok) throw new Error('Failed to save payment')
+
+      setPaymentForm({
+        amount: '',
+        date: new Date().toISOString().split('T')[0],
+        method: 'cash',
+        status: 'paid',
+        notes: '',
+      })
+      setEditingPaymentId(null)
+      setShowPaymentForm(false)
+      await fetchPayments()
+    } catch (err: any) {
+      setPaymentsError(err.message || 'Failed to save payment')
+      console.error(err)
+    } finally {
+      setSubmittingPayment(false)
+    }
+  }
+
+  const handleEditPayment = (payment: any) => {
+    setEditingPaymentId(payment.id)
+    setPaymentForm({
+      amount: payment.amount.toString(),
+      date: payment.date,
+      method: payment.method,
+      status: payment.status,
+      notes: payment.notes || '',
+    })
+    setShowPaymentForm(true)
+  }
+
+  const handleDeletePayment = async (paymentId: number) => {
+    if (!confirm('Are you sure you want to delete this payment?')) return
+
+    try {
+      const response = await fetch(`/api/admin/clients/${clientId}/payments/${paymentId}`, {
+        method: 'DELETE',
+      })
+
+      if (!response.ok) throw new Error('Failed to delete payment')
+
+      await fetchPayments()
+    } catch (err: any) {
+      setPaymentsError(err.message || 'Failed to delete payment')
+      console.error(err)
+    }
+  }
+
+  const handleEditProfile = () => {
+    if (!client) return
+
+    if (isEditingProfile) {
+      // Cancel edit - don't save
+      setIsEditingProfile(false)
+      return
+    }
+
+    // Initialize edit form with current data
+    const profile = client.client_profiles
+    setEditFormData({
+      email: client.email || '',
+      phone: client.phone || '',
+      package: client.package || '',
+      duration_months: client.duration_months?.toString() || '',
+      status: client.status || '',
+      start_date: client.start_date || '',
+      end_date: client.end_date || '',
+      age: profile?.age?.toString() || '',
+      gender: profile?.gender || '',
+      height_cm: profile?.height_cm?.toString() || '',
+      weight_kg: profile?.weight_kg?.toString() || '',
+      target_weight_kg: profile?.target_weight_kg?.toString() || '',
+      allergies: profile?.allergies || '',
+      medical_conditions: profile?.medical_conditions || '',
+      dietary_preference: profile?.dietary_preference || '',
+      chest_cm: profile?.chest_cm?.toString() || '',
+      waist_cm: profile?.waist_cm?.toString() || '',
+      hip_cm: profile?.hip_cm?.toString() || '',
+      thigh_cm: profile?.thigh_cm?.toString() || '',
+    })
+    setIsEditingProfile(true)
+  }
+
+  const handleSaveProfile = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setProfileEditError('')
+
+    try {
+      setSubmittingProfile(true)
+      const response = await fetch(`/api/admin/clients/${clientId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: editFormData.email,
+          phone: editFormData.phone,
+          package: editFormData.package,
+          duration_months: editFormData.duration_months ? parseInt(editFormData.duration_months) : null,
+          status: editFormData.status,
+          start_date: editFormData.start_date,
+          end_date: editFormData.end_date,
+          age: editFormData.age ? parseInt(editFormData.age) : null,
+          gender: editFormData.gender || null,
+          height_cm: editFormData.height_cm ? parseFloat(editFormData.height_cm) : null,
+          weight_kg: editFormData.weight_kg ? parseFloat(editFormData.weight_kg) : null,
+          target_weight_kg: editFormData.target_weight_kg ? parseFloat(editFormData.target_weight_kg) : null,
+          allergies: editFormData.allergies || null,
+          medical_conditions: editFormData.medical_conditions || null,
+          dietary_preference: editFormData.dietary_preference || null,
+          chest_cm: editFormData.chest_cm ? parseFloat(editFormData.chest_cm) : null,
+          waist_cm: editFormData.waist_cm ? parseFloat(editFormData.waist_cm) : null,
+          hip_cm: editFormData.hip_cm ? parseFloat(editFormData.hip_cm) : null,
+          thigh_cm: editFormData.thigh_cm ? parseFloat(editFormData.thigh_cm) : null,
+        }),
+      })
+
+      if (!response.ok) {
+        const data = await response.json()
+        throw new Error(data.error || 'Failed to update profile')
+      }
+
+      // Refresh client data
+      await fetchClientData()
+      setIsEditingProfile(false)
+    } catch (err: any) {
+      setProfileEditError(err.message || 'Failed to update profile')
+      console.error(err)
+    } finally {
+      setSubmittingProfile(false)
+    }
+  }
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="animate-spin mb-4">
+            <svg
+              className="w-12 h-12 text-primary mx-auto"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+              />
+            </svg>
+          </div>
+          <p className="text-gray-600">Loading client details...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (error || !client) {
+    return (
+      <div className="text-center py-12">
+        <p className="text-red-600 mb-4">{error || 'Client not found'}</p>
+        <button
+          onClick={() => router.back()}
+          className="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark"
+        >
+          Go Back
+        </button>
+      </div>
+    )
+  }
+
+  // Extract profile - client_profiles is a single object, not an array
+  // (the API converts the array to a single object)
+  const profile = client?.client_profiles
+
+  return (
+    <div className="space-y-8">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-4xl font-bold text-gray-900">{client.name}</h1>
+          <p className="text-gray-600 mt-1">{client.email}</p>
+        </div>
+        <div className="text-right">
+          <span className={`px-4 py-2 rounded-full text-sm font-medium capitalize ${
+            client.status === 'active' ? 'bg-green-100 text-green-800' :
+            client.status === 'expired' ? 'bg-red-100 text-red-800' :
+            'bg-yellow-100 text-yellow-800'
+          }`}>
+            {client.status}
+          </span>
+        </div>
+      </div>
+
+      {/* Appointment Card */}
+      <div className="bg-gradient-to-r from-primary to-primary-dark text-white rounded-xl p-6 shadow-lg">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-sm opacity-90">Next Appointment</p>
+            {client.next_appointment_date ? (
+              <p className="text-2xl font-bold">
+                {new Date(client.next_appointment_date).toLocaleDateString('en-US', {
+                  weekday: 'short',
+                  month: 'short',
+                  day: 'numeric',
+                  hour: '2-digit',
+                  minute: '2-digit',
+                })}
+              </p>
+            ) : (
+              <p className="text-2xl font-bold">Not Scheduled</p>
+            )}
+          </div>
+          <button
+            onClick={() => setShowAppointmentScheduler(!showAppointmentScheduler)}
+            className="px-6 py-2 bg-white text-primary rounded-lg font-semibold hover:bg-gray-100 transition-colors"
+          >
+            {showAppointmentScheduler ? 'Hide Scheduler' : 'Schedule'}
+          </button>
+        </div>
+      </div>
+
+      {/* Appointment Scheduler */}
+      {showAppointmentScheduler && (
+        <div className="max-w-md">
+          <AppointmentScheduler
+            clientId={clientId}
+            currentAppointment={client.next_appointment_date}
+            onSuccess={() => {
+              fetchClientData()
+              setShowAppointmentScheduler(false)
+            }}
+            onCancel={() => setShowAppointmentScheduler(false)}
+          />
+        </div>
+      )}
+
+      {/* Tabs */}
+      <div className="flex gap-4 border-b border-gray-200 overflow-x-auto">
+        <button
+          onClick={() => setActiveTab('profile')}
+          className={`px-4 py-3 font-semibold border-b-2 transition-colors whitespace-nowrap ${
+            activeTab === 'profile'
+              ? 'border-primary text-primary'
+              : 'border-transparent text-gray-600 hover:text-gray-900'
+          }`}
+        >
+          Profile
+        </button>
+        <button
+          onClick={() => setActiveTab('diet-plans')}
+          className={`px-4 py-3 font-semibold border-b-2 transition-colors whitespace-nowrap ${
+            activeTab === 'diet-plans'
+              ? 'border-primary text-primary'
+              : 'border-transparent text-gray-600 hover:text-gray-900'
+          }`}
+        >
+          Diet Plans
+        </button>
+        <button
+          onClick={() => setActiveTab('progress')}
+          className={`px-4 py-3 font-semibold border-b-2 transition-colors whitespace-nowrap ${
+            activeTab === 'progress'
+              ? 'border-primary text-primary'
+              : 'border-transparent text-gray-600 hover:text-gray-900'
+          }`}
+        >
+          Progress
+        </button>
+        <button
+          onClick={() => setActiveTab('notes')}
+          className={`px-4 py-3 font-semibold border-b-2 transition-colors whitespace-nowrap ${
+            activeTab === 'notes'
+              ? 'border-primary text-primary'
+              : 'border-transparent text-gray-600 hover:text-gray-900'
+          }`}
+        >
+          Notes
+        </button>
+        <button
+          onClick={() => setActiveTab('payments')}
+          className={`px-4 py-3 font-semibold border-b-2 transition-colors whitespace-nowrap ${
+            activeTab === 'payments'
+              ? 'border-primary text-primary'
+              : 'border-transparent text-gray-600 hover:text-gray-900'
+          }`}
+        >
+          Payments
+        </button>
+      </div>
+
+      {/* Profile Tab */}
+      {activeTab === 'profile' && (
+        <div className="space-y-6">
+          {/* Edit Button */}
+          <div className="flex justify-end">
+            <button
+              onClick={handleEditProfile}
+              className={`px-6 py-2 font-semibold rounded-lg transition-colors ${
+                isEditingProfile
+                  ? 'bg-gray-400 text-white hover:bg-gray-500'
+                  : 'bg-primary text-white hover:bg-primary-dark'
+              }`}
+            >
+              {isEditingProfile ? 'Cancel Edit' : '✎ Edit Profile'}
+            </button>
+          </div>
+
+          {profileEditError && (
+            <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+              <p className="text-red-700 text-sm">{profileEditError}</p>
+            </div>
+          )}
+
+          {/* Row 1: Contact Info & Membership Details */}
+          <div className="grid lg:grid-cols-2 gap-6">
+            {/* Contact Information */}
+            <div className="relative bg-gradient-to-br from-blue-50 to-white rounded-xl shadow-sm border border-blue-100 p-6 hover:shadow-lg  transition-all duration-300 overflow-hidden group">
+              <div className="absolute inset-0 bg-gradient-to-br from-blue-100 to-transparent opacity-0 group-hover:opacity-20 transition-opacity duration-300"></div>
+              <div className="relative z-10">
+                <div className="flex items-center gap-2 mb-4">
+                  <div className="p-2 bg-blue-100 rounded-lg">
+                    <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    </svg>
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-900">Contact Information</h3>
+                </div>
+              {isEditingProfile ? (
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                    <input
+                      type="email"
+                      value={editFormData.email}
+                      onChange={(e) => setEditFormData({ ...editFormData, email: e.target.value })}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Phone</label>
+                    <input
+                      type="tel"
+                      value={editFormData.phone}
+                      onChange={(e) => setEditFormData({ ...editFormData, phone: e.target.value })}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                    />
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <div>
+                    <p className="text-sm text-gray-600 mb-1">Email</p>
+                    <p className="text-lg font-semibold text-gray-900">{client.email}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-600 mb-1">Phone</p>
+                    <p className="text-lg font-semibold text-gray-900">{client.phone}</p>
+                  </div>
+                </div>
+                )}
+              </div>
+            </div>
+
+            {/* Membership Details */}
+            <div className="relative bg-gradient-to-br from-green-50 to-white rounded-xl shadow-sm border border-green-100 p-6 hover:shadow-lg  transition-all duration-300 overflow-hidden group">
+              <div className="absolute inset-0 bg-gradient-to-br from-green-100 to-transparent opacity-0 group-hover:opacity-20 transition-opacity duration-300"></div>
+              <div className="relative z-10">
+                <div className="flex items-center gap-2 mb-4">
+                  <div className="p-2 bg-green-100 rounded-lg">
+                    <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-900">Membership Details</h3>
+                </div>
+              {isEditingProfile ? (
+                <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Package Type</label>
+                  <select
+                    value={editFormData.package}
+                    onChange={(e) => setEditFormData({ ...editFormData, package: e.target.value })}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                  >
+                    <option value="gold">Gold</option>
+                    <option value="hybrid">Hybrid</option>
+                    <option value="platinum">Platinum</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Duration</label>
+                  <select
+                    value={editFormData.duration_months}
+                    onChange={(e) => setEditFormData({ ...editFormData, duration_months: e.target.value })}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                  >
+                    <option value="3">3 Months</option>
+                    <option value="6">6 Months</option>
+                    <option value="9">9 Months</option>
+                    <option value="12">12 Months (1 Year)</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
+                  <select
+                    value={editFormData.status || client.status}
+                    onChange={(e) => setEditFormData({ ...editFormData, status: e.target.value })}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                  >
+                    <option value="active">Active</option>
+                    <option value="cancelled">Cancelled</option>
+                    <option value="paused">Paused</option>
+                    <option value="expired">Expired</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Start Date</label>
+                  <input
+                    type="date"
+                    value={editFormData.start_date}
+                    onChange={(e) => setEditFormData({ ...editFormData, start_date: e.target.value })}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">End Date</label>
+                  <input
+                    type="date"
+                    value={editFormData.end_date}
+                    onChange={(e) => setEditFormData({ ...editFormData, end_date: e.target.value })}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                  />
+                </div>
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-sm text-gray-600 mb-1">Package</p>
+                    <p className="text-lg font-semibold text-gray-900 capitalize">{client.package}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-600 mb-1">Duration</p>
+                    <p className="text-lg font-semibold text-gray-900">
+                      {client.duration_months} {client.duration_months === 12 ? 'Months (1 Year)' : 'Months'}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-600 mb-1">Status</p>
+                    <span className={`px-3 py-1 rounded-full text-sm font-semibold inline-block ${
+                      client.status === 'active' ? 'bg-green-100 text-green-800' :
+                      client.status === 'expired' ? 'bg-red-100 text-red-800' :
+                      'bg-yellow-100 text-yellow-800'
+                    }`}>
+                      {client.status}
+                    </span>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-600 mb-1">Start Date</p>
+                    <p className="text-lg font-semibold text-gray-900">
+                      {new Date(client.start_date).toLocaleDateString()}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-600 mb-1">End Date</p>
+                    <p className="text-lg font-semibold text-gray-900">
+                      {new Date(client.end_date).toLocaleDateString()}
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+          {/* Row 2: Health Metrics & Body Measurements */}
+          <div className="grid lg:grid-cols-2 gap-6">
+            {/* Health Metrics */}
+            {profile && (
+            <div className="relative bg-gradient-to-br from-indigo-50 to-white rounded-xl shadow-sm border border-indigo-100 p-6 hover:shadow-lg transition-all duration-300 overflow-hidden group">
+              <div className="absolute inset-0 bg-gradient-to-br from-indigo-100 to-transparent opacity-0 group-hover:opacity-20 transition-opacity duration-300"></div>
+              <div className="relative z-10">
+                <div className="flex items-center gap-2 mb-4">
+                  <div className="p-2 bg-indigo-100 rounded-lg">
+                    <svg className="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-900">Health Metrics</h3>
+                </div>
+              {isEditingProfile ? (
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Age (years)</label>
+                    <input
+                      type="number"
+                      value={editFormData.age}
+                      onChange={(e) => setEditFormData({ ...editFormData, age: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Gender</label>
+                    <select
+                      value={editFormData.gender}
+                      onChange={(e) => setEditFormData({ ...editFormData, gender: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                    >
+                      <option value="">Select</option>
+                      <option value="male">Male</option>
+                      <option value="female">Female</option>
+                      <option value="other">Other</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Height (cm)</label>
+                    <input
+                      type="number"
+                      step="0.1"
+                      value={editFormData.height_cm}
+                      onChange={(e) => setEditFormData({ ...editFormData, height_cm: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Start Weight (kg)</label>
+                    <input
+                      type="number"
+                      step="0.1"
+                      value={editFormData.weight_kg}
+                      onChange={(e) => setEditFormData({ ...editFormData, weight_kg: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Target Weight (kg)</label>
+                    <input
+                      type="number"
+                      step="0.1"
+                      value={editFormData.target_weight_kg}
+                      onChange={(e) => setEditFormData({ ...editFormData, target_weight_kg: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                    />
+                  </div>
+                </div>
+              ) : (
+                <div className="grid md:grid-cols-3 gap-6">
+                  <div>
+                    <p className="text-sm text-gray-600 mb-1">Age</p>
+                    <p className="text-lg font-semibold text-gray-900">{profile.age || '−'} {profile.age ? 'years' : ''}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-600 mb-1">Gender</p>
+                    <p className="text-lg font-semibold text-gray-900 capitalize">{profile.gender || '−'}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-600 mb-1">Height</p>
+                    <p className="text-lg font-semibold text-gray-900">{profile.height_cm || '−'} {profile.height_cm ? 'cm' : ''}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-600 mb-1">Start Weight</p>
+                    <p className="text-lg font-semibold text-gray-900">{profile.weight_kg || '−'} {profile.weight_kg ? 'kg' : ''}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-600 mb-1">Target Weight</p>
+                    <p className="text-lg font-semibold text-gray-900">{profile.target_weight_kg || '−'} {profile.target_weight_kg ? 'kg' : ''}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-600 mb-1">BMI</p>
+                    <p className="text-lg font-semibold text-gray-900">
+                      {profile.height_cm && profile.weight_kg
+                        ? (profile.weight_kg / ((profile.height_cm / 100) ** 2)).toFixed(1)
+                        : '−'}
+                    </p>
+                  </div>
+                </div>
+              )}
+              </div>
+            </div>
+            )}
+
+            {/* Body Measurements */}
+            {profile && ((isEditingProfile) || (profile.chest_cm || profile.waist_cm || profile.hip_cm || profile.thigh_cm)) && (
+            <div className="relative bg-gradient-to-br from-purple-50 to-white rounded-xl shadow-sm border border-purple-100 p-6 hover:shadow-lg transition-all duration-300 overflow-hidden group">
+              <div className="absolute inset-0 bg-gradient-to-br from-purple-100 to-transparent opacity-0 group-hover:opacity-20 transition-opacity duration-300"></div>
+              <div className="relative z-10">
+                <div className="flex items-center gap-2 mb-4">
+                  <div className="p-2 bg-purple-100 rounded-lg">
+                    <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                    </svg>
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-900">Body Measurements</h3>
+                </div>
+              {isEditingProfile ? (
+                <div className="grid md:grid-cols-4 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Chest (cm)</label>
+                    <input
+                      type="number"
+                      step="0.1"
+                      value={editFormData.chest_cm}
+                      onChange={(e) => setEditFormData({ ...editFormData, chest_cm: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Waist (cm)</label>
+                    <input
+                      type="number"
+                      step="0.1"
+                      value={editFormData.waist_cm}
+                      onChange={(e) => setEditFormData({ ...editFormData, waist_cm: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Hip (cm)</label>
+                    <input
+                      type="number"
+                      step="0.1"
+                      value={editFormData.hip_cm}
+                      onChange={(e) => setEditFormData({ ...editFormData, hip_cm: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Thigh (cm)</label>
+                    <input
+                      type="number"
+                      step="0.1"
+                      value={editFormData.thigh_cm}
+                      onChange={(e) => setEditFormData({ ...editFormData, thigh_cm: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                    />
+                  </div>
+                </div>
+              ) : (
+                <div className="grid md:grid-cols-4 gap-6">
+                  {profile.chest_cm && (
+                    <div>
+                      <p className="text-sm text-gray-600 mb-1">Chest</p>
+                      <p className="text-lg font-semibold text-gray-900">{profile.chest_cm} cm</p>
+                    </div>
+                  )}
+                  {profile.waist_cm && (
+                    <div>
+                      <p className="text-sm text-gray-600 mb-1">Waist</p>
+                      <p className="text-lg font-semibold text-gray-900">{profile.waist_cm} cm</p>
+                    </div>
+                  )}
+                  {profile.hip_cm && (
+                    <div>
+                      <p className="text-sm text-gray-600 mb-1">Hip</p>
+                      <p className="text-lg font-semibold text-gray-900">{profile.hip_cm} cm</p>
+                    </div>
+                  )}
+                  {profile.thigh_cm && (
+                    <div>
+                      <p className="text-sm text-gray-600 mb-1">Thigh</p>
+                      <p className="text-lg font-semibold text-gray-900">{profile.thigh_cm} cm</p>
+                    </div>
+                  )}
+                </div>
+              )}
+              </div>
+            </div>
+            )}
+          </div>
+
+          {/* Row 3: Diet & Preferences + Payment Summary */}
+          <div className="grid lg:grid-cols-2 gap-6">
+            {/* Diet & Preferences */}
+            <div className="relative bg-gradient-to-br from-orange-50 to-white rounded-xl shadow-sm border border-orange-100 p-6 hover:shadow-lg transition-all duration-300 overflow-hidden group">
+              <div className="absolute inset-0 bg-gradient-to-br from-orange-100 to-transparent opacity-0 group-hover:opacity-20 transition-opacity duration-300"></div>
+              <div className="relative z-10">
+                <div className="flex items-center gap-2 mb-4">
+                  <div className="p-2 bg-orange-100 rounded-lg">
+                    <svg className="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+                    </svg>
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-900">Diet & Preferences</h3>
+                </div>
+            {isEditingProfile ? (
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Diet Preference</label>
+                  <select
+                    value={editFormData.dietary_preference}
+                    onChange={(e) => setEditFormData({ ...editFormData, dietary_preference: e.target.value })}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                  >
+                    <option value="">Select preference</option>
+                    <option value="vegetarian">Vegetarian</option>
+                    <option value="non-vegetarian">Non-Vegetarian</option>
+                    <option value="vegan">Vegan</option>
+                    <option value="jain">Jain</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Allergies</label>
+                  <textarea
+                    value={editFormData.allergies}
+                    onChange={(e) => setEditFormData({ ...editFormData, allergies: e.target.value })}
+                    placeholder="List any allergies"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                    rows={2}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Medical Conditions</label>
+                  <textarea
+                    value={editFormData.medical_conditions}
+                    onChange={(e) => setEditFormData({ ...editFormData, medical_conditions: e.target.value })}
+                    placeholder="List any medical conditions"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                    rows={2}
+                  />
+                </div>
+              </div>
+            ) : (
+              profile ? (
+                <div className="space-y-4">
+                  <div>
+                    <p className="text-sm text-gray-600 mb-2">Diet Preference</p>
+                    <p className="text-lg font-semibold text-gray-900 capitalize">{profile.dietary_preference || '−'}</p>
+                  </div>
+                  {profile.allergies && (
+                    <div className="border-t border-gray-200 pt-4">
+                      <p className="text-sm text-gray-600 mb-2 font-medium">Allergies</p>
+                      <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+                        <p className="text-gray-800">{profile.allergies}</p>
+                      </div>
+                    </div>
+                  )}
+                  {profile.medical_conditions && (
+                    <div className="border-t border-gray-200 pt-4">
+                      <p className="text-sm text-gray-600 mb-2 font-medium">Medical Conditions</p>
+                      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+                        <p className="text-gray-800">{profile.medical_conditions}</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+                ) : (
+                  <p className="text-gray-500 italic">No diet preferences recorded yet. Add details in the Progress tab.</p>
+                )
+              )}
+              </div>
+            </div>
+
+            {/* Payment Summary */}
+            <div className="relative bg-gradient-to-br from-emerald-50 to-white rounded-xl shadow-sm border border-emerald-100 p-6 hover:shadow-lg transition-all duration-300 overflow-hidden group">
+              <div className="absolute inset-0 bg-gradient-to-br from-emerald-100 to-transparent opacity-0 group-hover:opacity-20 transition-opacity duration-300"></div>
+              <div className="relative z-10">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-2">
+                    <div className="p-2 bg-emerald-100 rounded-lg">
+                      <svg className="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                      </svg>
+                    </div>
+                    <h3 className="text-xl font-bold text-gray-900">Payment Summary</h3>
+                  </div>
+                  <button
+                    onClick={() => setActiveTab('payments')}
+                    className="text-sm text-primary hover:text-primary-dark font-medium"
+                  >
+                    View All →
+                  </button>
+                </div>
+
+                {paymentsLoading ? (
+                  <div className="text-center py-4">
+                    <div className="inline-block animate-spin">
+                      <svg className="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                      </svg>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    {/* Total Paid */}
+                    <div className="mb-4 p-4 bg-emerald-50 rounded-lg border border-emerald-200">
+                      <p className="text-sm text-emerald-700 mb-1">Total Paid</p>
+                      <p className="text-3xl font-bold text-emerald-900">
+                        ₹{payments
+                          .filter(p => p.status === 'paid')
+                          .reduce((sum, p) => sum + parseFloat(p.amount), 0)
+                          .toFixed(2)}
+                      </p>
+                    </div>
+
+                    {/* Recent Payments */}
+                    <div className="space-y-3">
+                      <p className="text-sm font-medium text-gray-700">Recent Payments</p>
+                      {payments.length === 0 ? (
+                        <p className="text-sm text-gray-500 italic">No payments recorded yet</p>
+                      ) : (
+                        <div className="space-y-2">
+                          {payments.slice(0, 3).map((payment) => (
+                            <div key={payment.id} className="p-3 bg-white rounded-lg border border-gray-200">
+                              <div className="flex justify-between items-start mb-1">
+                                <div className="flex-1">
+                                  <p className="text-sm font-medium text-gray-900">₹{parseFloat(payment.amount).toFixed(2)}</p>
+                                  <p className="text-xs text-gray-500">
+                                    {new Date(payment.date).toLocaleDateString()} • {payment.method.replace('_', ' ')}
+                                  </p>
+                                </div>
+                                <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
+                                  payment.status === 'paid' ? 'bg-green-100 text-green-800' :
+                                  payment.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                                  'bg-blue-100 text-blue-800'
+                                }`}>
+                                  {payment.status}
+                                </span>
+                              </div>
+                              {payment.notes && (
+                                <p className="text-xs text-gray-600 mt-2 italic border-t border-gray-100 pt-2">
+                                  {payment.notes}
+                                </p>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Save/Cancel Buttons - Show when editing */}
+          {isEditingProfile && (
+            <div className="flex gap-4 justify-end mt-6">
+              <button
+                onClick={handleEditProfile}
+                className="px-6 py-2 bg-gray-400 text-white font-semibold rounded-lg hover:bg-gray-500 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSaveProfile}
+                disabled={submittingProfile}
+                className="px-6 py-2 bg-primary text-white font-semibold rounded-lg hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {submittingProfile ? 'Saving...' : 'Save Changes'}
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
+
+      {/* Diet Plans Tab */}
+      {activeTab === 'diet-plans' && (
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-2xl font-bold text-gray-900">Diet Plans</h2>
+            <button
+              onClick={() => router.push(`/admin/clients/${clientId}/diet-plans?action=create`)}
+              className="px-6 py-2 bg-primary text-white font-semibold rounded-lg hover:bg-primary-dark transition-colors"
+            >
+              + Create Diet Plan
+            </button>
+          </div>
+
+          {dietPlansLoading ? (
+            <div className="bg-white rounded-lg p-8 text-center">
+              <div className="animate-spin inline-block mb-4">
+                <svg
+                  className="w-8 h-8 text-primary"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                  />
+                </svg>
+              </div>
+              <p className="text-gray-600">Loading diet plans...</p>
+            </div>
+          ) : dietPlans.length === 0 ? (
+            <div className="bg-gray-50 border border-gray-200 rounded-lg p-8 text-center">
+              <p className="text-gray-600 mb-4">No diet plans created yet.</p>
+              <p className="text-sm text-gray-500 mb-6">Create a diet plan to add meal recommendations for this client.</p>
+              <button
+                onClick={() => router.push(`/admin/clients/${clientId}/diet-plans?action=create`)}
+                className="px-6 py-2 bg-primary text-white font-semibold rounded-lg hover:bg-primary-dark transition-colors"
+              >
+                + Create First Diet Plan
+              </button>
+            </div>
+          ) : (
+            dietPlans.map((plan) => (
+              <div
+                key={plan.id}
+                className="bg-white rounded-lg border border-gray-200 overflow-hidden shadow-sm hover:shadow-md transition-shadow"
+              >
+                <div
+                  onClick={() => setExpandedPlanId(expandedPlanId === plan.id ? null : plan.id)}
+                  className="p-6 cursor-pointer hover:bg-gray-50 transition-colors"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex-1">
+                      <h3 className="text-lg font-bold text-gray-900">{plan.name}</h3>
+                      {plan.description && (
+                        <p className="text-gray-600 text-sm mt-1">{plan.description}</p>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-4 ml-4">
+                      <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                        plan.active
+                          ? 'bg-green-100 text-green-800'
+                          : 'bg-gray-100 text-gray-800'
+                      }`}>
+                        {plan.active ? 'Active' : 'Inactive'}
+                      </span>
+                      <svg
+                        className={`w-5 h-5 text-gray-400 transition-transform ${
+                          expandedPlanId === plan.id ? 'transform rotate-180' : ''
+                        }`}
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M19 14l-7 7m0 0l-7-7m7 7V3"
+                        />
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+
+                {expandedPlanId === plan.id && (
+                  <div className="border-t border-gray-200 bg-gray-50 p-6">
+                    {dietPlanItems[plan.id]?.length > 0 ? (
+                      <div className="space-y-3">
+                        {dietPlanItems[plan.id].map((item) => (
+                          <div
+                            key={item.id}
+                            className="flex items-center justify-between bg-white p-4 rounded-lg border border-gray-200"
+                          >
+                            <div className="flex-1">
+                              <p className="text-sm font-medium text-gray-600 capitalize">
+                                {item.meal_type}
+                              </p>
+                              <p className="text-lg font-semibold text-gray-900">
+                                {item.item_name}
+                              </p>
+                              {item.notes && (
+                                <p className="text-sm text-gray-600 mt-1">{item.notes}</p>
+                              )}
+                            </div>
+                            <div className="text-right ml-4">
+                              <p className="text-lg font-bold text-primary">
+                                {item.quantity} {item.unit}
+                              </p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-gray-600">No items in this plan.</p>
+                    )}
+
+                    <div className="flex gap-3 mt-6">
+                      <button
+                        onClick={() => generateDietPlanPDF(plan, dietPlanItems[plan.id] || [], client?.name || 'Client')}
+                        className="px-4 py-2 bg-blue-50 text-blue-600 font-semibold rounded-lg hover:bg-blue-100 transition-colors flex items-center gap-2"
+                      >
+                        📄 Download PDF
+                      </button>
+                      <button
+                        onClick={() => handleDeletePlan(plan.id)}
+                        className="px-4 py-2 bg-red-50 text-red-600 font-semibold rounded-lg hover:bg-red-100 transition-colors"
+                      >
+                        Delete Plan
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))
+          )}
+        </div>
+      )}
+
+      {/* Progress Tab */}
+      {activeTab === 'progress' && (
+        <div className="space-y-6">
+          {/* Summary Stats - Always visible at top */}
+          <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-4">
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+              <p className="text-sm text-gray-600 mb-2">Start Weight</p>
+              <p className="text-3xl font-bold text-gray-900">
+                {profile?.weight_kg ? `${profile.weight_kg} kg` : '−'}
+              </p>
+            </div>
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+              <p className="text-sm text-gray-600 mb-2">Current Weight</p>
+              <p className="text-3xl font-bold text-gray-900">
+                {client?.weight_logs && client.weight_logs.length > 0
+                  ? `${client.weight_logs[client.weight_logs.length - 1].weight_kg} kg`
+                  : profile?.weight_kg
+                  ? `${profile.weight_kg} kg`
+                  : '−'}
+              </p>
+            </div>
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+              <p className="text-sm text-gray-600 mb-2">Goal Weight</p>
+              <p className="text-3xl font-bold text-primary">
+                {profile?.target_weight_kg ? `${profile.target_weight_kg} kg` : '−'}
+              </p>
+            </div>
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+              <p className="text-sm text-gray-600 mb-2">Total Loss/Gain</p>
+              <p className={`text-3xl font-bold ${
+                (() => {
+                  const startWeight = profile?.weight_kg || 0
+                  const currentWeight = client?.weight_logs && client.weight_logs.length > 0
+                    ? client.weight_logs[client.weight_logs.length - 1].weight_kg
+                    : startWeight
+                  return (startWeight - currentWeight) > 0 ? 'text-green-600' : 'text-red-600'
+                })()
+              }`}>
+                {(() => {
+                  const startWeight = profile?.weight_kg || 0
+                  const currentWeight = client?.weight_logs && client.weight_logs.length > 0
+                    ? client.weight_logs[client.weight_logs.length - 1].weight_kg
+                    : startWeight
+                  const difference = Math.abs(startWeight - currentWeight)
+                  return difference > 0 ? `${difference.toFixed(1)} kg` : '−'
+                })()}
+              </p>
+            </div>
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+              <p className="text-sm text-gray-600 mb-2">% to Goal</p>
+              <p className="text-3xl font-bold text-indigo-600">
+                {(() => {
+                  const startWeight = profile?.weight_kg
+                  const targetWeight = profile?.target_weight_kg
+                  const currentWeight = client?.weight_logs && client.weight_logs.length > 0
+                    ? client.weight_logs[client.weight_logs.length - 1].weight_kg
+                    : startWeight
+
+                  if (!startWeight || !targetWeight || !currentWeight) return '−'
+
+                  const totalToLose = startWeight - targetWeight
+                  const alreadyLost = startWeight - currentWeight
+                  const percentage = Math.round((alreadyLost / totalToLose) * 100)
+
+                  return `${percentage}%`
+                })()}
+              </p>
+            </div>
+          </div>
+
+          {/* Action Buttons - Always visible at top */}
+          <div className="flex gap-4 flex-wrap">
+            <button
+              onClick={() => setShowAddWeight(!showAddWeight)}
+              className="px-6 py-3 bg-primary text-white font-semibold rounded-lg hover:bg-primary-dark transition-colors"
+            >
+              + Add Weight
+            </button>
+            <button
+              onClick={() => setShowAddMeasurements(!showAddMeasurements)}
+              className="px-6 py-3 bg-primary text-white font-semibold rounded-lg hover:bg-primary-dark transition-colors"
+            >
+              + Add Measurements
+            </button>
+          </div>
+
+          {/* Add Weight Form - Appears right after buttons */}
+          {showAddWeight && (
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+              <h3 className="text-xl font-bold text-gray-900 mb-4">Add Weight Measurement</h3>
+              <form onSubmit={handleAddWeight} className="space-y-4">
+                {weightError && (
+                  <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+                    <p className="text-red-700 text-sm">{weightError}</p>
+                  </div>
+                )}
+
+                <div className="grid md:grid-cols-3 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Date
+                    </label>
+                    <input
+                      type="date"
+                      value={weightFormData.logged_date}
+                      onChange={(e) =>
+                        setWeightFormData({ ...weightFormData, logged_date: e.target.value })
+                      }
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Weight (kg) *
+                    </label>
+                    <input
+                      type="number"
+                      step="0.1"
+                      value={weightFormData.weight_kg}
+                      onChange={(e) =>
+                        setWeightFormData({ ...weightFormData, weight_kg: e.target.value })
+                      }
+                      placeholder="e.g., 75.5"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Notes
+                    </label>
+                    <input
+                      type="text"
+                      value={weightFormData.notes}
+                      onChange={(e) =>
+                        setWeightFormData({ ...weightFormData, notes: e.target.value })
+                      }
+                      placeholder="Optional notes"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                    />
+                  </div>
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={submittingWeight}
+                  className="w-full px-6 py-3 bg-primary text-white font-semibold rounded-lg hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {submittingWeight ? 'Saving...' : 'Save Weight Measurement'}
+                </button>
+              </form>
+            </div>
+          )}
+
+          {/* Add Measurements Form - Appears right after buttons */}
+          {showAddMeasurements && (
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+              <h3 className="text-xl font-bold text-gray-900 mb-4">Record Body Measurements</h3>
+              <form onSubmit={handleAddMeasurements} className="space-y-4">
+                {measurementsError && (
+                  <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+                    <p className="text-red-700 text-sm">{measurementsError}</p>
+                  </div>
+                )}
+
+                <div className="grid md:grid-cols-3 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Date
+                    </label>
+                    <input
+                      type="date"
+                      value={measurementsFormData.logged_date}
+                      onChange={(e) =>
+                        setMeasurementsFormData({ ...measurementsFormData, logged_date: e.target.value })
+                      }
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Chest (cm)
+                    </label>
+                    <input
+                      type="number"
+                      step="0.1"
+                      value={measurementsFormData.chest_cm}
+                      onChange={(e) =>
+                        setMeasurementsFormData({ ...measurementsFormData, chest_cm: e.target.value })
+                      }
+                      placeholder="e.g., 95.5"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Waist (cm)
+                    </label>
+                    <input
+                      type="number"
+                      step="0.1"
+                      value={measurementsFormData.waist_cm}
+                      onChange={(e) =>
+                        setMeasurementsFormData({ ...measurementsFormData, waist_cm: e.target.value })
+                      }
+                      placeholder="e.g., 80"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Hip (cm)
+                    </label>
+                    <input
+                      type="number"
+                      step="0.1"
+                      value={measurementsFormData.hip_cm}
+                      onChange={(e) =>
+                        setMeasurementsFormData({ ...measurementsFormData, hip_cm: e.target.value })
+                      }
+                      placeholder="e.g., 100"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Thigh (cm)
+                    </label>
+                    <input
+                      type="number"
+                      step="0.1"
+                      value={measurementsFormData.thigh_cm}
+                      onChange={(e) =>
+                        setMeasurementsFormData({ ...measurementsFormData, thigh_cm: e.target.value })
+                      }
+                      placeholder="e.g., 55"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Notes
+                    </label>
+                    <input
+                      type="text"
+                      value={measurementsFormData.notes}
+                      onChange={(e) =>
+                        setMeasurementsFormData({ ...measurementsFormData, notes: e.target.value })
+                      }
+                      placeholder="Optional notes"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                    />
+                  </div>
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={submittingMeasurements}
+                  className="w-full px-6 py-3 bg-primary text-white font-semibold rounded-lg hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {submittingMeasurements ? 'Saving...' : 'Save Measurements'}
+                </button>
+              </form>
+            </div>
+          )}
+
+          {/* Weight Progress Chart */}
+          {client?.weight_logs && client.weight_logs.length > 0 && (
+            <>
+              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <h2 className="text-2xl font-bold text-gray-900 mb-6">Weight Progress Chart</h2>
+                <ResponsiveContainer width="100%" height={300}>
+                  <LineChart data={client.weight_logs.map(log => ({
+                    date: new Date(log.logged_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+                    weight: log.weight_kg,
+                    fullDate: log.logged_date,
+                  }))}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="date" />
+                    <YAxis />
+                    <Tooltip
+                      formatter={(value) => `${value} kg`}
+                      labelFormatter={(label) => `Weight`}
+                    />
+                    <Legend />
+                    <Line
+                      type="monotone"
+                      dataKey="weight"
+                      stroke="#4a7c59"
+                      dot={{ fill: '#4a7c59', r: 5 }}
+                      strokeWidth={2}
+                      name="Weight (kg)"
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+
+              {/* Weight History Table */}
+              <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                <div className="p-6 border-b border-gray-200">
+                  <h3 className="text-xl font-bold text-gray-900">Weight History</h3>
+                </div>
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead className="bg-gray-50 border-b border-gray-200">
+                      <tr>
+                        <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Date</th>
+                        <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Weight (kg)</th>
+                        <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Change</th>
+                        <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Notes</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {client.weight_logs && [...client.weight_logs].reverse().map((log, index) => {
+                        const previousWeight = index < (client.weight_logs?.length || 0) - 1
+                          ? [...(client.weight_logs || [])].reverse()[index + 1].weight_kg
+                          : null
+                        const change = previousWeight ? (previousWeight - log.weight_kg).toFixed(1) : '-'
+
+                        return (
+                          <tr key={log.id} className="border-b border-gray-200 hover:bg-gray-50">
+                            <td className="px-6 py-4 text-sm text-gray-900">
+                              {new Date(log.logged_date).toLocaleDateString()}
+                            </td>
+                            <td className="px-6 py-4 text-sm font-semibold text-gray-900">
+                              {log.weight_kg} kg
+                            </td>
+                            <td className="px-6 py-4 text-sm">
+                              {change !== '-' ? (
+                                <span className={parseFloat(change) > 0 ? 'text-green-600 font-semibold' : 'text-red-600 font-semibold'}>
+                                  {parseFloat(change) > 0 ? '−' : '+'}{Math.abs(parseFloat(change))} kg
+                                </span>
+                              ) : (
+                                '−'
+                              )}
+                            </td>
+                            <td className="px-6 py-4 text-sm text-gray-600">
+                              {log.created_at ? '−' : '−'}
+                            </td>
+                          </tr>
+                        )
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </>
+          )}
+
+          {/* Measurements History Table */}
+          {client?.measurements_logs && client.measurements_logs.length > 0 && (
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+              <div className="p-6 border-b border-gray-200">
+                <h3 className="text-xl font-bold text-gray-900">Measurements History</h3>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead className="bg-gray-50 border-b border-gray-200">
+                    <tr>
+                      <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Date</th>
+                      <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Chest (cm)</th>
+                      <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Waist (cm)</th>
+                      <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Hip (cm)</th>
+                      <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Thigh (cm)</th>
+                      <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Notes</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {client.measurements_logs && [...client.measurements_logs].reverse().map((log) => (
+                      <tr key={log.id} className="border-b border-gray-200 hover:bg-gray-50">
+                        <td className="px-6 py-4 text-sm text-gray-900">
+                          {new Date(log.logged_date).toLocaleDateString()}
+                        </td>
+                        <td className="px-6 py-4 text-sm font-semibold text-gray-900">
+                          {log.chest_cm ? `${log.chest_cm} cm` : '−'}
+                        </td>
+                        <td className="px-6 py-4 text-sm font-semibold text-gray-900">
+                          {log.waist_cm ? `${log.waist_cm} cm` : '−'}
+                        </td>
+                        <td className="px-6 py-4 text-sm font-semibold text-gray-900">
+                          {log.hip_cm ? `${log.hip_cm} cm` : '−'}
+                        </td>
+                        <td className="px-6 py-4 text-sm font-semibold text-gray-900">
+                          {log.thigh_cm ? `${log.thigh_cm} cm` : '−'}
+                        </td>
+                        <td className="px-6 py-4 text-sm text-gray-600">
+                          {log.notes || '−'}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Notes Tab */}
+      {activeTab === 'notes' && (
+        <div className="space-y-6">
+          {/* Add Note Form */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <h3 className="text-xl font-bold text-gray-900 mb-4">Add New Note</h3>
+            <form onSubmit={handleAddNote} className="space-y-4">
+              {notesError && (
+                <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+                  <p className="text-red-700 text-sm">{notesError}</p>
+                </div>
+              )}
+              <textarea
+                value={newNoteContent}
+                onChange={(e) => setNewNoteContent(e.target.value)}
+                placeholder="Enter your note here..."
+                rows={4}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                required
+              />
+              <button
+                type="submit"
+                disabled={submittingNote || !newNoteContent.trim()}
+                className="px-6 py-2 bg-primary text-white font-semibold rounded-lg hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {submittingNote ? 'Adding...' : 'Add Note'}
+              </button>
+            </form>
+          </div>
+
+          {/* Notes List */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <h3 className="text-xl font-bold text-gray-900 mb-6">All Notes</h3>
+
+            {notesLoading ? (
+              <div className="text-center py-8">
+                <div className="inline-block animate-spin mb-4">
+                  <svg className="w-8 h-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  </svg>
+                </div>
+                <p className="text-gray-600">Loading notes...</p>
+              </div>
+            ) : notes.length === 0 ? (
+              <p className="text-gray-600 text-center py-8">No notes yet. Add your first note above!</p>
+            ) : (
+              <div className="space-y-4">
+                {notes.map((note) => {
+                  const typeLabels: { [key: string]: { label: string; color: string } } = {
+                    general: { label: 'General Note', color: 'bg-blue-100 text-blue-800' },
+                    profile: { label: 'Profile Note', color: 'bg-purple-100 text-purple-800' },
+                    weight: { label: 'Weight Log', color: 'bg-green-100 text-green-800' },
+                    measurement: { label: 'Measurement Log', color: 'bg-orange-100 text-orange-800' },
+                    lead: { label: 'Lead Note', color: 'bg-gray-100 text-gray-800' },
+                  }
+                  const typeInfo = typeLabels[note.type] || { label: note.type, color: 'bg-gray-100 text-gray-800' }
+
+                  return (
+                    <div key={note.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                      <div className="flex items-start justify-between mb-2">
+                        <span className={`px-3 py-1 rounded-full text-xs font-medium ${typeInfo.color}`}>
+                          {typeInfo.label}
+                        </span>
+                        {note.created_at && (
+                          <span className="text-sm text-gray-500">
+                            {new Date(note.created_at).toLocaleDateString('en-US', {
+                              month: 'short',
+                              day: 'numeric',
+                              year: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit',
+                            })}
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Metadata */}
+                      {note.metadata && Object.keys(note.metadata).length > 0 && (
+                        <div className="flex gap-4 text-sm text-gray-600 mb-2">
+                          {note.metadata.logged_date && (
+                            <span>📅 {new Date(note.metadata.logged_date).toLocaleDateString()}</span>
+                          )}
+                          {note.metadata.weight_kg && (
+                            <span>⚖️ {note.metadata.weight_kg} kg</span>
+                          )}
+                        </div>
+                      )}
+
+                      <p className="text-gray-900 whitespace-pre-wrap">{note.content}</p>
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Payments Tab */}
+      {activeTab === 'payments' && (
+        <div className="space-y-6">
+          {/* Add/Edit Payment Form */}
+          {showPaymentForm && (
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+              <h3 className="text-xl font-bold text-gray-900 mb-4">
+                {editingPaymentId ? 'Edit Payment' : 'Add New Payment'}
+              </h3>
+              <form onSubmit={handlePaymentSubmit} className="space-y-4">
+                {paymentsError && (
+                  <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+                    <p className="text-red-700 text-sm">{paymentsError}</p>
+                  </div>
+                )}
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Amount (₹) *</label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      value={paymentForm.amount}
+                      onChange={(e) => setPaymentForm({ ...paymentForm, amount: e.target.value })}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Date *</label>
+                    <input
+                      type="date"
+                      value={paymentForm.date}
+                      onChange={(e) => setPaymentForm({ ...paymentForm, date: e.target.value })}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Payment Method *</label>
+                    <select
+                      value={paymentForm.method}
+                      onChange={(e) => setPaymentForm({ ...paymentForm, method: e.target.value })}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                      required
+                    >
+                      <option value="cash">Cash</option>
+                      <option value="credit_card">Credit Card</option>
+                      <option value="check">Check</option>
+                      <option value="upi">UPI</option>
+                      <option value="bank_transfer">Bank Transfer</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Status *</label>
+                    <select
+                      value={paymentForm.status}
+                      onChange={(e) => setPaymentForm({ ...paymentForm, status: e.target.value })}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                      required
+                    >
+                      <option value="paid">Paid</option>
+                      <option value="pending">Pending</option>
+                      <option value="partial">Partial</option>
+                    </select>
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Notes (Optional)</label>
+                  <textarea
+                    value={paymentForm.notes}
+                    onChange={(e) => setPaymentForm({ ...paymentForm, notes: e.target.value })}
+                    placeholder="Add any additional notes..."
+                    rows={3}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                  />
+                </div>
+                <div className="flex gap-3">
+                  <button
+                    type="submit"
+                    disabled={submittingPayment}
+                    className="px-6 py-2 bg-primary text-white font-semibold rounded-lg hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {submittingPayment ? 'Saving...' : editingPaymentId ? 'Update Payment' : 'Add Payment'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowPaymentForm(false)
+                      setEditingPaymentId(null)
+                      setPaymentForm({
+                        amount: '',
+                        date: new Date().toISOString().split('T')[0],
+                        method: 'cash',
+                        status: 'paid',
+                        notes: '',
+                      })
+                    }}
+                    className="px-6 py-2 border border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-50 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            </div>
+          )}
+
+          {/* Add Payment Button */}
+          {!showPaymentForm && (
+            <button
+              onClick={() => setShowPaymentForm(true)}
+              className="px-6 py-2 bg-primary text-white font-semibold rounded-lg hover:bg-primary-dark transition-colors"
+            >
+              + Add Payment
+            </button>
+          )}
+
+          {/* Payments List */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <h3 className="text-xl font-bold text-gray-900 mb-6">Payment History</h3>
+
+            {paymentsLoading ? (
+              <div className="text-center py-8">
+                <div className="inline-block animate-spin mb-4">
+                  <svg className="w-8 h-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  </svg>
+                </div>
+                <p className="text-gray-600">Loading payments...</p>
+              </div>
+            ) : payments.length === 0 ? (
+              <p className="text-gray-600 text-center py-8">No payments recorded yet. Add the first payment above!</p>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Method</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Notes</th>
+                      <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {payments.map((payment) => (
+                      <tr key={payment.id} className="hover:bg-gray-50">
+                        <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {new Date(payment.date).toLocaleDateString()}
+                        </td>
+                        <td className="px-4 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">
+                          ₹{parseFloat(payment.amount).toFixed(2)}
+                        </td>
+                        <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900 capitalize">
+                          {payment.method.replace('_', ' ')}
+                        </td>
+                        <td className="px-4 py-4 whitespace-nowrap">
+                          <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                            payment.status === 'paid' ? 'bg-green-100 text-green-800' :
+                            payment.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                            'bg-blue-100 text-blue-800'
+                          }`}>
+                            {payment.status}
+                          </span>
+                        </td>
+                        <td className="px-4 py-4 text-sm text-gray-600 max-w-xs truncate">
+                          {payment.notes || '—'}
+                        </td>
+                        <td className="px-4 py-4 whitespace-nowrap text-right text-sm font-medium">
+                          <button
+                            onClick={() => handleEditPayment(payment)}
+                            className="text-primary hover:text-primary-dark mr-3"
+                          >
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => handleDeletePayment(payment.id)}
+                            className="text-red-600 hover:text-red-900"
+                          >
+                            Delete
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}

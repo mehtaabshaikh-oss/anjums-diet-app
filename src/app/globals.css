@@ -1,26 +1,167 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  /* Colors - Base */
+  --color-primary: #4a7c59;
+  --color-primary-dark: #3d6649;
+  --color-primary-light: #e8f0eb;
+  --color-accent: #d4a843;
+  --color-accent-dark: #c99419;
+  --color-danger: #dc2626;
+  --color-warning: #f59e0b;
+  --color-success: #16a34a;
+  --color-sidebar: #1e293b;
+  --color-sidebar-hover: #334155;
+  --color-sidebar-active: #4a7c59;
+  --color-text-primary: #0f172a;
+  --color-text-secondary: #475569;
+  --color-text-tertiary: #94a3b8;
+  --color-bg-light: #f8fafc;
+  --color-bg-lighter: #f1f5f9;
+  --color-border: #e2e8f0;
+  --color-border-dark: #cbd5e1;
+
+  /* Typography */
+  --font-sans: "Inter", system-ui, sans-serif;
+  --font-heading: "Playfair Display", Georgia, serif;
+
+  /* Shadows */
+  --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+
+  /* Shadows - Color variations */
+  --shadow-green-sm: 0 4px 6px -1px rgba(74, 124, 89, 0.15);
+  --shadow-green-md: 0 10px 15px -3px rgba(74, 124, 89, 0.2);
+
+  /* Border Radius */
+  --radius-none: 0;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-2xl: 20px;
+  --radius-full: 9999px;
+
+  /* Spacing Scale (8px base) */
+  --spacing-0: 0;
+  --spacing-1: 4px;
+  --spacing-2: 8px;
+  --spacing-3: 12px;
+  --spacing-4: 16px;
+  --spacing-5: 20px;
+  --spacing-6: 24px;
+  --spacing-8: 32px;
+  --spacing-10: 40px;
+  --spacing-12: 48px;
+  --spacing-16: 64px;
+  --spacing-20: 80px;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* Gradients */
+:root {
+  --gradient-primary: linear-gradient(135deg, #4a7c59 0%, #3d6649 100%);
+  --gradient-primary-light: linear-gradient(135deg, #4a7c59 0%, #5d9d6f 100%);
+  --gradient-accent: linear-gradient(135deg, #d4a843 0%, #c99419 100%);
+  --gradient-success: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+  --gradient-warning: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  --gradient-danger: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+  --gradient-subtle: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-inter), var(--font-sans);
+  color: var(--color-text-primary);
+  background-color: var(--color-bg-light);
+}
+
+h1, h2, h3, h4, h5, h6, .font-heading {
+  font-family: var(--font-playfair), var(--font-heading);
+}
+
+/* Smooth transitions */
+.transition-smooth {
+  transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.transition-fast {
+  transition: all 200ms ease-in-out;
+}
+
+/* Card hover effect */
+.card-hover {
+  transition: all 200ms ease-in-out;
+}
+
+.card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+/* Loading animations */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+.animate-shimmer {
+  animation: shimmer 2s infinite;
+}
+
+.animate-slideIn {
+  animation: slideIn 300ms ease-out;
+}
+
+.animate-fadeIn {
+  animation: fadeIn 300ms ease-out;
 }
