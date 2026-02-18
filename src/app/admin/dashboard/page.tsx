@@ -239,6 +239,43 @@ export default function AdminDashboard() {
         )}
       </div>
 
+      {/* Monthly Stats Row */}
+      {analytics && (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl p-6 border border-orange-200 shadow-sm hover:shadow-md transition-shadow">
+            <p className="text-xs font-semibold text-orange-700 uppercase tracking-wider">New Clients This Month</p>
+            <p className="text-3xl font-bold text-orange-900 mt-2">
+              {analytics.newClientsTrend.reduce((acc, week) => acc + week.newClients, 0)}
+            </p>
+            <p className="text-sm text-orange-700 mt-1">across 4 weeks</p>
+          </div>
+
+          <div className="bg-gradient-to-br from-cyan-50 to-cyan-100 rounded-xl p-6 border border-cyan-200 shadow-sm hover:shadow-md transition-shadow">
+            <p className="text-xs font-semibold text-cyan-700 uppercase tracking-wider">Revenue This Month</p>
+            <p className="text-3xl font-bold text-cyan-900 mt-2">
+              ₹{(analytics.monthlyRevenue / 1000).toFixed(1)}k
+            </p>
+            <p className="text-sm text-cyan-700 mt-1">total collected</p>
+          </div>
+
+          <div className="bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-xl p-6 border border-emerald-200 shadow-sm hover:shadow-md transition-shadow">
+            <p className="text-xs font-semibold text-emerald-700 uppercase tracking-wider">Active Packages</p>
+            <p className="text-3xl font-bold text-emerald-900 mt-2">
+              {analytics.revenueByPackage.reduce((acc, pkg) => acc + pkg.clients, 0)}
+            </p>
+            <p className="text-sm text-emerald-700 mt-1">in current service</p>
+          </div>
+
+          <div className="bg-gradient-to-br from-rose-50 to-rose-100 rounded-xl p-6 border border-rose-200 shadow-sm hover:shadow-md transition-shadow">
+            <p className="text-xs font-semibold text-rose-700 uppercase tracking-wider">Scheduled Appointments</p>
+            <p className="text-3xl font-bold text-rose-900 mt-2">
+              {stats.appointments ? stats.appointments.length : 0}
+            </p>
+            <p className="text-sm text-rose-700 mt-1">next 7 days</p>
+          </div>
+        </div>
+      )}
+
       {/* Analytics Section */}
       {analytics && (
         <div className="space-y-8">
@@ -270,6 +307,7 @@ export default function AdminDashboard() {
                             </div>
                             <div className="flex-1 min-w-0">
                               <p className="font-semibold text-gray-900 truncate hover:underline">{appointment.name}</p>
+                              <p className="text-xs text-gray-500 capitalize">{appointment.nutritionist ? appointment.nutritionist.replace(/_/g, ' ') : 'Anjum'}</p>
                               <p className="text-sm text-gray-600">{formattedDate} at {formattedTime}</p>
                             </div>
                           </div>
