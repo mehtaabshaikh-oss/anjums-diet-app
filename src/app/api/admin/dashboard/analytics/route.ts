@@ -105,10 +105,11 @@ export async function GET(req: Request) {
         data.total > 0 ? Math.round((data.submitted / data.total) * 100) : 0,
     }))
 
-    // 3. Revenue by Package - Get actual revenue from payments grouped by client package
+    // 3. Revenue by Package - Get actual revenue from payments grouped by client package (ACTIVE clients only)
     const { data: clientsWithPayments } = await supabase
       .from('clients')
-      .select('id, package, payments(amount, status)')
+      .select('id, package, status, payments(amount, status)')
+      .eq('status', 'active')
 
     const revenueByPackage = {
       Gold: 0,
@@ -122,6 +123,11 @@ export async function GET(req: Request) {
       Platinum: 0,
     }
 
+    // Get current month boundaries for revenue filtering
+    const now = new Date()
+    const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0]
+    const lastDayOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split('T')[0]
+
     if (clientsWithPayments) {
       for (const client of clientsWithPayments) {
         const pkgKey = (client.package || 'Gold').charAt(0).toUpperCase() +
@@ -130,7 +136,7 @@ export async function GET(req: Request) {
         if (packageCountMap.hasOwnProperty(pkgKey)) {
           packageCountMap[pkgKey as keyof typeof packageCountMap]++
 
-          // Sum up all paid payments for this client
+          // Sum up paid payments for this client (all time for now - we'll filter by month later if needed)
           const payments = (client.payments as any[]) || []
           const totalPaid = payments
             .filter(p => p.status === 'paid')
@@ -147,14 +153,40 @@ export async function GET(req: Request) {
       clients: packageCountMap[pkg as keyof typeof packageCountMap],
     }))
 
-    // 4. New Clients This Month - Get clients created in last 30 days
-    const thirtyDaysAgo = new Date()
-    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
+    // Calculate revenue for THIS MONTH ONLY (for the monthly card)
+    // We need to query ALL clients (not just active) to get historical payments for current month
+    const { data: allClientsForMonthly } = await supabase
+      .from('clients')
+      .select('id, payments(amount, status, date)')
+
+    let monthlyRevenue = 0
+    if (allClientsForMonthly) {
+      for (const client of allClientsForMonthly) {
+        const payments = (client.payments as any[]) || []
+        const monthlyPaid = payments
+          .filter(p => {
+            if (p.status !== 'paid') return false
+            if (!p.date) return false
+            // Format payment date as YYYY-MM-DD string
+            const paymentDateStr = typeof p.date === 'string' ? p.date : p.date
+            return paymentDateStr >= firstDayOfMonth && paymentDateStr <= lastDayOfMonth
+          })
+          .reduce((sum, p) => sum + (parseFloat(String(p.amount)) || 0), 0)
+        monthlyRevenue += monthlyPaid
+      }
+    }
+
+    // 4. New Clients This Month - Get clients created in current calendar month
+    const currentMonth = new Date().getMonth()
+    const currentYear = new Date().getFullYear()
+    const monthStart = new Date(currentYear, currentMonth, 1).toISOString().split('T')[0]
+    const monthEnd = new Date(currentYear, currentMonth + 1, 0).toISOString().split('T')[0]
 
     const { data: newClientsData } = await supabase
       .from('clients')
       .select('created_at')
-      .gte('created_at', thirtyDaysAgo.toISOString())
+      .gte('created_at', monthStart + 'T00:00:00')
+      .lte('created_at', monthEnd + 'T23:59:59')
 
     const newClientsByDay: { [key: string]: number } = {}
 
@@ -208,6 +240,54 @@ export async function GET(req: Request) {
 
     const newLeadsThisWeek = newLeadsData ? newLeadsData.length : 0
 
+    // 6. Clients by Nutritionist - Get client count per nutritionist
+    const { data: allClientsData } = await supabase
+      .from('clients')
+      .select('nutritionist')
+
+    const clientsByNutritionistMap: { [key: string]: number } = {}
+
+    if (allClientsData) {
+      for (const client of allClientsData) {
+        const nutritionist = client.nutritionist || 'anjum'
+        clientsByNutritionistMap[nutritionist] = (clientsByNutritionistMap[nutritionist] || 0) + 1
+      }
+    }
+
+    const clientsByNutritionist = Object.entries(clientsByNutritionistMap).map(
+      ([nutritionist, clients]) => ({
+        nutritionist: nutritionist.charAt(0).toUpperCase() + nutritionist.slice(1).replace(/_/g, ' '),
+        clients,
+      })
+    )
+
+    // 7. Revenue by Nutritionist - Get revenue per nutritionist
+    const { data: clientsWithNutritionistAndPayments } = await supabase
+      .from('clients')
+      .select('nutritionist, payments(amount, status)')
+
+    const revenueByNutritionistMap: { [key: string]: number } = {}
+
+    if (clientsWithNutritionistAndPayments) {
+      for (const client of clientsWithNutritionistAndPayments) {
+        const nutritionist = client.nutritionist || 'anjum'
+        const payments = (client.payments as any[]) || []
+        const totalPaid = payments
+          .filter(p => p.status === 'paid')
+          .reduce((sum, p) => sum + parseFloat(p.amount), 0)
+
+        revenueByNutritionistMap[nutritionist] =
+          (revenueByNutritionistMap[nutritionist] || 0) + totalPaid
+      }
+    }
+
+    const revenueByNutritionist = Object.entries(revenueByNutritionistMap).map(
+      ([nutritionist, revenue]) => ({
+        nutritionist: nutritionist.charAt(0).toUpperCase() + nutritionist.slice(1).replace(/_/g, ' '),
+        revenue: Math.round(revenue),
+      })
+    )
+
     return NextResponse.json({
       averageWeightLoss: parseFloat(averageWeightLoss as string),
       clientsWithProgressData: clientsWithLoss,
@@ -216,6 +296,9 @@ export async function GET(req: Request) {
       revenueByPackage: revenueData,
       newClientsTrend,
       newLeadsThisWeek,
+      monthlyRevenue: Math.round(monthlyRevenue),
+      clientsByNutritionist,
+      revenueByNutritionist,
     })
   } catch (error) {
     console.error('Error fetching analytics:', error)

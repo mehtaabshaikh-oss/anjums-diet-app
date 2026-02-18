@@ -42,6 +42,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
       status,
       start_date,
       end_date,
+      nutritionist,
       age,
       gender,
       height_cm,
@@ -63,10 +64,11 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
         email,
         phone,
         package: clientPackage,
-        duration_months,
+        duration_months: duration_months ? parseInt(duration_months) : undefined,
         status,
         start_date,
         end_date,
+        nutritionist: nutritionist || null,
         updated_at: new Date().toISOString(),
       })
       .eq('id', id)

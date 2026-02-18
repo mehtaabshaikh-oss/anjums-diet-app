@@ -18,6 +18,7 @@ interface ClientData {
   end_date: string
   next_appointment_date: string | null
   status: string
+  nutritionist?: string
   client_profiles: any
   weight_logs?: Array<{
     id: string
@@ -129,6 +130,7 @@ export default function ClientDetailPage() {
     status: '',
     start_date: '',
     end_date: '',
+    nutritionist: '',
     age: '',
     gender: '',
     height_cm: '',
@@ -585,6 +587,7 @@ export default function ClientDetailPage() {
       status: client.status || '',
       start_date: client.start_date || '',
       end_date: client.end_date || '',
+      nutritionist: (client as any).nutritionist || 'anjum',
       age: profile?.age?.toString() || '',
       gender: profile?.gender || '',
       height_cm: profile?.height_cm?.toString() || '',
@@ -618,6 +621,7 @@ export default function ClientDetailPage() {
           status: editFormData.status,
           start_date: editFormData.start_date,
           end_date: editFormData.end_date,
+          nutritionist: editFormData.nutritionist || null,
           age: editFormData.age ? parseInt(editFormData.age) : null,
           gender: editFormData.gender || null,
           height_cm: editFormData.height_cm ? parseFloat(editFormData.height_cm) : null,
@@ -951,6 +955,19 @@ export default function ClientDetailPage() {
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                   />
                 </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Assigned Nutritionist</label>
+                  <select
+                    value={editFormData.nutritionist}
+                    onChange={(e) => setEditFormData({ ...editFormData, nutritionist: e.target.value })}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                  >
+                    <option value="anjum">Anjum</option>
+                    <option value="nutritionist_1">Nutritionist 1</option>
+                    <option value="nutritionist_2">Nutritionist 2</option>
+                    <option value="nutritionist_3">Nutritionist 3</option>
+                  </select>
+                </div>
                 </div>
               ) : (
                 <div className="grid grid-cols-2 gap-4">
@@ -984,6 +1001,12 @@ export default function ClientDetailPage() {
                     <p className="text-sm text-gray-600 mb-1">End Date</p>
                     <p className="text-lg font-semibold text-gray-900">
                       {new Date(client.end_date).toLocaleDateString()}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-600 mb-1">Assigned Nutritionist</p>
+                    <p className="text-lg font-semibold text-gray-900 capitalize">
+                      {(client as any).nutritionist ? (client as any).nutritionist.replace(/_/g, ' ') : 'Anjum'}
                     </p>
                   </div>
                 </div>

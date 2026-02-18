@@ -80,6 +80,7 @@ create table public.clients (
   start_date date not null,
   end_date date not null,
   status text not null default 'active' check (status in ('active', 'expired', 'paused', 'cancelled')),
+  nutritionist text default 'anjum' check (nutritionist in ('anjum', 'nutritionist_1', 'nutritionist_2', 'nutritionist_3')),
   password_hash text,
   password_changed boolean default false,
   last_login timestamptz,

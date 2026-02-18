@@ -11,11 +11,12 @@ interface Client {
   phone: string
   package: string
   status: string
+  nutritionist?: string
   start_date: string
   next_appointment_date: string | null
 }
 
-type SortField = 'name' | 'email' | 'phone' | 'package' | 'status' | 'next_appointment_date'
+type SortField = 'name' | 'email' | 'phone' | 'package' | 'status' | 'nutritionist' | 'next_appointment_date'
 type SortOrder = 'asc' | 'desc'
 
 export default function ClientsPage() {
@@ -288,6 +289,19 @@ export default function ClientsPage() {
                   </th>
                   <th
                     className="px-6 py-4 text-left text-sm font-semibold text-gray-900 cursor-pointer hover:bg-gray-100 transition-colors select-none"
+                    onClick={() => handleSort('nutritionist')}
+                  >
+                    <div className="flex items-center gap-2">
+                      Nutritionist
+                      {sortBy === 'nutritionist' && (
+                        <span className="text-primary">
+                          {sortOrder === 'asc' ? '↑' : '↓'}
+                        </span>
+                      )}
+                    </div>
+                  </th>
+                  <th
+                    className="px-6 py-4 text-left text-sm font-semibold text-gray-900 cursor-pointer hover:bg-gray-100 transition-colors select-none"
                     onClick={() => handleSort('next_appointment_date')}
                   >
                     <div className="flex items-center gap-2">
@@ -328,6 +342,9 @@ export default function ClientsPage() {
                       >
                         {client.status}
                       </span>
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-600 capitalize">
+                      {client.nutritionist ? client.nutritionist.replace(/_/g, ' ') : 'Anjum'}
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-600">
                       {client.next_appointment_date

@@ -57,7 +57,7 @@ export async function GET(req: Request) {
 
     const { data: appointmentsData, count: upcomingAppointments } = await supabase
       .from('clients')
-      .select('id, name, next_appointment_date', { count: 'exact' })
+      .select('id, name, nutritionist, next_appointment_date', { count: 'exact' })
       .gte('next_appointment_date', now.toISOString())
       .lte('next_appointment_date', sevenDaysLater.toISOString())
       .order('next_appointment_date', { ascending: true })

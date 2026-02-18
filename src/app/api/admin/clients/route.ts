@@ -36,7 +36,7 @@ export async function GET(req: Request) {
     // Fetch all clients
     const { data: clients, error } = await supabase
       .from('clients')
-      .select('id, name, email, phone, package, duration_months, status, start_date, end_date, next_appointment_date')
+      .select('id, name, email, phone, package, duration_months, nutritionist, status, start_date, end_date, next_appointment_date')
       .order('created_at', { ascending: false })
 
     if (error) {
