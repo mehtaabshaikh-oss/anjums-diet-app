@@ -22,6 +22,7 @@ import {
 interface Appointment {
   id: string
   name: string
+  nutritionist?: string
   next_appointment_date: string
 }
 
