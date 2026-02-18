@@ -41,6 +41,7 @@ interface AnalyticsData {
   revenueByPackage: Array<{ name: string; revenue: number; clients: number }>
   newClientsTrend: Array<{ week: string; newClients: number }>
   newLeadsThisWeek: number
+  monthlyRevenue: number
   clientsByNutritionist: Array<{ nutritionist: string; clients: number }>
   revenueByNutritionist: Array<{ nutritionist: string; revenue: number }>
 }
