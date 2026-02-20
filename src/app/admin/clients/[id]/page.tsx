@@ -803,6 +803,16 @@ export default function ClientDetailPage() {
           Diet Plans
         </button>
         <button
+          onClick={() => setActiveTab('payments')}
+          className={`px-4 py-3 font-semibold border-b-2 transition-colors whitespace-nowrap ${
+            activeTab === 'payments'
+              ? 'border-primary text-primary'
+              : 'border-transparent text-gray-600 hover:text-gray-900'
+          }`}
+        >
+          Payments
+        </button>
+        <button
           onClick={() => setActiveTab('progress')}
           className={`px-4 py-3 font-semibold border-b-2 transition-colors whitespace-nowrap ${
             activeTab === 'progress'
@@ -821,16 +831,6 @@ export default function ClientDetailPage() {
           }`}
         >
           Notes
-        </button>
-        <button
-          onClick={() => setActiveTab('payments')}
-          className={`px-4 py-3 font-semibold border-b-2 transition-colors whitespace-nowrap ${
-            activeTab === 'payments'
-              ? 'border-primary text-primary'
-              : 'border-transparent text-gray-600 hover:text-gray-900'
-          }`}
-        >
-          Payments
         </button>
         <button
           onClick={() => setActiveTab('logs')}
