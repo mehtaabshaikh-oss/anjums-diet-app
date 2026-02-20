@@ -69,11 +69,11 @@ export default function AdminLayout({
       if (error) {
         console.error('Signout error:', error)
       }
-      // Clear any cached data and redirect
-      router.push('/admin/login')
+      // Use window.location for hard redirect to trigger middleware
+      window.location.href = '/admin/login'
     } catch (err) {
       console.error('Error logging out:', err)
-      router.push('/admin/login')
+      window.location.href = '/admin/login'
     }
   }
 
