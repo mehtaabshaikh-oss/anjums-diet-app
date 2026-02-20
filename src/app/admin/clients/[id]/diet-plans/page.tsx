@@ -18,7 +18,6 @@ interface DietPlanItem {
   item_name: string
   quantity: number
   unit: string
-  notes: string | null
 }
 
 export default function ClientDietPlansPage() {
@@ -41,7 +40,7 @@ export default function ClientDietPlansPage() {
     name: '',
     description: '',
     items: [
-      { meal_type: 'breakfast', item_name: '', quantity: 0, unit: 'pieces', notes: '' },
+      { meal_type: 'breakfast', item_name: '', quantity: 0, unit: 'pieces' },
     ],
   })
 
@@ -78,7 +77,7 @@ export default function ClientDietPlansPage() {
       ...prev,
       items: [
         ...prev.items,
-        { meal_type: 'breakfast', item_name: '', quantity: 0, unit: 'pieces', notes: '' },
+        { meal_type: 'breakfast', item_name: '', quantity: 0, unit: 'pieces' },
       ],
     }))
   }
@@ -131,7 +130,7 @@ export default function ClientDietPlansPage() {
       setFormData({
         name: '',
         description: '',
-        items: [{ meal_type: 'breakfast', item_name: '', quantity: 0, unit: 'pieces', notes: '' }],
+        items: [{ meal_type: 'breakfast', item_name: '', quantity: 0, unit: 'pieces' }],
       })
       await fetchDietPlans()
     } catch (err) {
@@ -150,8 +149,7 @@ export default function ClientDietPlansPage() {
         item_name: item.item_name,
         quantity: item.quantity,
         unit: item.unit,
-        notes: item.notes || '',
-      })) || [{ meal_type: 'breakfast', item_name: '', quantity: 0, unit: 'pieces', notes: '' }],
+      })) || [{ meal_type: 'breakfast', item_name: '', quantity: 0, unit: 'pieces' }],
     })
     setShowForm(true)
     setExpandedPlanId(null)
@@ -179,8 +177,124 @@ export default function ClientDietPlansPage() {
     setFormData({
       name: '',
       description: '',
-      items: [{ meal_type: 'breakfast', item_name: '', quantity: 0, unit: 'pieces', notes: '' }],
+      items: [{ meal_type: 'breakfast', item_name: '', quantity: 0, unit: 'pieces' }],
     })
+  }
+
+  const generatePDF = (plan: DietPlan) => {
+    const items = planItems[plan.id] || []
+
+    // Group items by meal type
+    const mealGroups: { [key: string]: DietPlanItem[] } = {}
+    items.forEach(item => {
+      if (!mealGroups[item.meal_type]) {
+        mealGroups[item.meal_type] = []
+      }
+      mealGroups[item.meal_type].push(item)
+    })
+
+    // Create HTML content
+    let html = `
+      <html>
+        <head>
+          <meta charset="UTF-8">
+          <title>${plan.name}</title>
+          <style>
+            body {
+              font-family: Arial, sans-serif;
+              line-height: 1.6;
+              color: #333;
+              max-width: 800px;
+              margin: 0 auto;
+              padding: 20px;
+            }
+            h1 {
+              color: #1f2937;
+              border-bottom: 3px solid #10b981;
+              padding-bottom: 10px;
+            }
+            h2 {
+              color: #1f2937;
+              background-color: #e5e7eb;
+              padding: 10px;
+              border-left: 4px solid #10b981;
+              margin-top: 20px;
+            }
+            table {
+              width: 100%;
+              border-collapse: collapse;
+              margin-bottom: 20px;
+            }
+            th {
+              background-color: #10b981;
+              color: white;
+              padding: 12px;
+              text-align: left;
+              font-weight: bold;
+            }
+            td {
+              padding: 10px 12px;
+              border-bottom: 1px solid #d1d5db;
+            }
+            tr:nth-child(even) {
+              background-color: #f9fafb;
+            }
+            .description {
+              margin: 15px 0;
+              color: #6b7280;
+              font-style: italic;
+            }
+          </style>
+        </head>
+        <body>
+          <h1>${plan.name}</h1>
+          ${plan.description ? `<div class="description">${plan.description}</div>` : ''}
+    `
+
+    // Add meal sections
+    Object.keys(mealGroups).forEach(mealType => {
+      html += `
+        <h2>${mealType.charAt(0).toUpperCase() + mealType.slice(1)}</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Item</th>
+              <th>Quantity</th>
+            </tr>
+          </thead>
+          <tbody>
+      `
+
+      mealGroups[mealType].forEach(item => {
+        html += `
+          <tr>
+            <td>${item.item_name}</td>
+            <td>${item.quantity} ${item.unit}</td>
+          </tr>
+        `
+      })
+
+      html += `
+          </tbody>
+        </table>
+      `
+    })
+
+    html += `
+        </body>
+      </html>
+    `
+
+    // Create blob and download
+    const blob = new Blob([html], { type: 'text/html' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `${plan.name.replace(/\s+/g, '_')}_diet_plan.html`
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
   }
 
   if (isLoading) {
@@ -439,9 +553,6 @@ export default function ClientDietPlansPage() {
                               <p className="text-lg font-semibold text-gray-900">
                                 {item.item_name}
                               </p>
-                              {item.notes && (
-                                <p className="text-sm text-gray-600 mt-1">{item.notes}</p>
-                              )}
                             </div>
                             <div className="text-right">
                               <p className="text-lg font-bold text-primary">
@@ -457,6 +568,12 @@ export default function ClientDietPlansPage() {
 
                     {/* Action Buttons */}
                     <div className="flex gap-3 mt-6">
+                      <button
+                        onClick={() => generatePDF(plan)}
+                        className="px-4 py-2 bg-green-50 text-green-600 font-semibold rounded-lg hover:bg-green-100 transition-colors"
+                      >
+                        📄 Download PDF
+                      </button>
                       <button
                         onClick={() => handleEditPlan(plan)}
                         className="px-4 py-2 bg-blue-50 text-blue-600 font-semibold rounded-lg hover:bg-blue-100 transition-colors"
