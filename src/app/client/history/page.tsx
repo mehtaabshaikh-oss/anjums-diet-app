@@ -136,7 +136,8 @@ export default function ClientHistoryPage() {
           <p className="text-3xl font-bold text-gray-900">
             {
               logs.filter((log) => {
-                const logDate = new Date(log.logged_date)
+                const [year, month, day] = log.logged_date.split('-').map(Number)
+                const logDate = new Date(year, month - 1, day)
                 const now = new Date()
                 const daysAgo = Math.floor(
                   (now.getTime() - logDate.getTime()) / (1000 * 60 * 60 * 24)
@@ -171,7 +172,8 @@ export default function ClientHistoryPage() {
           const total = log.diet_log_items?.length || 0
           const adherencePercentage =
             total > 0 ? Math.round((completed / total) * 100) : 0
-          const logDate = new Date(log.logged_date)
+          const [year, month, day] = log.logged_date.split('-').map(Number)
+          const logDate = new Date(year, month - 1, day)
           const isToday =
             logDate.toDateString() === new Date().toDateString()
 

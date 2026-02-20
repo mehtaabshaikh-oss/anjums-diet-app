@@ -98,6 +98,11 @@ export default function ClientDetailPage() {
   const [submittingMeasurements, setSubmittingMeasurements] = useState(false)
   const [measurementsError, setMeasurementsError] = useState('')
 
+  // Diet logs states
+  const [dietLogs, setDietLogs] = useState<any[]>([])
+  const [dietLogsLoading, setDietLogsLoading] = useState(false)
+  const [expandedLogId, setExpandedLogId] = useState<string | null>(null)
+
   // Notes states
   const [notes, setNotes] = useState<any[]>([])
   const [notesLoading, setNotesLoading] = useState(false)
@@ -164,6 +169,9 @@ export default function ClientDetailPage() {
     }
     if (activeTab === 'payments' && clientId) {
       fetchPayments()
+    }
+    if (activeTab === 'logs' && clientId) {
+      fetchDietLogs()
     }
     if (activeTab === 'profile' && clientId) {
       // Fetch recent payments for profile summary
@@ -499,6 +507,20 @@ export default function ClientDetailPage() {
     }
   }
 
+  const fetchDietLogs = async () => {
+    try {
+      setDietLogsLoading(true)
+      const response = await fetch(`/api/admin/clients/${clientId}/diet-logs`)
+      if (!response.ok) throw new Error('Failed to fetch diet logs')
+      const data = await response.json()
+      setDietLogs(data)
+    } catch (err) {
+      console.error('Error fetching diet logs:', err)
+    } finally {
+      setDietLogsLoading(false)
+    }
+  }
+
   const handlePaymentSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     try {
@@ -809,6 +831,16 @@ export default function ClientDetailPage() {
           }`}
         >
           Payments
+        </button>
+        <button
+          onClick={() => setActiveTab('logs')}
+          className={`px-4 py-3 font-semibold border-b-2 transition-colors whitespace-nowrap ${
+            activeTab === 'logs'
+              ? 'border-primary text-primary'
+              : 'border-transparent text-gray-600 hover:text-gray-900'
+          }`}
+        >
+          Logs
         </button>
       </div>
 
@@ -2244,6 +2276,144 @@ export default function ClientDetailPage() {
               </div>
             )}
           </div>
+        </div>
+      )}
+
+      {/* Logs Tab */}
+      {activeTab === 'logs' && (
+        <div className="space-y-6">
+          {dietLogsLoading ? (
+            <div className="text-center py-12">
+              <p className="text-gray-500">Loading logs...</p>
+            </div>
+          ) : dietLogs.length === 0 ? (
+            <div className="text-center py-12">
+              <p className="text-gray-500">No diet logs submitted yet</p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {/* Summary Stats */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <div className="bg-white rounded-lg border border-gray-200 p-4">
+                  <p className="text-sm text-gray-600">Total Submissions</p>
+                  <p className="text-3xl font-bold text-gray-900">{dietLogs.length}</p>
+                </div>
+                <div className="bg-white rounded-lg border border-gray-200 p-4">
+                  <p className="text-sm text-gray-600">This Week</p>
+                  <p className="text-3xl font-bold text-gray-900">
+                    {dietLogs.filter(log => {
+                      const logDate = new Date(log.logged_date + 'T00:00:00')
+                      const weekAgo = new Date()
+                      weekAgo.setDate(weekAgo.getDate() - 7)
+                      return logDate >= weekAgo
+                    }).length}
+                  </p>
+                </div>
+                <div className="bg-white rounded-lg border border-gray-200 p-4">
+                  <p className="text-sm text-gray-600">Average Adherence</p>
+                  <p className="text-3xl font-bold text-gray-900">
+                    {dietLogs.length > 0
+                      ? Math.round(
+                          dietLogs.reduce((sum, log) => sum + (log.adherence_percentage || 0), 0) / dietLogs.length
+                        )
+                      : 0
+                    }%
+                  </p>
+                </div>
+              </div>
+
+              {/* Diet Logs List */}
+              {dietLogs.map((log) => (
+                <div
+                  key={log.id}
+                  className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
+                >
+                  <button
+                    onClick={() => setExpandedLogId(expandedLogId === log.id ? null : log.id)}
+                    className="w-full text-left flex justify-between items-center"
+                  >
+                    <div className="flex-1">
+                      <div className="flex items-center gap-3">
+                        <div className="flex-1">
+                          <p className="font-semibold text-gray-900">
+                            {new Date(log.logged_date + 'T00:00:00').toLocaleDateString('en-IN', {
+                              weekday: 'short',
+                              year: 'numeric',
+                              month: 'short',
+                              day: 'numeric'
+                            })}
+                          </p>
+                          <p className="text-sm text-gray-600">
+                            {(() => {
+                              const total = log.diet_log_items?.length || 0
+                              const completed = log.diet_log_items?.filter((item: any) => item.completed).length || 0
+                              return `${completed} of ${total} items completed`
+                            })()}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-4">
+                      <div className="text-right">
+                        {(() => {
+                          const total = log.diet_log_items?.length || 0
+                          const completed = log.diet_log_items?.filter((item: any) => item.completed).length || 0
+                          const adherence = total > 0 ? Math.round((completed / total) * 100) : 0
+                          return (
+                            <>
+                              <p className="text-2xl font-bold text-primary">{adherence}%</p>
+                              <p className="text-xs text-gray-500">Adherence</p>
+                            </>
+                          )
+                        })()}
+                      </div>
+                      <svg
+                        className={`w-5 h-5 text-gray-400 transition-transform ${
+                          expandedLogId === log.id ? 'rotate-180' : ''
+                        }`}
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                      </svg>
+                    </div>
+                  </button>
+
+                  {/* Expanded Details */}
+                  {expandedLogId === log.id && (
+                    <div className="mt-4 pt-4 border-t border-gray-200 space-y-3">
+                      {log.diet_log_items && log.diet_log_items.length > 0 ? (
+                        <div className="space-y-2">
+                          <h4 className="font-semibold text-gray-900 text-sm">Logged Items:</h4>
+                          {log.diet_log_items.map((entry: any, idx: number) => (
+                            <div key={idx} className="flex items-start justify-between text-sm bg-gray-50 p-3 rounded border-l-4 border-l-gray-300">
+                              <div className="flex-1">
+                                <span className={`font-medium ${entry.completed ? 'line-through text-gray-500' : 'text-gray-900'}`}>
+                                  {entry.diet_plan_items?.item_name || 'Item'}
+                                </span>
+                                {entry.diet_plan_items?.quantity && (
+                                  <p className="text-xs text-gray-600 mt-0.5">
+                                    {entry.diet_plan_items.quantity} {entry.diet_plan_items.unit}
+                                  </p>
+                                )}
+                                {entry.comment && <p className="text-xs text-gray-500 mt-1 italic">{entry.comment}</p>}
+                              </div>
+                              <div className={`ml-3 w-6 h-6 rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0 ${entry.completed ? 'bg-green-500' : 'bg-gray-300'}`}>
+                                {entry.completed ? '✓' : '○'}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="text-sm text-gray-600">No logged items</p>
+                      )}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
     </div>
