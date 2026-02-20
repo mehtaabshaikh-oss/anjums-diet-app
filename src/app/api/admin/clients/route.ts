@@ -142,7 +142,16 @@ export async function POST(req: Request) {
       .single()
 
     if (createError) {
+      console.error('Client creation error:', createError)
       return NextResponse.json({ error: createError.message }, { status: 400 })
+    }
+
+    // Debug: Check if password_hash was actually stored
+    if (!client.password_hash) {
+      console.error('WARNING: password_hash was not stored in database for client', client.id)
+      return NextResponse.json({
+        error: 'Password storage failed. Please try again.'
+      }, { status: 500 })
     }
 
     // Always create client profile (even if empty, so data can be populated later)
