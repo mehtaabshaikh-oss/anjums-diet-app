@@ -45,32 +45,18 @@ function NewClientPageContent() {
   }, [searchParams])
 
   const [generatedPassword, setGeneratedPassword] = useState('')
-  const [passwordMode, setPasswordMode] = useState<'random' | 'custom'>('random')
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
   const router = useRouter()
 
-  const generatePassword = (mode: 'random' | 'custom' = 'random') => {
-    if (mode === 'custom') {
-      // Generate password from last 4 digits of phone + last name
-      const phone = formData.phone.slice(-4)
-      const nameParts = formData.name.split(' ')
-      const lastName = nameParts[nameParts.length - 1] || formData.name
-      const password = `${lastName}@${phone}`
-      setGeneratedPassword(password)
-      setPasswordMode('custom')
-    } else {
-      // Random 12-character password
-      const length = 12
-      const charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%'
-      let password = ''
-      for (let i = 0; i < length; i++) {
-        password += charset.charAt(Math.floor(Math.random() * charset.length))
-      }
-      setGeneratedPassword(password)
-      setPasswordMode('random')
-    }
+  const generatePassword = () => {
+    // Generate password from last 4 digits of phone + last name
+    const phone = formData.phone.slice(-4)
+    const nameParts = formData.name.split(' ')
+    const lastName = nameParts[nameParts.length - 1] || formData.name
+    const password = `${lastName}@${phone}`
+    setGeneratedPassword(password)
   }
 
   const copyToClipboard = () => {
@@ -541,48 +527,27 @@ function NewClientPageContent() {
             <div className="space-y-3">
               <button
                 type="button"
-                onClick={() => generatePassword('random')}
-                className="w-full px-6 py-3 bg-primary hover:bg-primary-dark text-white font-semibold rounded-lg transition-colors"
-              >
-                🔐 Generate Random Password (12 chars)
-              </button>
-              <button
-                type="button"
-                onClick={() => generatePassword('custom')}
+                onClick={() => generatePassword()}
                 disabled={!formData.name || !formData.phone}
-                className="w-full px-6 py-3 bg-gray-600 hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition-colors"
+                className="w-full px-6 py-3 bg-primary hover:bg-primary-dark disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition-colors"
               >
-                👤 Generate Easy Password (LastName@Phone)
+                🔐 Generate Password
               </button>
             </div>
 
             {generatedPassword && (
-              <div className={`p-4 rounded-lg border-2 ${
-                passwordMode === 'custom'
-                  ? 'bg-green-50 border-green-200'
-                  : 'bg-blue-50 border-blue-200'
-              }`}>
+              <div className={`p-4 rounded-lg border-2 bg-green-50 border-green-200`}>
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className={`text-xs font-semibold mb-2 ${
-                      passwordMode === 'custom'
-                        ? 'text-green-600'
-                        : 'text-blue-600'
-                    }`}>
-                      {passwordMode === 'custom'
-                        ? '✓ Easy-to-Remember Password:'
-                        : 'Generated Password:'}
+                    <p className={`text-xs font-semibold mb-2 text-green-600`}>
+                      ✓ Generated Password:
                     </p>
                     <p className="font-mono text-lg font-bold break-all">
-                      {passwordMode === 'custom'
-                        ? generatedPassword
-                        : generatedPassword}
+                      {generatedPassword}
                     </p>
-                    {passwordMode === 'custom' && (
-                      <p className="text-xs text-green-700 mt-2">
-                        Format: {formData.name.split(' ')[formData.name.split(' ').length - 1] || 'LastName'}@{formData.phone.slice(-4)}
-                      </p>
-                    )}
+                    <p className="text-xs text-green-700 mt-2">
+                      Format: {formData.name.split(' ')[formData.name.split(' ').length - 1] || 'LastName'}@{formData.phone.slice(-4)}
+                    </p>
                   </div>
                   <button
                     type="button"
