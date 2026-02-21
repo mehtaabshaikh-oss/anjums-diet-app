@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 
@@ -10,7 +9,6 @@ export default function AdminLoginPage() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
-  const router = useRouter()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -52,8 +50,9 @@ export default function AdminLoginPage() {
         return
       }
 
-      // Redirect to dashboard on successful login
-      router.push('/admin/dashboard')
+      // Redirect to dashboard on successful login (use window.location for full page reload)
+      // This ensures Supabase cookies are set before middleware checks authentication
+      window.location.href = '/admin/dashboard'
     } catch (err) {
       setError('An error occurred. Please try again.')
       console.error(err)
