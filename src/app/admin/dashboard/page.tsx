@@ -208,7 +208,7 @@ export default function AdminDashboard() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {/* Total Clients - Clickable */}
         <Link href="/admin/clients" className="block">
-          <div className="bg-gradient-to-br from-primary to-primary-dark text-white rounded-xl p-6 border border-primary-dark shadow-sm hover:shadow-md transition-all cursor-pointer h-full hover:scale-105">
+          <div className="bg-gradient-to-br from-primary to-primary-dark text-white rounded-xl p-6 border border-primary-dark shadow-sm hover:shadow-md transition-shadow cursor-pointer h-full">
             <div className="flex items-center justify-between mb-4">
               <p className="text-xs font-semibold uppercase tracking-wider opacity-90">Total Clients</p>
               <svg className="w-6 h-6 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -222,7 +222,7 @@ export default function AdminDashboard() {
 
         {/* Active Clients - Clickable */}
         <Link href="/admin/clients" className="block">
-          <div className="bg-gradient-to-br from-green-50 to-green-100 text-gray-900 rounded-xl p-6 border border-green-200 shadow-sm hover:shadow-md transition-all cursor-pointer h-full hover:scale-105">
+          <div className="bg-gradient-to-br from-green-50 to-green-100 text-gray-900 rounded-xl p-6 border border-green-200 shadow-sm hover:shadow-md transition-shadow cursor-pointer h-full">
             <div className="flex items-center justify-between mb-4">
               <p className="text-xs font-semibold text-green-700 uppercase tracking-wider">Active Clients</p>
               <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -236,7 +236,7 @@ export default function AdminDashboard() {
 
         {/* New Leads */}
         <Link href="/admin/leads" className="block">
-          <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-6 border border-purple-200 shadow-sm hover:shadow-md transition-all cursor-pointer h-full hover:scale-105">
+          <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-6 border border-purple-200 shadow-sm hover:shadow-md transition-shadow cursor-pointer h-full">
             <p className="text-xs font-semibold text-purple-700 uppercase tracking-wider">New Leads</p>
             <p className="text-3xl font-bold text-purple-900 mt-2">
               {analytics?.newLeadsThisWeek || 0}
