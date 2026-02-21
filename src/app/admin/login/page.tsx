@@ -36,7 +36,7 @@ export default function AdminLoginPage() {
         return
       }
 
-      // Verify user has admin role
+      // Verify user has admin or staff role
       const response = await fetch('/api/admin/verify', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -45,10 +45,10 @@ export default function AdminLoginPage() {
 
       const roleData = await response.json()
 
-      if (!response.ok || roleData.role !== 'admin') {
-        // Sign out if not admin
+      if (!response.ok || (roleData.role !== 'admin' && roleData.role !== 'staff')) {
+        // Sign out if not admin or staff
         await supabase.auth.signOut()
-        setError('You do not have admin access')
+        setError('You do not have access to the admin portal')
         return
       }
 

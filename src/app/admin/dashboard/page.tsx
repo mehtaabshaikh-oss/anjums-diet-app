@@ -106,6 +106,7 @@ export default function AdminDashboard() {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState('')
   const [adminName, setAdminName] = useState('Admin')
+  const [userRole, setUserRole] = useState<'admin' | 'staff' | null>(null)
   const router = useRouter()
 
   useEffect(() => {
@@ -120,6 +121,19 @@ export default function AdminDashboard() {
       const { data } = await supabase.auth.getUser()
       if (data.user?.email) {
         setAdminName(data.user.email.split('@')[0])
+      }
+
+      // Fetch user role
+      if (data.user?.id) {
+        const response = await fetch('/api/admin/verify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId: data.user.id }),
+        })
+        const roleData = await response.json()
+        if (response.ok && roleData.role) {
+          setUserRole(roleData.role)
+        }
       }
     } catch (err) {
       console.error('Error fetching admin name:', err)
@@ -220,12 +234,21 @@ export default function AdminDashboard() {
 
         {analytics && (
           <>
-            <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-6 border border-blue-200 shadow-sm hover:shadow-md transition-shadow">
+            <div className={`relative bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-6 border border-blue-200 shadow-sm hover:shadow-md transition-shadow ${userRole === 'staff' ? 'blur-sm' : ''}`}>
               <p className="text-xs font-semibold text-blue-700 uppercase tracking-wider">Total Revenue</p>
               <p className="text-3xl font-bold text-blue-900 mt-2">
                 ₹{(analytics.revenueByPackage.reduce((acc, pkg) => acc + pkg.revenue, 0) / 1000).toFixed(1)}k
               </p>
               <p className="text-sm text-blue-700 mt-1">from {analytics.revenueByPackage.reduce((acc, pkg) => acc + pkg.clients, 0)} clients</p>
+              {userRole === 'staff' && (
+                <div className="absolute inset-0 flex items-center justify-center rounded-xl">
+                  <div className="bg-white/90 rounded-lg p-3 shadow-lg">
+                    <svg className="w-6 h-6 text-gray-600" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M12 1C6.48 1 2 5.48 2 11v8h4v3h2v-3h8v3h2v-3h4v-8c0-5.52-4.48-10-10-10zm0 2c4.41 0 8 3.59 8 8v2h-2v-2c0-3.31-2.69-6-6-6s-6 2.69-6 6v2H4v-2c0-4.41 3.59-8 8-8z" />
+                    </svg>
+                  </div>
+                </div>
+              )}
             </div>
 
             <Link href="/admin/leads" className="block">
@@ -252,12 +275,21 @@ export default function AdminDashboard() {
             <p className="text-sm text-orange-700 mt-1">across 4 weeks</p>
           </div>
 
-          <div className="bg-gradient-to-br from-cyan-50 to-cyan-100 rounded-xl p-6 border border-cyan-200 shadow-sm hover:shadow-md transition-shadow">
+          <div className={`relative bg-gradient-to-br from-cyan-50 to-cyan-100 rounded-xl p-6 border border-cyan-200 shadow-sm hover:shadow-md transition-shadow ${userRole === 'staff' ? 'blur-sm' : ''}`}>
             <p className="text-xs font-semibold text-cyan-700 uppercase tracking-wider">Revenue This Month</p>
             <p className="text-3xl font-bold text-cyan-900 mt-2">
               ₹{(analytics.monthlyRevenue / 1000).toFixed(1)}k
             </p>
             <p className="text-sm text-cyan-700 mt-1">total collected</p>
+            {userRole === 'staff' && (
+              <div className="absolute inset-0 flex items-center justify-center rounded-xl">
+                <div className="bg-white/90 rounded-lg p-3 shadow-lg">
+                  <svg className="w-6 h-6 text-gray-600" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 1C6.48 1 2 5.48 2 11v8h4v3h2v-3h8v3h2v-3h4v-8c0-5.52-4.48-10-10-10zm0 2c4.41 0 8 3.59 8 8v2h-2v-2c0-3.31-2.69-6-6-6s-6 2.69-6 6v2H4v-2c0-4.41 3.59-8 8-8z" />
+                  </svg>
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-xl p-6 border border-emerald-200 shadow-sm hover:shadow-md transition-shadow">
@@ -373,23 +405,25 @@ export default function AdminDashboard() {
               <p className="text-sm text-gray-600 mt-4">Active client distribution by nutritionist</p>
             </div>
 
-            {/* Revenue per Nutritionist */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-              <h3 className="text-xl font-bold text-gray-900 mb-6">Revenue per Nutritionist</h3>
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={analytics.revenueByNutritionist} margin={{ top: 20, right: 30, left: 0, bottom: 20 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                  <XAxis dataKey="nutritionist" tick={{ fill: '#666', fontSize: 12 }} />
-                  <YAxis tick={{ fill: '#666', fontSize: 12 }} label={{ value: 'Revenue (₹)', angle: -90, position: 'insideLeft' }} />
-                  <Tooltip
-                    formatter={(value: any) => `₹${(value / 1000).toFixed(1)}k`}
-                    contentStyle={{ backgroundColor: '#fff', border: '1px solid #ccc', borderRadius: '8px' }}
-                  />
-                  <Bar dataKey="revenue" fill="#4299e1" radius={[8, 8, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-              <p className="text-sm text-gray-600 mt-4">Total revenue generated by each nutritionist</p>
-            </div>
+            {/* Revenue per Nutritionist - Admin only */}
+            {userRole === 'admin' && (
+              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <h3 className="text-xl font-bold text-gray-900 mb-6">Revenue per Nutritionist</h3>
+                <ResponsiveContainer width="100%" height={300}>
+                  <BarChart data={analytics.revenueByNutritionist} margin={{ top: 20, right: 30, left: 0, bottom: 20 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                    <XAxis dataKey="nutritionist" tick={{ fill: '#666', fontSize: 12 }} />
+                    <YAxis tick={{ fill: '#666', fontSize: 12 }} label={{ value: 'Revenue (₹)', angle: -90, position: 'insideLeft' }} />
+                    <Tooltip
+                      formatter={(value: any) => `₹${(value / 1000).toFixed(1)}k`}
+                      contentStyle={{ backgroundColor: '#fff', border: '1px solid #ccc', borderRadius: '8px' }}
+                    />
+                    <Bar dataKey="revenue" fill="#4299e1" radius={[8, 8, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+                <p className="text-sm text-gray-600 mt-4">Total revenue generated by each nutritionist</p>
+              </div>
+            )}
 
             {/* New Clients Trend */}
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
