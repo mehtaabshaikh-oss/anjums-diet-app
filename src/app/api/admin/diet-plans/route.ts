@@ -40,9 +40,9 @@ export async function POST(req: Request) {
       .eq('id', user.id)
       .single()
 
-    if (!userData || userData.role !== 'admin') {
+    if (!userData || (userData.role !== 'admin' && userData.role !== 'staff')) {
       return NextResponse.json(
-        { error: 'Only admins can create diet plans' },
+        { error: 'Only admins and staff can create diet plans' },
         { status: 403 }
       )
     }

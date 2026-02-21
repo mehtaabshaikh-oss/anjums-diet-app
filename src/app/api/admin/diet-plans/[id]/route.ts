@@ -43,9 +43,9 @@ export async function PUT(
       .eq('id', user.id)
       .single()
 
-    if (!userData || userData.role !== 'admin') {
+    if (!userData || (userData.role !== 'admin' && userData.role !== 'staff')) {
       return NextResponse.json(
-        { error: 'Only admins can update diet plans' },
+        { error: 'Only admins and staff can update diet plans' },
         { status: 403 }
       )
     }
@@ -153,9 +153,9 @@ export async function PATCH(
       .eq('id', user.id)
       .single()
 
-    if (!userData || userData.role !== 'admin') {
+    if (!userData || (userData.role !== 'admin' && userData.role !== 'staff')) {
       return NextResponse.json(
-        { error: 'Only admins can archive diet plans' },
+        { error: 'Only admins and staff can archive diet plans' },
         { status: 403 }
       )
     }
@@ -228,9 +228,9 @@ export async function DELETE(
       .eq('id', user.id)
       .single()
 
-    if (!userData || userData.role !== 'admin') {
+    if (!userData || (userData.role !== 'admin' && userData.role !== 'staff')) {
       return NextResponse.json(
-        { error: 'Only admins can delete diet plans' },
+        { error: 'Only admins and staff can delete diet plans' },
         { status: 403 }
       )
     }
