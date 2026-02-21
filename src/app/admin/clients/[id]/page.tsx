@@ -2125,8 +2125,7 @@ export default function ClientDetailPage() {
                       required
                     >
                       <option value="cash">Cash</option>
-                      <option value="credit_card">Credit Card</option>
-                      <option value="check">Check</option>
+                      <option value="card">Credit Card</option>
                       <option value="upi">UPI</option>
                       <option value="bank_transfer">Bank Transfer</option>
                     </select>
