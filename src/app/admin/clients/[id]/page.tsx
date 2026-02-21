@@ -1154,7 +1154,7 @@ export default function ClientDetailPage() {
             )}
 
             {/* Body Measurements */}
-            {profile && ((isEditingProfile) || (profile.chest_cm || profile.waist_cm || profile.hip_cm || profile.thigh_cm)) && (
+            {profile && (
             <div className="relative bg-gradient-to-br from-purple-50 to-white rounded-xl shadow-sm border border-purple-100 p-6 hover:shadow-lg transition-all duration-300 overflow-hidden group">
               <div className="absolute inset-0 bg-gradient-to-br from-purple-100 to-transparent opacity-0 group-hover:opacity-20 transition-opacity duration-300"></div>
               <div className="relative z-10">
@@ -1211,30 +1211,22 @@ export default function ClientDetailPage() {
                 </div>
               ) : (
                 <div className="grid md:grid-cols-4 gap-6">
-                  {profile.chest_cm && (
-                    <div>
-                      <p className="text-sm text-gray-600 mb-1">Chest</p>
-                      <p className="text-lg font-semibold text-gray-900">{profile.chest_cm} cm</p>
-                    </div>
-                  )}
-                  {profile.waist_cm && (
-                    <div>
-                      <p className="text-sm text-gray-600 mb-1">Waist</p>
-                      <p className="text-lg font-semibold text-gray-900">{profile.waist_cm} cm</p>
-                    </div>
-                  )}
-                  {profile.hip_cm && (
-                    <div>
-                      <p className="text-sm text-gray-600 mb-1">Hip</p>
-                      <p className="text-lg font-semibold text-gray-900">{profile.hip_cm} cm</p>
-                    </div>
-                  )}
-                  {profile.thigh_cm && (
-                    <div>
-                      <p className="text-sm text-gray-600 mb-1">Thigh</p>
-                      <p className="text-lg font-semibold text-gray-900">{profile.thigh_cm} cm</p>
-                    </div>
-                  )}
+                  <div>
+                    <p className="text-sm text-gray-600 mb-1">Chest</p>
+                    <p className="text-lg font-semibold text-gray-900">{profile.chest_cm || '−'} {profile.chest_cm ? 'cm' : ''}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-600 mb-1">Waist</p>
+                    <p className="text-lg font-semibold text-gray-900">{profile.waist_cm || '−'} {profile.waist_cm ? 'cm' : ''}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-600 mb-1">Hip</p>
+                    <p className="text-lg font-semibold text-gray-900">{profile.hip_cm || '−'} {profile.hip_cm ? 'cm' : ''}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-600 mb-1">Thigh</p>
+                    <p className="text-lg font-semibold text-gray-900">{profile.thigh_cm || '−'} {profile.thigh_cm ? 'cm' : ''}</p>
+                  </div>
                 </div>
               )}
               </div>
