@@ -541,7 +541,10 @@ export default function ClientDetailPage() {
         }),
       })
 
-      if (!response.ok) throw new Error('Failed to save payment')
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to save payment')
+      }
 
       setPaymentForm({
         amount: '',
@@ -555,7 +558,7 @@ export default function ClientDetailPage() {
       await fetchPayments()
     } catch (err: any) {
       setPaymentsError(err.message || 'Failed to save payment')
-      console.error(err)
+      console.error('Payment error:', err)
     } finally {
       setSubmittingPayment(false)
     }
