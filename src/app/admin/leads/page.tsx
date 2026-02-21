@@ -439,12 +439,12 @@ export default function LeadsPage() {
                 <p>No leads found matching your filters.</p>
               </div>
             ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead className="bg-gray-50 border-b border-gray-200">
+              <div className="overflow-x-auto -mx-4 sm:mx-0">
+                <table className="w-full min-w-max">
+                  <thead className="bg-gray-50 border-b border-gray-200 sticky top-0">
                     <tr>
                       <th
-                        className="px-6 py-4 text-left text-sm font-semibold text-gray-900 cursor-pointer hover:bg-gray-100 transition-colors select-none"
+                        className="px-3 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-semibold text-gray-900 cursor-pointer hover:bg-gray-100 transition-colors select-none whitespace-nowrap"
                         onClick={() => handleSort('name')}
                       >
                         <div className="flex items-center gap-2">
@@ -456,10 +456,10 @@ export default function LeadsPage() {
                           )}
                         </div>
                       </th>
-                      <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Email</th>
-                      <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Phone</th>
+                      <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-semibold text-gray-900 whitespace-nowrap">Email</th>
+                      <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-semibold text-gray-900 whitespace-nowrap">Phone</th>
                       <th
-                        className="px-6 py-4 text-left text-sm font-semibold text-gray-900 cursor-pointer hover:bg-gray-100 transition-colors select-none"
+                        className="px-3 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-semibold text-gray-900 cursor-pointer hover:bg-gray-100 transition-colors select-none whitespace-nowrap"
                         onClick={() => handleSort('source')}
                       >
                         <div className="flex items-center gap-2">
@@ -472,7 +472,7 @@ export default function LeadsPage() {
                         </div>
                       </th>
                       <th
-                        className="px-6 py-4 text-left text-sm font-semibold text-gray-900 cursor-pointer hover:bg-gray-100 transition-colors select-none"
+                        className="px-3 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-semibold text-gray-900 cursor-pointer hover:bg-gray-100 transition-colors select-none whitespace-nowrap"
                         onClick={() => handleSort('status')}
                       >
                         <div className="flex items-center gap-2">
@@ -485,7 +485,7 @@ export default function LeadsPage() {
                         </div>
                       </th>
                       <th
-                        className="px-6 py-4 text-left text-sm font-semibold text-gray-900 cursor-pointer hover:bg-gray-100 transition-colors select-none"
+                        className="px-3 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-semibold text-gray-900 cursor-pointer hover:bg-gray-100 transition-colors select-none whitespace-nowrap"
                         onClick={() => handleSort('created_at')}
                       >
                         <div className="flex items-center gap-2">
@@ -508,14 +508,14 @@ export default function LeadsPage() {
                           selectedLead?.id === lead.id ? 'bg-primary/5' : ''
                         }`}
                       >
-                        <td className="px-6 py-4">
-                          <p className="font-semibold text-gray-900">{lead.name}</p>
+                        <td className="px-3 sm:px-6 py-3 sm:py-4">
+                          <p className="font-semibold text-gray-900 whitespace-nowrap">{lead.name}</p>
                         </td>
-                        <td className="px-6 py-4 text-sm text-gray-600">{lead.email}</td>
-                        <td className="px-6 py-4 text-sm text-gray-600">{lead.phone}</td>
-                        <td className="px-6 py-4">
+                        <td className="px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-gray-600 whitespace-nowrap">{lead.email}</td>
+                        <td className="px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-gray-600 whitespace-nowrap">{lead.phone}</td>
+                        <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
                           <span
-                            className={`px-3 py-1 rounded-full text-xs font-medium capitalize ${
+                            className={`px-2 sm:px-3 py-1 rounded-full text-xs font-medium capitalize ${
                               lead.source === 'contact_form'
                                 ? 'bg-blue-100 text-blue-800'
                                 : lead.source === 'email'
@@ -534,9 +534,9 @@ export default function LeadsPage() {
                             {lead.source.replace('_', ' ')}
                           </span>
                         </td>
-                        <td className="px-6 py-4">
+                        <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
                           <span
-                            className={`px-3 py-1 rounded-full text-sm font-medium ${
+                            className={`px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-medium ${
                               lead.status === 'new'
                                 ? 'bg-blue-100 text-blue-800'
                                 : lead.status === 'contacted'
@@ -549,7 +549,7 @@ export default function LeadsPage() {
                             {lead.status.charAt(0).toUpperCase() + lead.status.slice(1)}
                           </span>
                         </td>
-                        <td className="px-6 py-4 text-sm text-gray-600">
+                        <td className="px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-gray-600 whitespace-nowrap">
                           {new Date(lead.created_at).toLocaleDateString()}
                         </td>
                       </tr>
