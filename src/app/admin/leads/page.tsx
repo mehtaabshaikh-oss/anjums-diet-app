@@ -430,9 +430,9 @@ export default function LeadsPage() {
       </div>
 
       {/* Leads List */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* Leads Table */}
-        <div className="lg:col-span-2">
+        <div className="lg:col-span-3">
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
             {filteredLeads.length === 0 ? (
               <div className="p-8 text-center text-gray-600">
