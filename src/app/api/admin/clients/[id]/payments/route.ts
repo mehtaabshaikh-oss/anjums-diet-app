@@ -106,6 +106,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
         method,
         status,
         notes: notes || null,
+        created_by: user.id,
       })
       .select()
       .single()
