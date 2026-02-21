@@ -348,53 +348,53 @@ export default function LeadsPage() {
       )}
 
       {/* Filters */}
-      <div className="flex gap-4 flex-wrap">
-        {/* Search */}
-        <div className="flex-1 min-w-64">
-          <label className="text-sm text-gray-600 font-medium">Search Leads</label>
-          <input
-            type="text"
-            value={searchTerm}
-            onChange={e => setSearchTerm(e.target.value)}
-            placeholder="Search by name, email, or phone..."
-            className="w-full mt-2 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-          />
-        </div>
+      <div className="space-y-3">
+        <label className="text-sm text-gray-600 font-medium block">Search Leads</label>
+        <div className="flex gap-3 flex-col sm:flex-row">
+          {/* Search */}
+          <div className="flex-1 min-w-0">
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={e => setSearchTerm(e.target.value)}
+              placeholder="Search by name, email, or phone..."
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+            />
+          </div>
 
-        {/* Status Filter */}
-        <div>
-          <label className="text-sm text-gray-600 font-medium">Status</label>
-          <select
-            value={filterStatus}
-            onChange={e => setFilterStatus(e.target.value as any)}
-            className="mt-2 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-          >
-            <option value="all">All</option>
-            <option value="new">New</option>
-            <option value="contacted">Contacted</option>
-            <option value="converted">Converted</option>
-            <option value="rejected">Rejected</option>
-          </select>
-        </div>
+          {/* Status Filter */}
+          <div className="w-full sm:w-40">
+            <select
+              value={filterStatus}
+              onChange={e => setFilterStatus(e.target.value as any)}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+            >
+              <option value="all">All Status</option>
+              <option value="new">New</option>
+              <option value="contacted">Contacted</option>
+              <option value="converted">Converted</option>
+              <option value="rejected">Rejected</option>
+            </select>
+          </div>
 
-        {/* Source Filter */}
-        <div>
-          <label className="text-sm text-gray-600 font-medium">Source</label>
-          <select
-            value={filterSource}
-            onChange={e => setFilterSource(e.target.value as any)}
-            className="mt-2 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-          >
-            <option value="all">All Sources</option>
-            <option value="contact_form">Contact Form</option>
-            <option value="walkin">Walk-in</option>
-            <option value="whatsapp">WhatsApp</option>
-            <option value="email">Email</option>
-            <option value="phone_call">Phone Call</option>
-            <option value="referral">Referral</option>
-            <option value="social_media">Social Media</option>
-            <option value="other">Other</option>
-          </select>
+          {/* Source Filter */}
+          <div className="w-full sm:w-40">
+            <select
+              value={filterSource}
+              onChange={e => setFilterSource(e.target.value as any)}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+            >
+              <option value="all">All Sources</option>
+              <option value="contact_form">Contact Form</option>
+              <option value="walkin">Walk-in</option>
+              <option value="whatsapp">WhatsApp</option>
+              <option value="email">Email</option>
+              <option value="phone_call">Phone Call</option>
+              <option value="referral">Referral</option>
+              <option value="social_media">Social Media</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
         </div>
       </div>
 
