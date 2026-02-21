@@ -65,7 +65,7 @@ export async function GET(req: Request) {
     const packageCountMap = { Gold: 0, Hybrid: 0, Platinum: 0 }
     let monthlyRevenue = 0
 
-    // 4. New Clients This Month
+    // 4. New Clients This Month (and last 6 months for trends)
     const newClientsByDay: { [key: string]: number } = {}
 
     // 6. Clients by Nutritionist
@@ -74,11 +74,11 @@ export async function GET(req: Request) {
     // 7. Revenue by Nutritionist
     const revenueByNutritionistMap: { [key: string]: number } = {}
 
-    // Initialize last 30 days for new clients tracking
-    for (let i = 29; i >= 0; i--) {
-      const date = new Date()
-      date.setDate(date.getDate() - i)
-      const dateStr = date.toISOString().split('T')[0]
+    // Initialize last 6 months worth of days for new clients tracking
+    const sixMonthsAgo = new Date(currentYear, currentMonth - 5, 1)
+    const today = new Date(currentYear, currentMonth + 1, 0)
+    for (let d = new Date(sixMonthsAgo); d <= today; d.setDate(d.getDate() + 1)) {
+      const dateStr = new Date(d).toISOString().split('T')[0]
       newClientsByDay[dateStr] = 0
     }
 
@@ -167,25 +167,25 @@ export async function GET(req: Request) {
       clients: packageCountMap[pkg as keyof typeof packageCountMap],
     }))
 
-    // Group new clients by week
+    // Group new clients by month (last 6 months)
     const newClientsTrend = []
-    for (let i = 4; i >= 0; i--) {
-      const weekStart = new Date()
-      weekStart.setDate(weekStart.getDate() - 7 * i - 6)
-      const weekEnd = new Date()
-      weekEnd.setDate(weekEnd.getDate() - 7 * i)
+    for (let i = 5; i >= 0; i--) {
+      const monthDate = new Date(currentYear, currentMonth - i, 1)
+      const monthStart = new Date(monthDate.getFullYear(), monthDate.getMonth(), 1)
+      const monthEnd = new Date(monthDate.getFullYear(), monthDate.getMonth() + 1, 0)
 
-      let weekCount = 0
+      let monthCount = 0
       for (const [dateStr, count] of Object.entries(newClientsByDay)) {
         const date = new Date(dateStr)
-        if (date >= weekStart && date <= weekEnd) {
-          weekCount += count
+        if (date >= monthStart && date <= monthEnd) {
+          monthCount += count
         }
       }
 
+      const monthName = monthDate.toLocaleDateString('en-US', { month: 'short' })
       newClientsTrend.push({
-        week: `Week ${5 - i}`,
-        newClients: weekCount,
+        month: monthName,
+        newClients: monthCount,
       })
     }
 

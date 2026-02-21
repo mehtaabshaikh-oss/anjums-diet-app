@@ -40,7 +40,7 @@ interface AnalyticsData {
   topPerformers: Array<{ name: string; weightLoss: number }>
   adherenceTrend: Array<{ date: string; adherenceRate: number }>
   revenueByPackage: Array<{ name: string; revenue: number; clients: number }>
-  newClientsTrend: Array<{ week: string; newClients: number }>
+  newClientsTrend: Array<{ month: string; newClients: number }>
   newLeadsThisWeek: number
   monthlyRevenue: number
   clientsByNutritionist: Array<{ nutritionist: string; clients: number }>
@@ -204,83 +204,85 @@ export default function AdminDashboard() {
         />
       )}
 
-      {/* Stats Grid - 4 cards in one row */}
+      {/* ROW 1: Total Clients, Active Clients, New Leads, Scheduled Appointments */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <StatCard
-          label="Total Clients"
-          value={stats.totalClients}
-          color="primary"
-          gradient
-          icon={
-            <svg className="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.856-1.487M15 10a3 3 0 11-6 0 3 3 0 016 0zM6 20H1v-2a6 6 0 016-6v0" />
-            </svg>
-          }
-        />
-
-        <StatCard
-          label="Active Clients"
-          value={stats.activeClients}
-          color="success"
-          gradient
-          trend="up"
-          trendValue={`+${Math.max(0, stats.activeClients)}`}
-          icon={
-            <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-          }
-        />
-
-        {analytics && (
-          <>
-            <div className={`relative bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-6 border border-blue-200 shadow-sm hover:shadow-md transition-shadow ${userRole === 'staff' ? 'blur-sm' : ''}`}>
-              <p className="text-xs font-semibold text-blue-700 uppercase tracking-wider">Total Revenue</p>
-              <p className="text-3xl font-bold text-blue-900 mt-2">
-                ₹{(analytics.revenueByPackage.reduce((acc, pkg) => acc + pkg.revenue, 0) / 1000).toFixed(1)}k
-              </p>
-              <p className="text-sm text-blue-700 mt-1">from {analytics.revenueByPackage.reduce((acc, pkg) => acc + pkg.clients, 0)} clients</p>
-              {userRole === 'staff' && (
-                <div className="absolute inset-0 flex items-center justify-center rounded-xl">
-                  <div className="bg-white/90 rounded-lg p-3 shadow-lg">
-                    <svg className="w-6 h-6 text-gray-600" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M12 1C6.48 1 2 5.48 2 11v8h4v3h2v-3h8v3h2v-3h4v-8c0-5.52-4.48-10-10-10zm0 2c4.41 0 8 3.59 8 8v2h-2v-2c0-3.31-2.69-6-6-6s-6 2.69-6 6v2H4v-2c0-4.41 3.59-8 8-8z" />
-                    </svg>
-                  </div>
-                </div>
-              )}
+        {/* Total Clients - Clickable */}
+        <Link href="/admin/clients" className="block">
+          <div className="bg-gradient-to-br from-primary to-primary-dark text-white rounded-xl p-6 border border-primary-dark shadow-sm hover:shadow-md transition-all cursor-pointer h-full hover:scale-105">
+            <div className="flex items-center justify-between mb-4">
+              <p className="text-xs font-semibold uppercase tracking-wider opacity-90">Total Clients</p>
+              <svg className="w-6 h-6 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+              </svg>
             </div>
+            <p className="text-3xl font-bold">{stats.totalClients}</p>
+            <p className="text-sm opacity-90 mt-1">View all clients</p>
+          </div>
+        </Link>
 
-            <Link href="/admin/leads" className="block">
-              <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-6 border border-purple-200 shadow-sm hover:shadow-md transition-shadow cursor-pointer h-full">
-                <p className="text-xs font-semibold text-purple-700 uppercase tracking-wider">New Leads</p>
-                <p className="text-3xl font-bold text-purple-900 mt-2">
-                  {analytics.newLeadsThisWeek}
-                </p>
-                <p className="text-sm text-purple-700 mt-1">this week</p>
-              </div>
-            </Link>
-          </>
-        )}
+        {/* Active Clients - Clickable */}
+        <Link href="/admin/clients" className="block">
+          <div className="bg-gradient-to-br from-green-50 to-green-100 text-gray-900 rounded-xl p-6 border border-green-200 shadow-sm hover:shadow-md transition-all cursor-pointer h-full hover:scale-105">
+            <div className="flex items-center justify-between mb-4">
+              <p className="text-xs font-semibold text-green-700 uppercase tracking-wider">Active Clients</p>
+              <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <p className="text-3xl font-bold text-green-900">{stats.activeClients}</p>
+            <p className="text-sm text-green-700 mt-1">currently active</p>
+          </div>
+        </Link>
+
+        {/* New Leads */}
+        <Link href="/admin/leads" className="block">
+          <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-6 border border-purple-200 shadow-sm hover:shadow-md transition-all cursor-pointer h-full hover:scale-105">
+            <p className="text-xs font-semibold text-purple-700 uppercase tracking-wider">New Leads</p>
+            <p className="text-3xl font-bold text-purple-900 mt-2">
+              {analytics?.newLeadsThisWeek || 0}
+            </p>
+            <p className="text-sm text-purple-700 mt-1">this week</p>
+          </div>
+        </Link>
+
+        {/* Scheduled Appointments */}
+        <div className="bg-gradient-to-br from-rose-50 to-rose-100 rounded-xl p-6 border border-rose-200 shadow-sm hover:shadow-md transition-shadow h-full">
+          <p className="text-xs font-semibold text-rose-700 uppercase tracking-wider">Scheduled Appointments</p>
+          <p className="text-3xl font-bold text-rose-900 mt-2">
+            {stats.appointments ? stats.appointments.length : 0}
+          </p>
+          <p className="text-sm text-rose-700 mt-1">next 7 days</p>
+        </div>
       </div>
 
-      {/* Monthly Stats Row */}
+      {/* ROW 2: New Clients This Month, Active Packages, Revenue This Month, Total Revenue */}
       {analytics && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {/* New Clients This Month */}
           <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl p-6 border border-orange-200 shadow-sm hover:shadow-md transition-shadow">
             <p className="text-xs font-semibold text-orange-700 uppercase tracking-wider">New Clients This Month</p>
             <p className="text-3xl font-bold text-orange-900 mt-2">
-              {analytics.newClientsTrend.reduce((acc, week) => acc + week.newClients, 0)}
+              {analytics.newClientsTrend[analytics.newClientsTrend.length - 1]?.newClients || 0}
             </p>
-            <p className="text-sm text-orange-700 mt-1">across 4 weeks</p>
+            <p className="text-sm text-orange-700 mt-1">in February</p>
           </div>
 
+          {/* Active Packages */}
+          <div className="bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-xl p-6 border border-emerald-200 shadow-sm hover:shadow-md transition-shadow">
+            <p className="text-xs font-semibold text-emerald-700 uppercase tracking-wider">Active Packages</p>
+            <p className="text-3xl font-bold text-emerald-900 mt-2">
+              {analytics.revenueByPackage.reduce((acc, pkg) => acc + pkg.clients, 0)}
+            </p>
+            <p className="text-sm text-emerald-700 mt-1">in current service</p>
+          </div>
+
+          {/* Revenue This Month */}
           <div className={`relative bg-gradient-to-br from-cyan-50 to-cyan-100 rounded-xl p-6 border border-cyan-200 shadow-sm hover:shadow-md transition-shadow ${userRole === 'staff' ? 'blur-sm' : ''}`}>
             <p className="text-xs font-semibold text-cyan-700 uppercase tracking-wider">Revenue This Month</p>
             <p className="text-3xl font-bold text-cyan-900 mt-2">
               ₹{(analytics.monthlyRevenue / 1000).toFixed(1)}k
             </p>
-            <p className="text-sm text-cyan-700 mt-1">total collected</p>
+            <p className="text-sm text-cyan-700 mt-1">collected</p>
             {userRole === 'staff' && (
               <div className="absolute inset-0 flex items-center justify-center rounded-xl">
                 <div className="bg-white/90 rounded-lg p-3 shadow-lg">
@@ -292,20 +294,22 @@ export default function AdminDashboard() {
             )}
           </div>
 
-          <div className="bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-xl p-6 border border-emerald-200 shadow-sm hover:shadow-md transition-shadow">
-            <p className="text-xs font-semibold text-emerald-700 uppercase tracking-wider">Active Packages</p>
-            <p className="text-3xl font-bold text-emerald-900 mt-2">
-              {analytics.revenueByPackage.reduce((acc, pkg) => acc + pkg.clients, 0)}
+          {/* Total Revenue */}
+          <div className={`relative bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-6 border border-blue-200 shadow-sm hover:shadow-md transition-shadow ${userRole === 'staff' ? 'blur-sm' : ''}`}>
+            <p className="text-xs font-semibold text-blue-700 uppercase tracking-wider">Total Revenue</p>
+            <p className="text-3xl font-bold text-blue-900 mt-2">
+              ₹{(analytics.revenueByPackage.reduce((acc, pkg) => acc + pkg.revenue, 0) / 1000).toFixed(1)}k
             </p>
-            <p className="text-sm text-emerald-700 mt-1">in current service</p>
-          </div>
-
-          <div className="bg-gradient-to-br from-rose-50 to-rose-100 rounded-xl p-6 border border-rose-200 shadow-sm hover:shadow-md transition-shadow">
-            <p className="text-xs font-semibold text-rose-700 uppercase tracking-wider">Scheduled Appointments</p>
-            <p className="text-3xl font-bold text-rose-900 mt-2">
-              {stats.appointments ? stats.appointments.length : 0}
-            </p>
-            <p className="text-sm text-rose-700 mt-1">next 7 days</p>
+            <p className="text-sm text-blue-700 mt-1">all time</p>
+            {userRole === 'staff' && (
+              <div className="absolute inset-0 flex items-center justify-center rounded-xl">
+                <div className="bg-white/90 rounded-lg p-3 shadow-lg">
+                  <svg className="w-6 h-6 text-gray-600" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 1C6.48 1 2 5.48 2 11v8h4v3h2v-3h8v3h2v-3h4v-8c0-5.52-4.48-10-10-10zm0 2c4.41 0 8 3.59 8 8v2h-2v-2c0-3.31-2.69-6-6-6s-6 2.69-6 6v2H4v-2c0-4.41 3.59-8 8-8z" />
+                  </svg>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -425,13 +429,13 @@ export default function AdminDashboard() {
               </div>
             )}
 
-            {/* New Clients Trend */}
+            {/* New Clients by Month */}
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-              <h3 className="text-xl font-bold text-gray-900 mb-6">New Clients This Month</h3>
+              <h3 className="text-xl font-bold text-gray-900 mb-6">New Clients by Month</h3>
               <ResponsiveContainer width="100%" height={300}>
                 <BarChart data={analytics.newClientsTrend} margin={{ top: 20, right: 30, left: 0, bottom: 20 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                  <XAxis dataKey="week" tick={{ fill: '#666', fontSize: 12 }} />
+                  <XAxis dataKey="month" tick={{ fill: '#666', fontSize: 12 }} />
                   <YAxis tick={{ fill: '#666', fontSize: 12 }} label={{ value: 'New Clients', angle: -90, position: 'insideLeft' }} />
                   <Tooltip
                     formatter={(value) => value}
@@ -440,7 +444,7 @@ export default function AdminDashboard() {
                   <Bar dataKey="newClients" fill="#16a34a" radius={[8, 8, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
-              <p className="text-sm text-gray-600 mt-4">Client acquisition rate over the past 30 days</p>
+              <p className="text-sm text-gray-600 mt-4">Client acquisition rate over the past 6 months</p>
             </div>
           </div>
         </div>
