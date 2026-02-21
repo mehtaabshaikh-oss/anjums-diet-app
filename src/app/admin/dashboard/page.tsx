@@ -208,7 +208,7 @@ export default function AdminDashboard() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {/* Total Clients - Clickable */}
         <Link href="/admin/clients" className="block">
-          <div className="bg-gradient-to-br from-primary to-primary-dark text-white rounded-xl p-6 border border-primary-dark shadow-sm hover:shadow-md transition-shadow cursor-pointer h-full">
+          <div className="bg-gradient-to-br from-primary to-primary-dark text-white rounded-xl p-6 border border-primary-dark shadow-sm hover:shadow-md transition-all cursor-pointer h-full hover:scale-105">
             <div className="flex items-center justify-between mb-4">
               <p className="text-xs font-semibold uppercase tracking-wider opacity-90">Total Clients</p>
               <svg className="w-6 h-6 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -222,7 +222,7 @@ export default function AdminDashboard() {
 
         {/* Active Clients - Clickable */}
         <Link href="/admin/clients" className="block">
-          <div className="bg-gradient-to-br from-green-50 to-green-100 text-gray-900 rounded-xl p-6 border border-green-200 shadow-sm hover:shadow-md transition-shadow cursor-pointer h-full">
+          <div className="bg-gradient-to-br from-green-50 to-green-100 text-gray-900 rounded-xl p-6 border border-green-200 shadow-sm hover:shadow-md transition-all cursor-pointer h-full hover:scale-105">
             <div className="flex items-center justify-between mb-4">
               <p className="text-xs font-semibold text-green-700 uppercase tracking-wider">Active Clients</p>
               <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -236,7 +236,7 @@ export default function AdminDashboard() {
 
         {/* New Leads */}
         <Link href="/admin/leads" className="block">
-          <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-6 border border-purple-200 shadow-sm hover:shadow-md transition-shadow cursor-pointer h-full">
+          <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-6 border border-purple-200 shadow-sm hover:shadow-md transition-all cursor-pointer h-full hover:scale-105">
             <p className="text-xs font-semibold text-purple-700 uppercase tracking-wider">New Leads</p>
             <p className="text-3xl font-bold text-purple-900 mt-2">
               {analytics?.newLeadsThisWeek || 0}
@@ -246,7 +246,7 @@ export default function AdminDashboard() {
         </Link>
 
         {/* Scheduled Appointments */}
-        <div className="bg-gradient-to-br from-rose-50 to-rose-100 rounded-xl p-6 border border-rose-200 shadow-sm hover:shadow-md transition-shadow h-full">
+        <div className="bg-gradient-to-br from-rose-50 to-rose-100 rounded-xl p-6 border border-rose-200 shadow-sm hover:shadow-md transition-all h-full hover:scale-105">
           <p className="text-xs font-semibold text-rose-700 uppercase tracking-wider">Scheduled Appointments</p>
           <p className="text-3xl font-bold text-rose-900 mt-2">
             {stats.appointments ? stats.appointments.length : 0}
@@ -259,7 +259,7 @@ export default function AdminDashboard() {
       {analytics && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {/* New Clients This Month */}
-          <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl p-6 border border-orange-200 shadow-sm hover:shadow-md transition-shadow">
+          <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl p-6 border border-orange-200 shadow-sm hover:shadow-md transition-all hover:scale-105">
             <p className="text-xs font-semibold text-orange-700 uppercase tracking-wider">New Clients This Month</p>
             <p className="text-3xl font-bold text-orange-900 mt-2">
               {analytics.newClientsTrend[analytics.newClientsTrend.length - 1]?.newClients || 0}
@@ -268,7 +268,7 @@ export default function AdminDashboard() {
           </div>
 
           {/* Active Packages */}
-          <div className="bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-xl p-6 border border-emerald-200 shadow-sm hover:shadow-md transition-shadow">
+          <div className="bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-xl p-6 border border-emerald-200 shadow-sm hover:shadow-md transition-all hover:scale-105">
             <p className="text-xs font-semibold text-emerald-700 uppercase tracking-wider">Active Packages</p>
             <p className="text-3xl font-bold text-emerald-900 mt-2">
               {analytics.revenueByPackage.reduce((acc, pkg) => acc + pkg.clients, 0)}
@@ -277,7 +277,7 @@ export default function AdminDashboard() {
           </div>
 
           {/* Revenue This Month */}
-          <div className={`relative bg-gradient-to-br from-cyan-50 to-cyan-100 rounded-xl p-6 border border-cyan-200 shadow-sm hover:shadow-md transition-shadow ${userRole === 'staff' ? 'blur-sm' : ''}`}>
+          <div className={`relative bg-gradient-to-br from-cyan-50 to-cyan-100 rounded-xl p-6 border border-cyan-200 shadow-sm hover:shadow-md transition-all hover:scale-105 ${userRole === 'staff' ? 'blur-sm' : ''}`}>
             <p className="text-xs font-semibold text-cyan-700 uppercase tracking-wider">Revenue This Month</p>
             <p className="text-3xl font-bold text-cyan-900 mt-2">
               ₹{(analytics.monthlyRevenue / 1000).toFixed(1)}k
@@ -295,7 +295,7 @@ export default function AdminDashboard() {
           </div>
 
           {/* Total Revenue */}
-          <div className={`relative bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-6 border border-blue-200 shadow-sm hover:shadow-md transition-shadow ${userRole === 'staff' ? 'blur-sm' : ''}`}>
+          <div className={`relative bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-6 border border-blue-200 shadow-sm hover:shadow-md transition-all hover:scale-105 ${userRole === 'staff' ? 'blur-sm' : ''}`}>
             <p className="text-xs font-semibold text-blue-700 uppercase tracking-wider">Total Revenue</p>
             <p className="text-3xl font-bold text-blue-900 mt-2">
               ₹{(analytics.revenueByPackage.reduce((acc, pkg) => acc + pkg.revenue, 0) / 1000).toFixed(1)}k
