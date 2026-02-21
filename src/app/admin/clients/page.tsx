@@ -150,14 +150,14 @@ export default function ClientsPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Manage Clients</h1>
-          <p className="text-gray-600">Total: {clients.length} clients</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Manage Clients</h1>
+          <p className="text-sm sm:text-base text-gray-600">Total: {clients.length} clients</p>
         </div>
         <Link
           href="/admin/clients/new"
-          className="px-6 py-3 bg-primary text-white font-semibold rounded-lg hover:bg-primary-dark transition-colors"
+          className="px-4 sm:px-6 py-3 bg-primary text-white font-semibold rounded-lg hover:bg-primary-dark transition-colors text-center sm:text-left whitespace-nowrap"
         >
           + Add New Client
         </Link>
@@ -171,8 +171,8 @@ export default function ClientsPage() {
       )}
 
       {/* Filters */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
           {/* Search */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -223,7 +223,7 @@ export default function ClientsPage() {
               <thead className="bg-gray-50 border-b border-gray-200">
                 <tr>
                   <th
-                    className="px-6 py-4 text-left text-sm font-semibold text-gray-900 cursor-pointer hover:bg-gray-100 transition-colors select-none"
+                    className="px-3 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-semibold text-gray-900 cursor-pointer hover:bg-gray-100 transition-colors select-none"
                     onClick={() => handleSort('name')}
                   >
                     <div className="flex items-center gap-2">
@@ -236,7 +236,7 @@ export default function ClientsPage() {
                     </div>
                   </th>
                   <th
-                    className="px-6 py-4 text-left text-sm font-semibold text-gray-900 cursor-pointer hover:bg-gray-100 transition-colors select-none"
+                    className="px-3 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-semibold text-gray-900 cursor-pointer hover:bg-gray-100 transition-colors select-none"
                     onClick={() => handleSort('email')}
                   >
                     <div className="flex items-center gap-2">

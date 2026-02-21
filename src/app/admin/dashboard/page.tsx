@@ -186,10 +186,10 @@ export default function AdminDashboard() {
     <div className="space-y-8 animate-fadeIn">
       {/* Greeting */}
       <div>
-        <h1 className="text-4xl font-bold text-gray-900">
+        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900">
           Welcome back, <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-primary-dark">{adminName}</span>! 👋
         </h1>
-        <p className="text-gray-600 mt-2 text-lg">
+        <p className="text-gray-600 mt-2 text-sm sm:text-base lg:text-lg">
           Here's a snapshot of your wellness practice
         </p>
       </div>
@@ -313,7 +313,7 @@ export default function AdminDashboard() {
       {/* Analytics Section */}
       {analytics && (
         <div className="space-y-8">
-          <h2 className="text-3xl font-bold text-gray-900">Analytics & Insights</h2>
+          <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900">Analytics & Insights</h2>
 
           {/* Charts Grid */}
           <div className="grid lg:grid-cols-2 gap-8">
@@ -448,23 +448,28 @@ export default function AdminDashboard() {
 
       {/* Quick Actions */}
       <div>
-        <h2 className="text-2xl font-bold text-gray-900 mb-6">Quick Actions</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <h2 className="text-xl sm:text-2xl lg:text-2xl font-bold text-gray-900 mb-6">Quick Actions</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
           {quickActions.map((action) => (
             <Link key={action.href} href={action.href}>
               <div
-                className={`h-full bg-gradient-to-br ${action.gradient} text-white rounded-xl p-6 shadow-lg transition-all duration-300 hover:shadow-2xl hover:scale-105 cursor-pointer group`}
+                className={`h-full bg-gradient-to-br ${action.gradient} text-white rounded-lg sm:rounded-xl p-4 sm:p-6 shadow-md sm:shadow-lg transition-all duration-300 hover:shadow-xl sm:hover:shadow-2xl sm:hover:scale-105 cursor-pointer group`}
               >
-                <div className="flex items-start justify-between mb-4">
-                  <div className="bg-white/20 rounded-lg p-3 group-hover:bg-white/30 transition-all">
-                    {action.icon}
+                <div className="flex items-start justify-between mb-3 sm:mb-4">
+                  <div className="bg-white/20 rounded-lg p-2 sm:p-3 group-hover:bg-white/30 transition-all">
+                    <svg className="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      {action.href === '/admin/clients/new' && <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />}
+                      {action.href === '/admin/clients' && <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 12H9m4 5H9m6 0a9 9 0 11-18 0 9 9 0 0118 0z" />}
+                      {action.href === '/admin/diet-logs-dashboard' && <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />}
+                      {action.href === '/' && <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />}
+                    </svg>
                   </div>
                 </div>
-                <h3 className="text-lg font-bold mb-2">{action.title}</h3>
-                <p className="text-sm opacity-90">{action.description}</p>
-                <div className="mt-4 flex items-center gap-2 text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity">
+                <h3 className="text-base sm:text-lg font-bold mb-1 sm:mb-2 line-clamp-2">{action.title}</h3>
+                <p className="text-xs sm:text-sm opacity-90 line-clamp-2">{action.description}</p>
+                <div className="mt-3 sm:mt-4 flex items-center gap-2 text-xs sm:text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity">
                   <span>Get started</span>
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                   </svg>
                 </div>
