@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 
 interface Client {
   id: string | number
@@ -20,6 +20,8 @@ type SortField = 'name' | 'email' | 'phone' | 'package' | 'status' | 'nutritioni
 type SortOrder = 'asc' | 'desc'
 
 export default function ClientsPage() {
+  const router = useRouter()
+  const searchParams = useSearchParams()
   const [clients, setClients] = useState<Client[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
@@ -27,7 +29,14 @@ export default function ClientsPage() {
   const [error, setError] = useState('')
   const [sortBy, setSortBy] = useState<SortField>('name')
   const [sortOrder, setSortOrder] = useState<SortOrder>('asc')
-  const router = useRouter()
+
+  // Check for status filter in query parameters on mount
+  useEffect(() => {
+    const statusParam = searchParams.get('status')
+    if (statusParam) {
+      setStatusFilter(statusParam)
+    }
+  }, [searchParams])
 
   useEffect(() => {
     fetchClients()

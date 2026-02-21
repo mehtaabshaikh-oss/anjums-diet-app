@@ -221,7 +221,7 @@ export default function AdminDashboard() {
         </Link>
 
         {/* Active Clients - Clickable */}
-        <Link href="/admin/clients" className="block">
+        <Link href="/admin/clients?status=active" className="block">
           <div className="bg-gradient-to-br from-green-50 to-green-100 text-gray-900 rounded-xl p-6 border border-green-200 shadow-sm hover:shadow-md transition-all cursor-pointer h-full hover:scale-105">
             <div className="flex items-center justify-between mb-4">
               <p className="text-xs font-semibold text-green-700 uppercase tracking-wider">Active Clients</p>
