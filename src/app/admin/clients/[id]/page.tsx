@@ -1589,6 +1589,117 @@ export default function ClientDetailPage() {
       {/* Progress Tab */}
       {activeTab === 'progress' && (
         <div className="space-y-6">
+          {/* No Measurements Message */}
+          {!client?.measurements_logs || client.measurements_logs.length === 0 ? (
+            <div className="text-center py-12">
+              <p className="text-gray-600 text-lg mb-4">No measurements recorded yet</p>
+              <button
+                onClick={() => setShowAddMeasurements(true)}
+                className="px-6 py-3 bg-primary text-white font-semibold rounded-lg hover:bg-primary-dark transition-colors"
+              >
+                + Add First Measurement
+              </button>
+              {showAddMeasurements && (
+                <div className="mt-6 bg-white rounded-xl shadow-sm border border-gray-200 p-6 max-w-2xl mx-auto">
+                  <h3 className="text-xl font-bold text-gray-900 mb-4">Record Body Measurements</h3>
+                  <form onSubmit={handleAddMeasurements} className="space-y-4">
+                    {measurementsError && (
+                      <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+                        <p className="text-red-700 text-sm">{measurementsError}</p>
+                      </div>
+                    )}
+
+                    <div className="grid md:grid-cols-3 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Date</label>
+                        <input
+                          type="date"
+                          value={measurementsFormData.logged_date}
+                          onChange={(e) =>
+                            setMeasurementsFormData({ ...measurementsFormData, logged_date: e.target.value })
+                          }
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Chest (cm)</label>
+                        <input
+                          type="number"
+                          step="0.1"
+                          value={measurementsFormData.chest_cm}
+                          onChange={(e) =>
+                            setMeasurementsFormData({ ...measurementsFormData, chest_cm: e.target.value })
+                          }
+                          placeholder="e.g., 95.5"
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Waist (cm)</label>
+                        <input
+                          type="number"
+                          step="0.1"
+                          value={measurementsFormData.waist_cm}
+                          onChange={(e) =>
+                            setMeasurementsFormData({ ...measurementsFormData, waist_cm: e.target.value })
+                          }
+                          placeholder="e.g., 80"
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Hip (cm)</label>
+                        <input
+                          type="number"
+                          step="0.1"
+                          value={measurementsFormData.hip_cm}
+                          onChange={(e) =>
+                            setMeasurementsFormData({ ...measurementsFormData, hip_cm: e.target.value })
+                          }
+                          placeholder="e.g., 100"
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Thigh (cm)</label>
+                        <input
+                          type="number"
+                          step="0.1"
+                          value={measurementsFormData.thigh_cm}
+                          onChange={(e) =>
+                            setMeasurementsFormData({ ...measurementsFormData, thigh_cm: e.target.value })
+                          }
+                          placeholder="e.g., 55"
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Notes</label>
+                        <input
+                          type="text"
+                          value={measurementsFormData.notes}
+                          onChange={(e) =>
+                            setMeasurementsFormData({ ...measurementsFormData, notes: e.target.value })
+                          }
+                          placeholder="Optional notes"
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                        />
+                      </div>
+                    </div>
+
+                    <button
+                      type="submit"
+                      disabled={submittingMeasurements}
+                      className="w-full px-6 py-3 bg-primary text-white font-semibold rounded-lg hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {submittingMeasurements ? 'Saving...' : 'Save Measurements'}
+                    </button>
+                  </form>
+                </div>
+              )}
+            </div>
+          ) : (
+            <>
           {/* 1. TOTAL PROGRESS - Hero Stat */}
           {client?.measurements_logs && client.measurements_logs.length > 0 && (
             <>
@@ -1747,9 +1858,9 @@ export default function ClientDetailPage() {
               ].map(({ label, key, icon }) => {
                 const firstLog = client.measurements_logs?.[0]
                 const latestLog = client.measurements_logs?.[client.measurements_logs.length - 1]
-                const initialValue = firstLog ? firstLog[key as keyof typeof firstLog] : 0
-                const latestValue = latestLog ? latestLog[key as keyof typeof latestLog] : 0
-                const reduction = initialValue && latestValue ? initialValue - latestValue : 0
+                const initialValue = (firstLog ? (firstLog[key as keyof typeof firstLog] as number | null) : 0) || 0
+                const latestValue = (latestLog ? (latestLog[key as keyof typeof latestLog] as number | null) : 0) || 0
+                const reduction = (initialValue as number) && (latestValue as number) ? (initialValue as number) - (latestValue as number) : 0
 
                 return (
                   <div key={label} className="bg-white rounded-lg shadow-sm border border-gray-200 p-2">
@@ -2108,6 +2219,8 @@ export default function ClientDetailPage() {
                   </table>
                 </div>
               </div>
+            </>
+          )}
             </>
           )}
         </div>
