@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 
@@ -19,7 +19,7 @@ interface Client {
 type SortField = 'name' | 'email' | 'phone' | 'package' | 'status' | 'nutritionist' | 'next_appointment_date'
 type SortOrder = 'asc' | 'desc'
 
-export default function ClientsPage() {
+function ClientsPageContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [clients, setClients] = useState<Client[]>([])
@@ -381,5 +381,13 @@ export default function ClientsPage() {
         </div>
       )}
     </div>
+  )
+}
+
+export default function ClientsPage() {
+  return (
+    <Suspense fallback={<div className="p-8 text-center">Loading...</div>}>
+      <ClientsPageContent />
+    </Suspense>
   )
 }
