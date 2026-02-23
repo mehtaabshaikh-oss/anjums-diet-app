@@ -1589,94 +1589,170 @@ export default function ClientDetailPage() {
       {/* Progress Tab */}
       {activeTab === 'progress' && (
         <div className="space-y-6">
-          {/* Summary Stats - Always visible at top */}
-          <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-4">
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-              <p className="text-sm text-gray-600 mb-2">Start Weight</p>
-              <p className="text-3xl font-bold text-gray-900">
-                {profile?.weight_kg ? `${profile.weight_kg} kg` : '−'}
-              </p>
-            </div>
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-              <p className="text-sm text-gray-600 mb-2">Current Weight</p>
-              <p className="text-3xl font-bold text-gray-900">
-                {client?.weight_logs && client.weight_logs.length > 0
-                  ? `${client.weight_logs[client.weight_logs.length - 1].weight_kg} kg`
-                  : profile?.weight_kg
-                  ? `${profile.weight_kg} kg`
-                  : '−'}
-              </p>
-            </div>
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-              <p className="text-sm text-gray-600 mb-2">Goal Weight</p>
-              <p className="text-3xl font-bold text-primary">
-                {profile?.target_weight_kg ? `${profile.target_weight_kg} kg` : '−'}
-              </p>
-            </div>
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-              <p className="text-sm text-gray-600 mb-2">Total Loss/Gain</p>
-              <p className={`text-3xl font-bold ${
-                (() => {
-                  const startWeight = profile?.weight_kg || 0
-                  const currentWeight = client?.weight_logs && client.weight_logs.length > 0
-                    ? client.weight_logs[client.weight_logs.length - 1].weight_kg
-                    : startWeight
-                  return (startWeight - currentWeight) > 0 ? 'text-green-600' : 'text-red-600'
-                })()
-              }`}>
-                {(() => {
-                  const startWeight = profile?.weight_kg || 0
-                  const currentWeight = client?.weight_logs && client.weight_logs.length > 0
-                    ? client.weight_logs[client.weight_logs.length - 1].weight_kg
-                    : startWeight
-                  const difference = Math.abs(startWeight - currentWeight)
-                  return difference > 0 ? `${difference.toFixed(1)} kg` : '−'
-                })()}
-              </p>
-            </div>
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-              <p className="text-sm text-gray-600 mb-2">% to Goal</p>
-              <p className="text-3xl font-bold text-indigo-600">
-                {(() => {
-                  const startWeight = profile?.weight_kg
-                  const targetWeight = profile?.target_weight_kg
-                  const currentWeight = client?.weight_logs && client.weight_logs.length > 0
-                    ? client.weight_logs[client.weight_logs.length - 1].weight_kg
-                    : startWeight
+          {/* 1. TOTAL PROGRESS - Hero Stat */}
+          {client?.measurements_logs && client.measurements_logs.length > 0 && (
+            <>
+              <div className="bg-gradient-to-r from-primary/10 to-primary/5 rounded-xl border-2 border-primary p-8 text-center">
+                <p className="text-sm font-semibold text-primary uppercase tracking-wide mb-2">Total Progress</p>
+                <p className="text-5xl font-bold text-gray-900 mb-1">
+                  {(() => {
+                    const firstLog = client.measurements_logs[0]
+                    const latestLog = client.measurements_logs[client.measurements_logs.length - 1]
 
-                  if (!startWeight || !targetWeight || !currentWeight) return '−'
+                    const initialTotal = (firstLog.chest_cm || 0) + (firstLog.waist_cm || 0) + (firstLog.hip_cm || 0) + (firstLog.thigh_cm || 0)
+                    const latestTotal = (latestLog.chest_cm || 0) + (latestLog.waist_cm || 0) + (latestLog.hip_cm || 0) + (latestLog.thigh_cm || 0)
 
-                  const totalToLose = startWeight - targetWeight
-                  const alreadyLost = startWeight - currentWeight
-                  const percentage = Math.round((alreadyLost / totalToLose) * 100)
+                    const totalReduction = initialTotal - latestTotal
+                    return totalReduction > 0 ? `${totalReduction.toFixed(1)} cm` : '−'
+                  })()}
+                </p>
+                <p className="text-lg text-primary font-semibold">cm Lost</p>
+              </div>
 
-                  return `${percentage}%`
-                })()}
-              </p>
+              {/* Add Measurements Button */}
+              <button
+                onClick={() => setShowAddMeasurements(!showAddMeasurements)}
+                className="px-6 py-3 bg-primary text-white font-semibold rounded-lg hover:bg-primary-dark transition-colors"
+              >
+                + Add Measurements
+              </button>
+            </>
+          )}
+
+          {/* 2. MEASUREMENT STATS CARDS - Chest, Waist, Hip, Thigh */}
+          {client?.measurements_logs && client.measurements_logs.length > 0 && (
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+              {[
+                { label: 'Chest', key: 'chest_cm', icon: '💪' },
+                { label: 'Waist', key: 'waist_cm', icon: '📏' },
+                { label: 'Hip', key: 'hip_cm', icon: '🍑' },
+                { label: 'Thigh', key: 'thigh_cm', icon: '🦵' },
+              ].map(({ label, key, icon }) => {
+                const firstLog = client.measurements_logs?.[0]
+                const latestLog = client.measurements_logs?.[client.measurements_logs.length - 1]
+                const initialValue = firstLog ? firstLog[key as keyof typeof firstLog] : 0
+                const latestValue = latestLog ? latestLog[key as keyof typeof latestLog] : 0
+                const reduction = initialValue && latestValue ? initialValue - latestValue : 0
+
+                return (
+                  <div key={label} className="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
+                    <p className="text-sm font-semibold text-gray-700 mb-4">{icon} {label}</p>
+
+                    {/* Before & After Display */}
+                    <div className="space-y-3">
+                      {/* Before */}
+                      <div>
+                        <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Before</p>
+                        <p className="text-2xl font-bold text-gray-400">
+                          {initialValue ? `${initialValue} cm` : '−'}
+                        </p>
+                      </div>
+
+                      {/* Arrow & Reduction */}
+                      <div className="flex items-center justify-center py-2">
+                        <div className="text-center">
+                          <svg className="w-4 h-4 text-green-600 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                          </svg>
+                          <p className="text-lg font-bold text-green-600">
+                            {reduction > 0 ? `−${reduction.toFixed(1)}` : '−'} cm
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* After */}
+                      <div>
+                        <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">After</p>
+                        <p className="text-2xl font-bold text-primary">
+                          {latestValue ? `${latestValue} cm` : '−'}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )
+              })}
             </div>
-          </div>
+          )}
 
-          {/* Action Buttons - Always visible at top */}
-          <div className="flex gap-4 flex-wrap">
-            <button
-              onClick={() => setShowAddWeight(!showAddWeight)}
-              className="px-6 py-3 bg-primary text-white font-semibold rounded-lg hover:bg-primary-dark transition-colors"
-            >
-              + Add Weight
-            </button>
-            <button
-              onClick={() => setShowAddMeasurements(!showAddMeasurements)}
-              className="px-6 py-3 bg-primary text-white font-semibold rounded-lg hover:bg-primary-dark transition-colors"
-            >
-              + Add Measurements
-            </button>
-          </div>
-
-          {/* Add Weight Form - Appears right after buttons */}
-          {showAddWeight && (
+          {/* 3. MEASUREMENT TRENDS CHART */}
+          {client?.measurements_logs && client.measurements_logs.length > 1 && (
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-              <h3 className="text-xl font-bold text-gray-900 mb-4">Add Weight Measurement</h3>
-              <form onSubmit={handleAddWeight} className="space-y-4">
+              <h2 className="text-2xl font-bold text-gray-900 mb-6">Measurement Trends</h2>
+              <ResponsiveContainer width="100%" height={300}>
+                <LineChart data={client.measurements_logs.map(log => ({
+                  date: new Date(log.logged_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+                  chest: log.chest_cm,
+                  waist: log.waist_cm,
+                  hip: log.hip_cm,
+                  thigh: log.thigh_cm,
+                  fullDate: log.logged_date,
+                }))}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="date" />
+                  <YAxis />
+                  <Tooltip contentStyle={{ backgroundColor: '#fff', border: '1px solid #ccc' }} />
+                  <Legend />
+                  <Line type="monotone" dataKey="chest" stroke="#3b82f6" name="Chest" strokeWidth={2} dot={{ r: 4 }} connectNulls={true} />
+                  <Line type="monotone" dataKey="waist" stroke="#ef4444" name="Waist" strokeWidth={2} dot={{ r: 4 }} connectNulls={true} />
+                  <Line type="monotone" dataKey="hip" stroke="#ec4899" name="Hip" strokeWidth={2} dot={{ r: 4 }} connectNulls={true} />
+                  <Line type="monotone" dataKey="thigh" stroke="#f59e0b" name="Thigh" strokeWidth={2} dot={{ r: 4 }} connectNulls={true} />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          )}
+
+          {/* 4. MEASUREMENTS HISTORY TABLE */}
+          {client?.measurements_logs && client.measurements_logs.length > 0 && (
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+              <div className="p-6 border-b border-gray-200">
+                <h3 className="text-xl font-bold text-gray-900">Measurements History</h3>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead className="bg-gray-50 border-b border-gray-200">
+                    <tr>
+                      <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Date</th>
+                      <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Chest (cm)</th>
+                      <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Waist (cm)</th>
+                      <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Hip (cm)</th>
+                      <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Thigh (cm)</th>
+                      <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Notes</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {client.measurements_logs && [...client.measurements_logs].reverse().map((log) => (
+                      <tr key={log.id} className="border-b border-gray-200 hover:bg-gray-50">
+                        <td className="px-6 py-4 text-sm text-gray-900">
+                          {new Date(log.logged_date).toLocaleDateString()}
+                        </td>
+                        <td className="px-6 py-4 text-sm font-semibold text-gray-900">
+                          {log.chest_cm ? `${log.chest_cm} cm` : '−'}
+                        </td>
+                        <td className="px-6 py-4 text-sm font-semibold text-gray-900">
+                          {log.waist_cm ? `${log.waist_cm} cm` : '−'}
+                        </td>
+                        <td className="px-6 py-4 text-sm font-semibold text-gray-900">
+                          {log.hip_cm ? `${log.hip_cm} cm` : '−'}
+                        </td>
+                        <td className="px-6 py-4 text-sm font-semibold text-gray-900">
+                          {log.thigh_cm ? `${log.thigh_cm} cm` : '−'}
+                        </td>
+                        <td className="px-6 py-4 text-sm text-gray-600">
+                          {log.notes || '−'}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {/* 5. ADD MEASUREMENTS FORM - Conditional */}
+          {showAddMeasurements && (
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+              <h3 className="text-xl font-bold text-gray-900 mb-4">Record Body Measurements</h3>
+              <form onSubmit={handleAddMeasurements} className="space-y-4">
                 {weightError && (
                   <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
                     <p className="text-red-700 text-sm">{weightError}</p>
@@ -1936,6 +2012,80 @@ export default function ClientDetailPage() {
                       })}
                     </tbody>
                   </table>
+                </div>
+              </div>
+            </>
+          )}
+
+          {/* Weight Stats - Secondary Focus */}
+          {client?.weight_logs && client.weight_logs.length > 0 && (
+            <>
+              <div className="border-t-2 border-gray-200 pt-8 mt-8">
+                <h2 className="text-2xl font-bold text-gray-900 mb-6">Weight Tracking (Secondary)</h2>
+              </div>
+              <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-4">
+                <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+                  <p className="text-sm text-gray-600 mb-2">Start Weight</p>
+                  <p className="text-3xl font-bold text-gray-900">
+                    {profile?.weight_kg ? `${profile.weight_kg} kg` : '−'}
+                  </p>
+                </div>
+                <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+                  <p className="text-sm text-gray-600 mb-2">Current Weight</p>
+                  <p className="text-3xl font-bold text-gray-900">
+                    {client?.weight_logs && client.weight_logs.length > 0
+                      ? `${client.weight_logs[client.weight_logs.length - 1].weight_kg} kg`
+                      : profile?.weight_kg
+                      ? `${profile.weight_kg} kg`
+                      : '−'}
+                  </p>
+                </div>
+                <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+                  <p className="text-sm text-gray-600 mb-2">Goal Weight</p>
+                  <p className="text-3xl font-bold text-primary">
+                    {profile?.target_weight_kg ? `${profile.target_weight_kg} kg` : '−'}
+                  </p>
+                </div>
+                <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+                  <p className="text-sm text-gray-600 mb-2">Total Loss/Gain</p>
+                  <p className={`text-3xl font-bold ${
+                    (() => {
+                      const startWeight = profile?.weight_kg || 0
+                      const currentWeight = client?.weight_logs && client.weight_logs.length > 0
+                        ? client.weight_logs[client.weight_logs.length - 1].weight_kg
+                        : startWeight
+                      return (startWeight - currentWeight) > 0 ? 'text-green-600' : 'text-red-600'
+                    })()
+                  }`}>
+                    {(() => {
+                      const startWeight = profile?.weight_kg || 0
+                      const currentWeight = client?.weight_logs && client.weight_logs.length > 0
+                        ? client.weight_logs[client.weight_logs.length - 1].weight_kg
+                        : startWeight
+                      const difference = Math.abs(startWeight - currentWeight)
+                      return difference > 0 ? `${difference.toFixed(1)} kg` : '−'
+                    })()}
+                  </p>
+                </div>
+                <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+                  <p className="text-sm text-gray-600 mb-2">% to Goal</p>
+                  <p className="text-3xl font-bold text-indigo-600">
+                    {(() => {
+                      const startWeight = profile?.weight_kg
+                      const targetWeight = profile?.target_weight_kg
+                      const currentWeight = client?.weight_logs && client.weight_logs.length > 0
+                        ? client.weight_logs[client.weight_logs.length - 1].weight_kg
+                        : startWeight
+
+                      if (!startWeight || !targetWeight || !currentWeight) return '−'
+
+                      const totalToLose = startWeight - targetWeight
+                      const alreadyLost = startWeight - currentWeight
+                      const percentage = Math.round((alreadyLost / totalToLose) * 100)
+
+                      return `${percentage}%`
+                    })()}
+                  </p>
                 </div>
               </div>
             </>
