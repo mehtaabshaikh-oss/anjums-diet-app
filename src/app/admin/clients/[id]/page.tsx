@@ -1811,7 +1811,6 @@ export default function ClientDetailPage() {
                   <XAxis dataKey="date" />
                   <YAxis />
                   <Tooltip contentStyle={{ backgroundColor: '#fff', border: '1px solid #ccc' }} />
-                  <Legend />
                   <Line type="monotone" dataKey="chest" stroke="#3b82f6" name="Chest" strokeWidth={2} dot={{ r: 4 }} connectNulls={true} />
                   <Line type="monotone" dataKey="waist" stroke="#ef4444" name="Waist" strokeWidth={2} dot={{ r: 4 }} connectNulls={true} />
                   <Line type="monotone" dataKey="hip" stroke="#ec4899" name="Hip" strokeWidth={2} dot={{ r: 4 }} connectNulls={true} />
