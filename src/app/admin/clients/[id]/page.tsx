@@ -1753,75 +1753,6 @@ export default function ClientDetailPage() {
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
               <h3 className="text-xl font-bold text-gray-900 mb-4">Record Body Measurements</h3>
               <form onSubmit={handleAddMeasurements} className="space-y-4">
-                {weightError && (
-                  <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
-                    <p className="text-red-700 text-sm">{weightError}</p>
-                  </div>
-                )}
-
-                <div className="grid md:grid-cols-3 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Date
-                    </label>
-                    <input
-                      type="date"
-                      value={weightFormData.logged_date}
-                      onChange={(e) =>
-                        setWeightFormData({ ...weightFormData, logged_date: e.target.value })
-                      }
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Weight (kg) *
-                    </label>
-                    <input
-                      type="number"
-                      step="0.1"
-                      value={weightFormData.weight_kg}
-                      onChange={(e) =>
-                        setWeightFormData({ ...weightFormData, weight_kg: e.target.value })
-                      }
-                      placeholder="e.g., 75.5"
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Notes
-                    </label>
-                    <input
-                      type="text"
-                      value={weightFormData.notes}
-                      onChange={(e) =>
-                        setWeightFormData({ ...weightFormData, notes: e.target.value })
-                      }
-                      placeholder="Optional notes"
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                    />
-                  </div>
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={submittingWeight}
-                  className="w-full px-6 py-3 bg-primary text-white font-semibold rounded-lg hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {submittingWeight ? 'Saving...' : 'Save Weight Measurement'}
-                </button>
-              </form>
-            </div>
-          )}
-
-          {/* Add Measurements Form - Appears right after buttons */}
-          {showAddMeasurements && (
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-              <h3 className="text-xl font-bold text-gray-900 mb-4">Record Body Measurements</h3>
-              <form onSubmit={handleAddMeasurements} className="space-y-4">
                 {measurementsError && (
                   <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
                     <p className="text-red-700 text-sm">{measurementsError}</p>
@@ -2017,12 +1948,20 @@ export default function ClientDetailPage() {
             </>
           )}
 
-          {/* Weight Stats - Secondary Focus */}
+          {/* 6. WEIGHT TRACKING */}
           {client?.weight_logs && client.weight_logs.length > 0 && (
             <>
               <div className="border-t-2 border-gray-200 pt-8 mt-8">
-                <h2 className="text-2xl font-bold text-gray-900 mb-6">Weight Tracking (Secondary)</h2>
+                <h2 className="text-2xl font-bold text-gray-900 mb-6">Weight Tracking</h2>
               </div>
+
+              {/* Add Weight Button */}
+              <button
+                onClick={() => setShowAddWeight(!showAddWeight)}
+                className="px-6 py-3 bg-primary text-white font-semibold rounded-lg hover:bg-primary-dark transition-colors"
+              >
+                + Add Weight
+              </button>
               <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-4">
                 <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
                   <p className="text-sm text-gray-600 mb-2">Start Weight</p>
