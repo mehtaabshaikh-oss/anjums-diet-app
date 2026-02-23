@@ -13,6 +13,8 @@ interface DietLogItem {
     quantity: number
     unit: string
     meal_type: string
+    time?: string | null
+    notes?: string | null
   }
 }
 
