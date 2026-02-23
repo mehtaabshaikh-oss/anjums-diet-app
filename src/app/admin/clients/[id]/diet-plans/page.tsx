@@ -264,16 +264,22 @@ export default function ClientDietPlansPage() {
             <tr>
               <th>Item</th>
               <th>Quantity</th>
+              <th>Time</th>
+              <th>Notes</th>
             </tr>
           </thead>
           <tbody>
       `
 
       mealGroups[mealType].forEach(item => {
+        const time = item.time || '-'
+        const notes = item.notes || '-'
         html += `
           <tr>
             <td>${item.item_name}</td>
             <td>${item.quantity} ${item.unit}</td>
+            <td>${time}</td>
+            <td>${notes}</td>
           </tr>
         `
       })
@@ -568,21 +574,29 @@ export default function ClientDietPlansPage() {
                         {planItems[plan.id].map(item => (
                           <div
                             key={item.id}
-                            className="flex items-center justify-between bg-white p-4 rounded-lg border border-gray-200"
+                            className="bg-white p-4 rounded-lg border border-gray-200 space-y-2"
                           >
-                            <div>
-                              <p className="text-sm font-medium text-gray-600 capitalize">
-                                {item.meal_type}
-                              </p>
-                              <p className="text-lg font-semibold text-gray-900">
-                                {item.item_name}
-                              </p>
+                            <div className="flex items-center justify-between">
+                              <div>
+                                <p className="text-sm font-medium text-gray-600 capitalize">
+                                  {item.meal_type}
+                                  {item.time && <span className="ml-2 text-primary font-semibold">🕐 {item.time}</span>}
+                                </p>
+                                <p className="text-lg font-semibold text-gray-900">
+                                  {item.item_name}
+                                </p>
+                              </div>
+                              <div className="text-right">
+                                <p className="text-lg font-bold text-primary">
+                                  {item.quantity} {item.unit}
+                                </p>
+                              </div>
                             </div>
-                            <div className="text-right">
-                              <p className="text-lg font-bold text-primary">
-                                {item.quantity} {item.unit}
+                            {item.notes && (
+                              <p className="text-sm text-gray-600 bg-blue-50 p-2 rounded border border-blue-100">
+                                💡 {item.notes}
                               </p>
-                            </div>
+                            )}
                           </div>
                         ))}
                       </div>
