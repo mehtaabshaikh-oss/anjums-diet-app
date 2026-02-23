@@ -79,7 +79,7 @@ export default function ClientDietPlansPage() {
       ...prev,
       items: [
         ...prev.items,
-        { meal_type: 'breakfast', item_name: '', quantity: 0, unit: 'pieces' },
+        { meal_type: 'breakfast', item_name: '', quantity: 0, unit: 'pieces', time: '', notes: '' },
       ],
     }))
   }
@@ -132,7 +132,7 @@ export default function ClientDietPlansPage() {
       setFormData({
         name: '',
         description: '',
-        items: [{ meal_type: 'breakfast', item_name: '', quantity: 0, unit: 'pieces' }],
+        items: [{ meal_type: 'breakfast', item_name: '', quantity: 0, unit: 'pieces', time: '', notes: '' }],
       })
       await fetchDietPlans()
     } catch (err) {
@@ -151,7 +151,9 @@ export default function ClientDietPlansPage() {
         item_name: item.item_name,
         quantity: item.quantity,
         unit: item.unit,
-      })) || [{ meal_type: 'breakfast', item_name: '', quantity: 0, unit: 'pieces' }],
+        time: item.time || '',
+        notes: item.notes || '',
+      })) || [{ meal_type: 'breakfast', item_name: '', quantity: 0, unit: 'pieces', time: '', notes: '' }],
     })
     setShowForm(true)
     setExpandedPlanId(null)
@@ -179,7 +181,7 @@ export default function ClientDietPlansPage() {
     setFormData({
       name: '',
       description: '',
-      items: [{ meal_type: 'breakfast', item_name: '', quantity: 0, unit: 'pieces' }],
+      items: [{ meal_type: 'breakfast', item_name: '', quantity: 0, unit: 'pieces', time: '', notes: '' }],
     })
   }
 
