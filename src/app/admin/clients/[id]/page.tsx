@@ -1738,7 +1738,7 @@ export default function ClientDetailPage() {
 
           {/* 2. MEASUREMENT STATS CARDS - Chest, Waist, Hip, Thigh */}
           {client?.measurements_logs && client.measurements_logs.length > 0 && (
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-3">
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-2">
               {[
                 { label: 'Chest', key: 'chest_cm', icon: '💪' },
                 { label: 'Waist', key: 'waist_cm', icon: '📏' },
@@ -1752,26 +1752,26 @@ export default function ClientDetailPage() {
                 const reduction = initialValue && latestValue ? initialValue - latestValue : 0
 
                 return (
-                  <div key={label} className="bg-white rounded-lg shadow-sm border border-gray-200 p-3">
-                    <p className="text-xs font-semibold text-gray-700 mb-3">{icon} {label}</p>
+                  <div key={label} className="bg-white rounded-lg shadow-sm border border-gray-200 p-2">
+                    <p className="text-xs font-semibold text-gray-700 mb-2">{icon} {label}</p>
 
                     {/* Before & After Display */}
-                    <div className="space-y-2">
+                    <div className="space-y-1.5">
                       {/* Before */}
                       <div>
-                        <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Before</p>
-                        <p className="text-lg font-bold text-gray-400">
+                        <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-0.5">Before</p>
+                        <p className="text-base font-bold text-gray-400">
                           {initialValue ? `${initialValue} cm` : '−'}
                         </p>
                       </div>
 
                       {/* Arrow & Reduction */}
-                      <div className="flex items-center justify-center py-1">
+                      <div className="flex items-center justify-center py-0.5">
                         <div className="text-center">
-                          <svg className="w-3 h-3 text-green-600 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <svg className="w-2.5 h-2.5 text-green-600 mx-auto mb-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                           </svg>
-                          <p className="text-sm font-bold text-green-600">
+                          <p className="text-xs font-bold text-green-600">
                             {reduction > 0 ? `−${reduction.toFixed(1)}` : '−'} cm
                           </p>
                         </div>
@@ -1779,8 +1779,8 @@ export default function ClientDetailPage() {
 
                       {/* After */}
                       <div>
-                        <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">After</p>
-                        <p className="text-lg font-bold text-primary">
+                        <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-0.5">After</p>
+                        <p className="text-base font-bold text-primary">
                           {latestValue ? `${latestValue} cm` : '−'}
                         </p>
                       </div>
@@ -1796,14 +1796,17 @@ export default function ClientDetailPage() {
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
               <h2 className="text-2xl font-bold text-gray-900 mb-6">Measurement Trends</h2>
               <ResponsiveContainer width="100%" height={300}>
-                <LineChart data={client.measurements_logs.map(log => ({
-                  date: new Date(log.logged_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-                  chest: log.chest_cm,
-                  waist: log.waist_cm,
-                  hip: log.hip_cm,
-                  thigh: log.thigh_cm,
-                  fullDate: log.logged_date,
-                }))}>
+                <LineChart
+                  key={`chart-${client.measurements_logs[client.measurements_logs.length - 1]?.id}`}
+                  data={client.measurements_logs.map(log => ({
+                    date: new Date(log.logged_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+                    chest: log.chest_cm,
+                    waist: log.waist_cm,
+                    hip: log.hip_cm,
+                    thigh: log.thigh_cm,
+                    fullDate: log.logged_date,
+                  }))}
+                >
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="date" />
                   <YAxis />
