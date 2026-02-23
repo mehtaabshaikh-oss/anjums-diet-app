@@ -1811,14 +1811,21 @@ export default function ClientDetailPage() {
                   <XAxis dataKey="date" />
                   <YAxis />
                   <Tooltip
-                    contentStyle={{ backgroundColor: '#fff', border: '1px solid #ccc' }}
-                    formatter={(value: any) => {
-                      if (typeof value === 'number') {
-                        return `${value} cm`
+                    content={({ active, payload, label }: any) => {
+                      if (active && payload && payload.length) {
+                        return (
+                          <div className="bg-white p-2 border border-gray-300 rounded shadow">
+                            <p className="font-semibold text-gray-900">{label}</p>
+                            {payload.map((entry: any, index: number) => (
+                              <p key={index} style={{ color: entry.color }} className="text-sm">
+                                {entry.name}: <span className="font-bold">{entry.value} cm</span>
+                              </p>
+                            ))}
+                          </div>
+                        )
                       }
-                      return value
+                      return null
                     }}
-                    labelFormatter={(label: any) => `Date: ${label}`}
                   />
                   <Line type="monotone" dataKey="chest" stroke="#3b82f6" name="Chest" strokeWidth={2} dot={{ r: 4 }} connectNulls={true} />
                   <Line type="monotone" dataKey="waist" stroke="#ef4444" name="Waist" strokeWidth={2} dot={{ r: 4 }} connectNulls={true} />
