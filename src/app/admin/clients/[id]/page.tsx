@@ -1796,16 +1796,21 @@ export default function ClientDetailPage() {
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
               <h2 className="text-2xl font-bold text-gray-900 mb-6">Measurement Trends</h2>
               <ResponsiveContainer width="100%" height={300}>
-                <LineChart
-                  key={`chart-${client.measurements_logs.length}-${client.measurements_logs[client.measurements_logs.length - 1]?.chest_cm}`}
-                  data={client.measurements_logs.map(log => ({
+                {(() => {
+                  const chartData = (client.measurements_logs || []).map(log => ({
                     date: new Date(log.logged_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
                     chest: log.chest_cm,
                     waist: log.waist_cm,
                     hip: log.hip_cm,
                     thigh: log.thigh_cm,
                     fullDate: log.logged_date,
-                  }))}
+                  }))
+                  const dataKey = JSON.stringify(chartData.slice(-1))
+
+                  return (
+                <LineChart
+                  key={`chart-${dataKey}`}
+                  data={chartData}
                 >
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="date" />
@@ -1832,6 +1837,8 @@ export default function ClientDetailPage() {
                   <Line type="monotone" dataKey="hip" stroke="#ec4899" name="Hip" strokeWidth={2} dot={{ r: 4 }} connectNulls={true} />
                   <Line type="monotone" dataKey="thigh" stroke="#f59e0b" name="Thigh" strokeWidth={2} dot={{ r: 4 }} connectNulls={true} />
                 </LineChart>
+                  )
+                })()}
               </ResponsiveContainer>
             </div>
           )}
