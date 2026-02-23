@@ -1797,7 +1797,7 @@ export default function ClientDetailPage() {
               <h2 className="text-2xl font-bold text-gray-900 mb-6">Measurement Trends</h2>
               <ResponsiveContainer width="100%" height={300}>
                 <LineChart
-                  key={`chart-${client.measurements_logs[client.measurements_logs.length - 1]?.id}`}
+                  key={`chart-${client.measurements_logs.length}-${client.measurements_logs[client.measurements_logs.length - 1]?.chest_cm}`}
                   data={client.measurements_logs.map(log => ({
                     date: new Date(log.logged_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
                     chest: log.chest_cm,
@@ -1812,7 +1812,13 @@ export default function ClientDetailPage() {
                   <YAxis />
                   <Tooltip
                     contentStyle={{ backgroundColor: '#fff', border: '1px solid #ccc' }}
-                    formatter={(value: any) => value ? `${value} cm` : '−'}
+                    formatter={(value: any) => {
+                      if (typeof value === 'number') {
+                        return `${value} cm`
+                      }
+                      return value
+                    }}
+                    labelFormatter={(label: any) => `Date: ${label}`}
                   />
                   <Line type="monotone" dataKey="chest" stroke="#3b82f6" name="Chest" strokeWidth={2} dot={{ r: 4 }} connectNulls={true} />
                   <Line type="monotone" dataKey="waist" stroke="#ef4444" name="Waist" strokeWidth={2} dot={{ r: 4 }} connectNulls={true} />
