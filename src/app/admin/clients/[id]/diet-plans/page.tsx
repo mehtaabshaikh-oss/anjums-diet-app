@@ -18,6 +18,8 @@ interface DietPlanItem {
   item_name: string
   quantity: number
   unit: string
+  time?: string
+  notes?: string
 }
 
 export default function ClientDietPlansPage() {
@@ -40,7 +42,7 @@ export default function ClientDietPlansPage() {
     name: '',
     description: '',
     items: [
-      { meal_type: 'breakfast', item_name: '', quantity: 0, unit: 'pieces' },
+      { meal_type: 'breakfast', item_name: '', quantity: 0, unit: 'pieces', time: '', notes: '' },
     ],
   })
 
@@ -396,64 +398,84 @@ export default function ClientDietPlansPage() {
                 </button>
               </div>
 
-              <div className="space-y-3 bg-gray-50 p-4 rounded-lg">
+              <div className="space-y-4 bg-gray-50 p-4 rounded-lg">
                 {formData.items.map((item, index) => (
-                  <div key={index} className="grid grid-cols-1 md:grid-cols-5 gap-3">
-                    {/* Meal Type */}
-                    <select
-                      value={item.meal_type}
-                      onChange={e => updateItemRow(index, 'meal_type', e.target.value)}
-                      className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-sm"
-                    >
-                      <option value="breakfast">Breakfast</option>
-                      <option value="brunch">Brunch</option>
-                      <option value="lunch">Lunch</option>
-                      <option value="snack">Snack</option>
-                      <option value="dinner">Dinner</option>
-                      <option value="supper">Supper</option>
-                    </select>
+                  <div key={index}>
+                    <div className="grid grid-cols-1 md:grid-cols-6 gap-3">
+                      {/* Meal Type */}
+                      <select
+                        value={item.meal_type}
+                        onChange={e => updateItemRow(index, 'meal_type', e.target.value)}
+                        className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-sm"
+                      >
+                        <option value="breakfast">Breakfast</option>
+                        <option value="brunch">Brunch</option>
+                        <option value="lunch">Lunch</option>
+                        <option value="snack">Snack</option>
+                        <option value="dinner">Dinner</option>
+                        <option value="supper">Supper</option>
+                      </select>
 
-                    {/* Item Name */}
-                    <input
-                      type="text"
-                      value={item.item_name}
-                      onChange={e => updateItemRow(index, 'item_name', e.target.value)}
-                      placeholder="e.g., Roti"
-                      className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-sm"
+                      {/* Time */}
+                      <input
+                        type="time"
+                        value={item.time || ''}
+                        onChange={e => updateItemRow(index, 'time', e.target.value)}
+                        placeholder="Meal Time"
+                        className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-sm"
+                      />
+
+                      {/* Item Name */}
+                      <input
+                        type="text"
+                        value={item.item_name}
+                        onChange={e => updateItemRow(index, 'item_name', e.target.value)}
+                        placeholder="e.g., Roti"
+                        className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-sm"
+                      />
+
+                      {/* Quantity */}
+                      <input
+                        type="number"
+                        value={item.quantity}
+                        onChange={e => updateItemRow(index, 'quantity', parseFloat(e.target.value))}
+                        placeholder="Qty"
+                        className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-sm"
+                        step="0.1"
+                      />
+
+                      {/* Unit */}
+                      <select
+                        value={item.unit}
+                        onChange={e => updateItemRow(index, 'unit', e.target.value)}
+                        className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-sm"
+                      >
+                        <option value="pieces">Pieces</option>
+                        <option value="gm">Grams</option>
+                        <option value="ml">ML</option>
+                        <option value="cup">Cup</option>
+                        <option value="tbsp">Tbsp</option>
+                        <option value="tsp">Tsp</option>
+                      </select>
+
+                      {/* Remove Button */}
+                      <button
+                        type="button"
+                        onClick={() => removeItemRow(index)}
+                        className="px-3 py-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors text-sm font-medium"
+                      >
+                        Remove
+                      </button>
+                    </div>
+
+                    {/* Notes textarea */}
+                    <textarea
+                      value={item.notes || ''}
+                      onChange={e => updateItemRow(index, 'notes', e.target.value)}
+                      placeholder="Notes (e.g., if no chicken available, have dal or turkey)"
+                      className="w-full mt-2 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-sm"
+                      rows={2}
                     />
-
-                    {/* Quantity */}
-                    <input
-                      type="number"
-                      value={item.quantity}
-                      onChange={e => updateItemRow(index, 'quantity', parseFloat(e.target.value))}
-                      placeholder="Qty"
-                      className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-sm"
-                      step="0.1"
-                    />
-
-                    {/* Unit */}
-                    <select
-                      value={item.unit}
-                      onChange={e => updateItemRow(index, 'unit', e.target.value)}
-                      className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-sm"
-                    >
-                      <option value="pieces">Pieces</option>
-                      <option value="gm">Grams</option>
-                      <option value="ml">ML</option>
-                      <option value="cup">Cup</option>
-                      <option value="tbsp">Tbsp</option>
-                      <option value="tsp">Tsp</option>
-                    </select>
-
-                    {/* Remove Button */}
-                    <button
-                      type="button"
-                      onClick={() => removeItemRow(index)}
-                      className="px-3 py-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors text-sm font-medium"
-                    >
-                      Remove
-                    </button>
                   </div>
                 ))}
               </div>

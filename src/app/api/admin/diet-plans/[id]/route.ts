@@ -86,6 +86,7 @@ export async function PUT(
           item_name: item.item_name,
           quantity: item.quantity,
           unit: item.unit,
+          time: item.time || null,
           notes: item.notes || null,
         })
       )

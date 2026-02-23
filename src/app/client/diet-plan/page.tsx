@@ -10,6 +10,7 @@ interface DietPlanItem {
   item_name: string
   quantity: number
   unit: string
+  time?: string | null
   notes: string | null
 }
 
@@ -33,6 +34,14 @@ const MEAL_EMOJIS: Record<string, string> = {
   snack: '🥜',
   dinner: '🌙',
   supper: '🌃',
+}
+
+function formatTime(timeString: string | null | undefined): string {
+  if (!timeString) return ''
+  const [hours, minutes] = timeString.split(':').map(Number)
+  const period = hours >= 12 ? 'PM' : 'AM'
+  const displayHours = hours % 12 || 12
+  return `${displayHours}:${minutes.toString().padStart(2, '0')} ${period}`
 }
 
 export default function ClientDietPlanPage() {
@@ -374,15 +383,22 @@ export default function ClientDietPlanPage() {
                       {/* Item Info */}
                       <div className="flex-1">
                         <div className="flex items-center justify-between mb-2">
-                          <h4
-                            className={`text-lg font-semibold transition-all ${
-                              logItem?.completed
-                                ? 'text-gray-400 line-through'
-                                : 'text-gray-900'
-                            }`}
-                          >
-                            {item.item_name}
-                          </h4>
+                          <div>
+                            <h4
+                              className={`text-lg font-semibold transition-all ${
+                                logItem?.completed
+                                  ? 'text-gray-400 line-through'
+                                  : 'text-gray-900'
+                              }`}
+                            >
+                              {item.item_name}
+                            </h4>
+                            {item.time && (
+                              <p className="text-sm text-gray-500 mt-1">
+                                🕐 {formatTime(item.time)}
+                              </p>
+                            )}
+                          </div>
                           <span className="text-sm font-medium text-primary bg-primary-light px-3 py-1 rounded-full">
                             {item.quantity} {item.unit}
                           </span>

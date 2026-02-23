@@ -289,6 +289,7 @@ create table public.diet_plan_items (
   item_name text not null,
   quantity numeric(8,2) not null,
   unit text not null,
+  time text,
   notes text,
   created_at timestamptz not null default now()
 );
