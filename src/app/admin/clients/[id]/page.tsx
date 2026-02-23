@@ -1865,89 +1865,6 @@ export default function ClientDetailPage() {
             </div>
           )}
 
-          {/* Weight Progress Chart */}
-          {client?.weight_logs && client.weight_logs.length > 0 && (
-            <>
-              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                <h2 className="text-2xl font-bold text-gray-900 mb-6">Weight Progress Chart</h2>
-                <ResponsiveContainer width="100%" height={300}>
-                  <LineChart data={client.weight_logs.map(log => ({
-                    date: new Date(log.logged_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-                    weight: log.weight_kg,
-                    fullDate: log.logged_date,
-                  }))}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="date" />
-                    <YAxis />
-                    <Tooltip
-                      formatter={(value) => `${value} kg`}
-                      labelFormatter={(label) => `Weight`}
-                    />
-                    <Legend />
-                    <Line
-                      type="monotone"
-                      dataKey="weight"
-                      stroke="#4a7c59"
-                      dot={{ fill: '#4a7c59', r: 5 }}
-                      strokeWidth={2}
-                      name="Weight (kg)"
-                    />
-                  </LineChart>
-                </ResponsiveContainer>
-              </div>
-
-              {/* Weight History Table */}
-              <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                <div className="p-6 border-b border-gray-200">
-                  <h3 className="text-xl font-bold text-gray-900">Weight History</h3>
-                </div>
-                <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead className="bg-gray-50 border-b border-gray-200">
-                      <tr>
-                        <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Date</th>
-                        <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Weight (kg)</th>
-                        <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Change</th>
-                        <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Notes</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {client.weight_logs && [...client.weight_logs].reverse().map((log, index) => {
-                        const previousWeight = index < (client.weight_logs?.length || 0) - 1
-                          ? [...(client.weight_logs || [])].reverse()[index + 1].weight_kg
-                          : null
-                        const change = previousWeight ? (previousWeight - log.weight_kg).toFixed(1) : '-'
-
-                        return (
-                          <tr key={log.id} className="border-b border-gray-200 hover:bg-gray-50">
-                            <td className="px-6 py-4 text-sm text-gray-900">
-                              {new Date(log.logged_date).toLocaleDateString()}
-                            </td>
-                            <td className="px-6 py-4 text-sm font-semibold text-gray-900">
-                              {log.weight_kg} kg
-                            </td>
-                            <td className="px-6 py-4 text-sm">
-                              {change !== '-' ? (
-                                <span className={parseFloat(change) > 0 ? 'text-green-600 font-semibold' : 'text-red-600 font-semibold'}>
-                                  {parseFloat(change) > 0 ? '−' : '+'}{Math.abs(parseFloat(change))} kg
-                                </span>
-                              ) : (
-                                '−'
-                              )}
-                            </td>
-                            <td className="px-6 py-4 text-sm text-gray-600">
-                              {log.created_at ? '−' : '−'}
-                            </td>
-                          </tr>
-                        )
-                      })}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </>
-          )}
-
           {/* 6. WEIGHT TRACKING */}
           {client?.weight_logs && client.weight_logs.length > 0 && (
             <>
@@ -1958,11 +1875,13 @@ export default function ClientDetailPage() {
               {/* Add Weight Button */}
               <button
                 onClick={() => setShowAddWeight(!showAddWeight)}
-                className="px-6 py-3 bg-primary text-white font-semibold rounded-lg hover:bg-primary-dark transition-colors"
+                className="px-6 py-3 bg-primary text-white font-semibold rounded-lg hover:bg-primary-dark transition-colors mb-6"
               >
                 + Add Weight
               </button>
-              <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-4">
+
+              {/* Weight Stats Cards */}
+              <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
                 <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
                   <p className="text-sm text-gray-600 mb-2">Start Weight</p>
                   <p className="text-3xl font-bold text-gray-900">
@@ -2030,51 +1949,141 @@ export default function ClientDetailPage() {
             </>
           )}
 
-          {/* Measurements History Table */}
-          {client?.measurements_logs && client.measurements_logs.length > 0 && (
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-              <div className="p-6 border-b border-gray-200">
-                <h3 className="text-xl font-bold text-gray-900">Measurements History</h3>
-              </div>
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead className="bg-gray-50 border-b border-gray-200">
-                    <tr>
-                      <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Date</th>
-                      <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Chest (cm)</th>
-                      <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Waist (cm)</th>
-                      <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Hip (cm)</th>
-                      <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Thigh (cm)</th>
-                      <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Notes</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {client.measurements_logs && [...client.measurements_logs].reverse().map((log) => (
-                      <tr key={log.id} className="border-b border-gray-200 hover:bg-gray-50">
-                        <td className="px-6 py-4 text-sm text-gray-900">
-                          {new Date(log.logged_date).toLocaleDateString()}
-                        </td>
-                        <td className="px-6 py-4 text-sm font-semibold text-gray-900">
-                          {log.chest_cm ? `${log.chest_cm} cm` : '−'}
-                        </td>
-                        <td className="px-6 py-4 text-sm font-semibold text-gray-900">
-                          {log.waist_cm ? `${log.waist_cm} cm` : '−'}
-                        </td>
-                        <td className="px-6 py-4 text-sm font-semibold text-gray-900">
-                          {log.hip_cm ? `${log.hip_cm} cm` : '−'}
-                        </td>
-                        <td className="px-6 py-4 text-sm font-semibold text-gray-900">
-                          {log.thigh_cm ? `${log.thigh_cm} cm` : '−'}
-                        </td>
-                        <td className="px-6 py-4 text-sm text-gray-600">
-                          {log.notes || '−'}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+          {/* 7. ADD WEIGHT FORM - Conditional */}
+          {showAddWeight && (
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
+              <h3 className="text-xl font-bold text-gray-900 mb-4">Record Weight</h3>
+              <form onSubmit={handleAddWeight} className="space-y-4">
+                {weightError && (
+                  <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+                    <p className="text-red-700 text-sm">{weightError}</p>
+                  </div>
+                )}
+
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Date
+                    </label>
+                    <input
+                      type="date"
+                      value={weightFormData.logged_date}
+                      onChange={(e) =>
+                        setWeightFormData({ ...weightFormData, logged_date: e.target.value })
+                      }
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Weight (kg)
+                    </label>
+                    <input
+                      type="number"
+                      step="0.1"
+                      value={weightFormData.weight_kg}
+                      onChange={(e) =>
+                        setWeightFormData({ ...weightFormData, weight_kg: e.target.value })
+                      }
+                      placeholder="e.g., 72.5"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                    />
+                  </div>
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={submittingWeight}
+                  className="w-full px-6 py-3 bg-primary text-white font-semibold rounded-lg hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {submittingWeight ? 'Saving...' : 'Save Weight'}
+                </button>
+              </form>
             </div>
+          )}
+
+          {/* 8. WEIGHT PROGRESS CHART */}
+          {client?.weight_logs && client.weight_logs.length > 0 && (
+            <>
+              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <h2 className="text-2xl font-bold text-gray-900 mb-6">Weight Progress Chart</h2>
+                <ResponsiveContainer width="100%" height={300}>
+                  <LineChart data={client.weight_logs.map(log => ({
+                    date: new Date(log.logged_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+                    weight: log.weight_kg,
+                    fullDate: log.logged_date,
+                  }))}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="date" />
+                    <YAxis />
+                    <Tooltip
+                      formatter={(value) => `${value} kg`}
+                      labelFormatter={(label) => `Weight`}
+                    />
+                    <Legend />
+                    <Line
+                      type="monotone"
+                      dataKey="weight"
+                      stroke="#4a7c59"
+                      dot={{ fill: '#4a7c59', r: 5 }}
+                      strokeWidth={2}
+                      name="Weight (kg)"
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+
+              {/* 9. WEIGHT HISTORY TABLE */}
+              <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                <div className="p-6 border-b border-gray-200">
+                  <h3 className="text-xl font-bold text-gray-900">Weight History</h3>
+                </div>
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead className="bg-gray-50 border-b border-gray-200">
+                      <tr>
+                        <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Date</th>
+                        <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Weight (kg)</th>
+                        <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Change</th>
+                        <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Notes</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {client.weight_logs && [...client.weight_logs].reverse().map((log, index) => {
+                        const previousWeight = index < (client.weight_logs?.length || 0) - 1
+                          ? [...(client.weight_logs || [])].reverse()[index + 1].weight_kg
+                          : null
+                        const change = previousWeight ? (previousWeight - log.weight_kg).toFixed(1) : '-'
+
+                        return (
+                          <tr key={log.id} className="border-b border-gray-200 hover:bg-gray-50">
+                            <td className="px-6 py-4 text-sm text-gray-900">
+                              {new Date(log.logged_date).toLocaleDateString()}
+                            </td>
+                            <td className="px-6 py-4 text-sm font-semibold text-gray-900">
+                              {log.weight_kg} kg
+                            </td>
+                            <td className="px-6 py-4 text-sm">
+                              {change !== '-' ? (
+                                <span className={parseFloat(change) > 0 ? 'text-green-600 font-semibold' : 'text-red-600 font-semibold'}>
+                                  {parseFloat(change) > 0 ? '−' : '+'}{Math.abs(parseFloat(change))} kg
+                                </span>
+                              ) : (
+                                '−'
+                              )}
+                            </td>
+                            <td className="px-6 py-4 text-sm text-gray-600">
+                              {log.created_at ? '−' : '−'}
+                            </td>
+                          </tr>
+                        )
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </>
           )}
         </div>
       )}
