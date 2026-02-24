@@ -1,8 +1,12 @@
+import { requireAdmin } from '@/lib/auth/requireAdmin'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { NextResponse } from 'next/server'
 import bcrypt from 'bcryptjs'
 
 export async function GET(req: Request) {
+  const adminAuth = await requireAdmin()
+  if (!adminAuth.authorized) return adminAuth.response
+
   try {
     const supabase = createAdminClient()
 
@@ -28,6 +32,9 @@ export async function GET(req: Request) {
 }
 
 export async function POST(req: Request) {
+  const adminAuth = await requireAdmin()
+  if (!adminAuth.authorized) return adminAuth.response
+
   try {
     const supabase = createAdminClient()
 
@@ -129,30 +136,28 @@ export async function POST(req: Request) {
 
     if (profileError) {
       console.error('Profile creation error for client', client.id, ':', profileError)
-      // Still return success for client but include error in response for debugging
+      // Still return success for client but include basic object
       return NextResponse.json(
         {
-          ...client,
+          id: client.id,
+          name: client.name,
+          email: client.email,
+          phone: client.phone,
+          package: client.package,
           client_profiles: null,
-          _debug: {
-            profile_created: false,
-            profile_error: profileError.message,
-          },
         },
         { status: 201 }
       )
-    } else {
-      console.log('Profile created successfully for client', client.id, 'Profile ID:', profile?.id)
     }
 
     return NextResponse.json(
       {
-        ...client,
+        id: client.id,
+        name: client.name,
+        email: client.email,
+        phone: client.phone,
+        package: client.package,
         client_profiles: profile || null,
-        _debug: {
-          profile_created: true,
-          profile_id: profile?.id,
-        },
       },
       { status: 201 }
     )

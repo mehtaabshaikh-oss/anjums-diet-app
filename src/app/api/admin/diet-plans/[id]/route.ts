@@ -1,3 +1,4 @@
+import { requireAdmin } from '@/lib/auth/requireAdmin'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { NextResponse } from 'next/server'
 
@@ -5,6 +6,9 @@ export async function PUT(
   req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const adminAuth = await requireAdmin()
+  if (!adminAuth.authorized) return adminAuth.response
+
   const { id } = await params
   try {
     const supabase = createAdminClient()
@@ -77,6 +81,9 @@ export async function PATCH(
   req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const adminAuth = await requireAdmin()
+  if (!adminAuth.authorized) return adminAuth.response
+
   const { id } = await params
   try {
     const supabase = createAdminClient()
@@ -113,6 +120,9 @@ export async function DELETE(
   req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const adminAuth = await requireAdmin()
+  if (!adminAuth.authorized) return adminAuth.response
+
   const { id } = await params
   try {
     const supabase = createAdminClient()

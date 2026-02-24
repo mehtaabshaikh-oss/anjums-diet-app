@@ -127,8 +127,6 @@ export default function AdminDashboard() {
       if (data.user?.id) {
         const response = await fetch('/api/admin/verify', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ userId: data.user.id }),
         })
         const roleData = await response.json()
         if (response.ok && roleData.role) {
@@ -350,8 +348,8 @@ export default function AdminDashboard() {
                             </div>
                           </div>
                           <span className={`px-3 py-1 rounded-full text-xs font-semibold flex-shrink-0 ml-2 ${daysUntil === 0 ? 'bg-red-200 text-red-800' :
-                              daysUntil === 1 ? 'bg-orange-200 text-orange-800' :
-                                'bg-blue-200 text-blue-800'
+                            daysUntil === 1 ? 'bg-orange-200 text-orange-800' :
+                              'bg-blue-200 text-blue-800'
                             }`}>
                             {daysUntil === 0 ? 'Today' : daysUntil === 1 ? 'Tomorrow' : `${daysUntil}d`}
                           </span>

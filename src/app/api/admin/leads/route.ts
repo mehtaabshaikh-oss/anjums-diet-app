@@ -1,7 +1,11 @@
+import { requireAdmin } from '@/lib/auth/requireAdmin'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { NextResponse } from 'next/server'
 
 export async function GET(req: Request) {
+  const adminAuth = await requireAdmin()
+  if (!adminAuth.authorized) return adminAuth.response
+
   try {
     const supabase = createAdminClient()
 
@@ -26,6 +30,9 @@ export async function GET(req: Request) {
 }
 
 export async function POST(req: Request) {
+  const adminAuth = await requireAdmin()
+  if (!adminAuth.authorized) return adminAuth.response
+
   try {
     const supabase = createAdminClient()
 

@@ -1,3 +1,4 @@
+import { requireAdmin } from '@/lib/auth/requireAdmin'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { NextResponse } from 'next/server'
 
@@ -5,6 +6,9 @@ export async function GET(
   req: Request,
   { params }: { params: Promise<{ logId: string }> }
 ) {
+  const adminAuth = await requireAdmin()
+  if (!adminAuth.authorized) return adminAuth.response
+
   try {
     const supabase = createAdminClient()
 

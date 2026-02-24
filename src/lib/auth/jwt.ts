@@ -1,6 +1,8 @@
 import { SignJWT, jwtVerify } from 'jose'
 
-const secretKey = process.env.JWT_SECRET || process.env.SUPABASE_SERVICE_ROLE_KEY || 'default-secret-key-change-me'
+const secretKey = process.env.JWT_SECRET
+if (!secretKey) throw new Error('JWT_SECRET is not defined in environment variables')
+
 const key = new TextEncoder().encode(secretKey)
 
 export async function signJwt(payload: { clientId: string }, expiresIn: string = '7d') {

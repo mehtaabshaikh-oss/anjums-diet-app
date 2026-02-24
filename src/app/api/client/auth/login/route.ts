@@ -2,6 +2,7 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { NextResponse } from 'next/server'
 import { compare } from 'bcryptjs'
 import { signJwt } from '@/lib/auth/jwt'
+import { checkRateLimit } from '@/lib/auth/rateLimit'
 
 export async function POST(req: Request) {
   try {
@@ -15,6 +16,10 @@ export async function POST(req: Request) {
         { status: 400 }
       )
     }
+
+    const ip = req.headers.get('x-forwarded-for') || '127.0.0.1'
+    const limitCheck = checkRateLimit(ip, email)
+    if (!limitCheck.allowed) return limitCheck.response
 
     // Find client by email
     const { data: client, error: clientError } = await supabase

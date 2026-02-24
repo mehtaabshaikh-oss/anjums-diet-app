@@ -1,42 +1,33 @@
+import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { NextResponse } from 'next/server'
 
 export async function POST(req: Request) {
   try {
-    const body = await req.json()
-    const { userId } = body
+    const supabaseServer = await createClient()
 
-    if (!userId) {
-      return NextResponse.json({ error: 'Missing userId' }, { status: 400 })
+    // 1. Get user securely from server session
+    const { data: { user }, error: userError } = await supabaseServer.auth.getUser()
+
+    if (userError || !user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const supabase = createAdminClient()
+    const adminSupabase = createAdminClient()
 
-    // Check if user has admin role
-    const { data: userData, error } = await supabase
+    // 2. Fetch role from users table securely
+    const { data: userData, error: roleError } = await adminSupabase
       .from('users')
       .select('role')
-      .eq('id', userId)
+      .eq('id', user.id)
       .single()
 
-    if (error) {
-      console.error('Error checking admin role:', error)
-      return NextResponse.json({
-        error: 'User not found',
-        debug: error.message
-      }, { status: 404 })
+    if (roleError || !userData) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
-    if (!userData) {
-      console.error('No user data returned for ID:', userId)
-      return NextResponse.json({
-        error: 'User not found',
-        debug: 'No data returned'
-      }, { status: 404 })
-    }
-
-    console.log('Admin verification successful for user:', userId, 'role:', userData.role)
-    return NextResponse.json({ role: userData.role })
+    // 3. Output only minimal clean role response (No debug variables)
+    return NextResponse.json({ role: userData.role }, { status: 200 })
   } catch (error) {
     console.error('Error verifying admin:', error)
     return NextResponse.json(

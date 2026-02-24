@@ -37,8 +37,6 @@ export default function AdminLoginPage() {
       // Verify user has admin or staff role
       const response = await fetch('/api/admin/verify', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId: data.user.id }),
       })
 
       const roleData = await response.json()
