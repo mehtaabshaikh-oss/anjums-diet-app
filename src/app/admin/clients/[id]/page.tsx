@@ -153,11 +153,15 @@ export default function ClientDetailPage() {
   const [submittingProfile, setSubmittingProfile] = useState(false)
   const [profileEditError, setProfileEditError] = useState('')
 
+  const [userRole, setUserRole] = useState<'admin' | 'staff' | null>(null)
+  const [isDeletingClient, setIsDeletingClient] = useState(false)
+
   const clientId = params.id as string | number
 
   useEffect(() => {
     if (clientId) {
       fetchClientData()
+      fetchUserRole()
     }
   }, [clientId])
 
@@ -193,6 +197,52 @@ export default function ClientDetailPage() {
       console.error(err)
     } finally {
       setIsLoading(false)
+    }
+  }
+
+  const fetchUserRole = async () => {
+    try {
+      const { createClient } = await import('@/lib/supabase/client')
+      const supabase = createClient()
+      const { data } = await supabase.auth.getUser()
+      if (data.user?.id) {
+        const response = await fetch('/api/admin/verify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId: data.user.id }),
+        })
+        const roleData = await response.json()
+        if (response.ok && roleData.role) {
+          setUserRole(roleData.role)
+        }
+      }
+    } catch (err) {
+      console.error('Failed to fetch user role:', err)
+    }
+  }
+
+  const handleDeleteClient = async () => {
+    if (!confirm('CRITICAL WARNING: Are you sure you want to completely delete this client? This cannot be undone and will erase all their logs, plans, and history.')) {
+      return
+    }
+
+    try {
+      setIsDeletingClient(true)
+      const response = await fetch(`/api/admin/clients/${clientId}`, {
+        method: 'DELETE',
+      })
+
+      if (!response.ok) {
+        const data = await response.json()
+        throw new Error(data.error || 'Failed to delete client')
+      }
+
+      // Automatically redirect away on success
+      router.push('/admin/clients')
+    } catch (err: any) {
+      alert(err.message || 'Failed to delete client')
+      console.error(err)
+      setIsDeletingClient(false)
     }
   }
 
@@ -730,13 +780,34 @@ export default function ClientDetailPage() {
           <h1 className="text-4xl font-bold text-gray-900">{client.name}</h1>
           <p className="text-gray-600 mt-1">{client.email}</p>
         </div>
-        <div className="text-right">
+        <div className="text-right flex items-center gap-4">
           <span className={`px-4 py-2 rounded-full text-sm font-medium capitalize ${client.status === 'active' ? 'bg-green-100 text-green-800' :
-              client.status === 'expired' ? 'bg-red-100 text-red-800' :
-                'bg-yellow-100 text-yellow-800'
+            client.status === 'expired' ? 'bg-red-100 text-red-800' :
+              'bg-yellow-100 text-yellow-800'
             }`}>
             {client.status}
           </span>
+          {userRole === 'admin' && (
+            <button
+              onClick={handleDeleteClient}
+              disabled={isDeletingClient}
+              title="Delete this client permanently"
+              className="p-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors disabled:opacity-50"
+            >
+              {isDeletingClient ? (
+                <span className="w-5 h-5 flex animate-spin shrink-0">
+                  <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                </span>
+              ) : (
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+              )}
+            </button>
+          )}
         </div>
       </div>
 
@@ -788,8 +859,8 @@ export default function ClientDetailPage() {
         <button
           onClick={() => setActiveTab('profile')}
           className={`px-4 py-3 font-semibold border-b-2 transition-colors whitespace-nowrap ${activeTab === 'profile'
-              ? 'border-primary text-primary'
-              : 'border-transparent text-gray-600 hover:text-gray-900'
+            ? 'border-primary text-primary'
+            : 'border-transparent text-gray-600 hover:text-gray-900'
             }`}
         >
           Profile
@@ -797,8 +868,8 @@ export default function ClientDetailPage() {
         <button
           onClick={() => setActiveTab('diet-plans')}
           className={`px-4 py-3 font-semibold border-b-2 transition-colors whitespace-nowrap ${activeTab === 'diet-plans'
-              ? 'border-primary text-primary'
-              : 'border-transparent text-gray-600 hover:text-gray-900'
+            ? 'border-primary text-primary'
+            : 'border-transparent text-gray-600 hover:text-gray-900'
             }`}
         >
           Diet Plans
@@ -806,8 +877,8 @@ export default function ClientDetailPage() {
         <button
           onClick={() => setActiveTab('payments')}
           className={`px-4 py-3 font-semibold border-b-2 transition-colors whitespace-nowrap ${activeTab === 'payments'
-              ? 'border-primary text-primary'
-              : 'border-transparent text-gray-600 hover:text-gray-900'
+            ? 'border-primary text-primary'
+            : 'border-transparent text-gray-600 hover:text-gray-900'
             }`}
         >
           Payments
@@ -815,8 +886,8 @@ export default function ClientDetailPage() {
         <button
           onClick={() => setActiveTab('progress')}
           className={`px-4 py-3 font-semibold border-b-2 transition-colors whitespace-nowrap ${activeTab === 'progress'
-              ? 'border-primary text-primary'
-              : 'border-transparent text-gray-600 hover:text-gray-900'
+            ? 'border-primary text-primary'
+            : 'border-transparent text-gray-600 hover:text-gray-900'
             }`}
         >
           Progress
@@ -824,8 +895,8 @@ export default function ClientDetailPage() {
         <button
           onClick={() => setActiveTab('notes')}
           className={`px-4 py-3 font-semibold border-b-2 transition-colors whitespace-nowrap ${activeTab === 'notes'
-              ? 'border-primary text-primary'
-              : 'border-transparent text-gray-600 hover:text-gray-900'
+            ? 'border-primary text-primary'
+            : 'border-transparent text-gray-600 hover:text-gray-900'
             }`}
         >
           Notes
@@ -833,8 +904,8 @@ export default function ClientDetailPage() {
         <button
           onClick={() => setActiveTab('logs')}
           className={`px-4 py-3 font-semibold border-b-2 transition-colors whitespace-nowrap ${activeTab === 'logs'
-              ? 'border-primary text-primary'
-              : 'border-transparent text-gray-600 hover:text-gray-900'
+            ? 'border-primary text-primary'
+            : 'border-transparent text-gray-600 hover:text-gray-900'
             }`}
         >
           Logs
@@ -849,8 +920,8 @@ export default function ClientDetailPage() {
             <button
               onClick={handleEditProfile}
               className={`px-6 py-2 font-semibold rounded-lg transition-colors ${isEditingProfile
-                  ? 'bg-gray-400 text-white hover:bg-gray-500'
-                  : 'bg-primary text-white hover:bg-primary-dark'
+                ? 'bg-gray-400 text-white hover:bg-gray-500'
+                : 'bg-primary text-white hover:bg-primary-dark'
                 }`}
             >
               {isEditingProfile ? 'Cancel Edit' : '✎ Edit Profile'}
@@ -1012,8 +1083,8 @@ export default function ClientDetailPage() {
                     <div>
                       <p className="text-sm text-gray-600 mb-1">Status</p>
                       <span className={`px-3 py-1 rounded-full text-sm font-semibold inline-block ${client.status === 'active' ? 'bg-green-100 text-green-800' :
-                          client.status === 'expired' ? 'bg-red-100 text-red-800' :
-                            'bg-yellow-100 text-yellow-800'
+                        client.status === 'expired' ? 'bg-red-100 text-red-800' :
+                          'bg-yellow-100 text-yellow-800'
                         }`}>
                         {client.status}
                       </span>
@@ -1370,8 +1441,8 @@ export default function ClientDetailPage() {
                                   </p>
                                 </div>
                                 <span className={`px-2 py-1 text-xs font-semibold rounded-full ${payment.status === 'paid' ? 'bg-green-100 text-green-800' :
-                                    payment.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                                      'bg-blue-100 text-blue-800'
+                                  payment.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                                    'bg-blue-100 text-blue-800'
                                   }`}>
                                   {payment.status}
                                 </span>
@@ -1486,8 +1557,8 @@ export default function ClientDetailPage() {
                         📄 PDF
                       </button>
                       <span className={`px-3 py-1 rounded-full text-sm font-medium ${plan.active
-                          ? 'bg-green-100 text-green-800'
-                          : 'bg-gray-100 text-gray-800'
+                        ? 'bg-green-100 text-green-800'
+                        : 'bg-gray-100 text-gray-800'
                         }`}>
                         {plan.active ? 'Active' : 'Inactive'}
                       </span>
@@ -2031,12 +2102,12 @@ export default function ClientDetailPage() {
                     <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
                       <p className="text-sm text-gray-600 mb-2">Total Loss/Gain</p>
                       <p className={`text-3xl font-bold ${(() => {
-                          const startWeight = profile?.weight_kg || 0
-                          const currentWeight = client?.weight_logs && client.weight_logs.length > 0
-                            ? client.weight_logs[client.weight_logs.length - 1].weight_kg
-                            : startWeight
-                          return (startWeight - currentWeight) > 0 ? 'text-green-600' : 'text-red-600'
-                        })()
+                        const startWeight = profile?.weight_kg || 0
+                        const currentWeight = client?.weight_logs && client.weight_logs.length > 0
+                          ? client.weight_logs[client.weight_logs.length - 1].weight_kg
+                          : startWeight
+                        return (startWeight - currentWeight) > 0 ? 'text-green-600' : 'text-red-600'
+                      })()
                         }`}>
                         {(() => {
                           const startWeight = profile?.weight_kg || 0
@@ -2468,8 +2539,8 @@ export default function ClientDetailPage() {
                         </td>
                         <td className="px-4 py-4 whitespace-nowrap">
                           <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${payment.status === 'paid' ? 'bg-green-100 text-green-800' :
-                              payment.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                                'bg-blue-100 text-blue-800'
+                            payment.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                              'bg-blue-100 text-blue-800'
                             }`}>
                             {payment.status}
                           </span>

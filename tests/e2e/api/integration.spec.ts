@@ -253,4 +253,18 @@ test.describe.serial('End-to-End API Integration Suite', () => {
         }
         expect(res.ok()).toBeTruthy()
     })
+
+    test('13. Delete client (Admin only)', async () => {
+        expect(createdClientId).toBeDefined()
+        const res = await adminReq.delete(`/api/admin/clients/${createdClientId}`)
+        if (!res.ok()) {
+            const text = await res.text()
+            expect(res.ok(), `Failed to delete client: ${text}`).toBeTruthy()
+        }
+        expect(res.ok()).toBeTruthy()
+
+        // Verify it was actually deleted
+        const getSingleClientRes = await adminReq.get(`/api/admin/clients/${createdClientId}`)
+        expect(getSingleClientRes.status()).toBe(404)
+    })
 })

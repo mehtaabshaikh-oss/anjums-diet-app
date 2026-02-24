@@ -34,7 +34,7 @@ export async function updateSession(request: NextRequest) {
   } = await supabase.auth.getUser()
 
   // Protect admin API routes - return 401 if not authenticated
-  if (request.nextUrl.pathname.startsWith('/api/admin')) {
+  if (request.nextUrl.pathname.startsWith('/api/admin') && !request.nextUrl.pathname.endsWith('/verify')) {
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }

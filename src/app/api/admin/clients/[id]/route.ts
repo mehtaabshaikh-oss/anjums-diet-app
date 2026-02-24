@@ -155,3 +155,70 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
     )
   }
 }
+
+import { createClient } from '@/lib/supabase/server'
+
+export async function DELETE(req: Request, { params }: { params: Promise<{ id: string }> }) {
+  try {
+    const { id: clientId } = await params
+    const supabaseServer = await createClient()
+
+    // Verify authentication
+    const { data: { user } } = await supabaseServer.auth.getUser()
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const adminSupabase = createAdminClient()
+
+    // Verify user role is strictly 'admin'
+    const { data: userData } = await adminSupabase
+      .from('users')
+      .select('role')
+      .eq('id', user.id)
+      .single()
+
+    if (userData?.role !== 'admin') {
+      return NextResponse.json(
+        { error: 'Forbidden. Only administrators can delete clients.' },
+        { status: 403 }
+      )
+    }
+
+    // Since we may not have ON DELETE CASCADE setup on all foreign keys,
+    // let's manually clean up relationships to be safe (they fail silently if missing table)
+    await adminSupabase.from('client_profiles').delete().eq('client_id', clientId)
+    await adminSupabase.from('appointments').delete().eq('client_id', clientId)
+    await adminSupabase.from('payments').delete().eq('client_id', clientId)
+    await adminSupabase.from('weight_logs').delete().eq('client_id', clientId)
+    await adminSupabase.from('measurements_logs').delete().eq('client_id', clientId)
+    await adminSupabase.from('notes').delete().eq('client_id', clientId)
+
+    // For diet logs, we first need to delete the log items, then the logs themselves
+    const { data: dietLogs } = await adminSupabase.from('diet_logs').select('id').eq('client_id', clientId)
+    if (dietLogs && dietLogs.length > 0) {
+      const dietLogIds = dietLogs.map(log => log.id)
+      await adminSupabase.from('diet_log_items').delete().in('diet_log_id', dietLogIds)
+      await adminSupabase.from('diet_logs').delete().eq('client_id', clientId)
+    }
+
+    // Now delete the client!
+    const { error: deleteError } = await adminSupabase
+      .from('clients')
+      .delete()
+      .eq('id', clientId)
+
+    if (deleteError) {
+      console.error('Client deletion error:', deleteError)
+      return NextResponse.json({ error: deleteError.message }, { status: 400 })
+    }
+
+    return NextResponse.json({ message: 'Client deleted successfully' }, { status: 200 })
+  } catch (error) {
+    console.error('Error deleting client:', error)
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    )
+  }
+}
