@@ -189,7 +189,7 @@ export default function AdminDashboard() {
         <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900">
           Welcome back, <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-primary-dark">{adminName}</span>! 👋
         </h1>
-        <p className="text-gray-600 mt-2 text-sm sm:text-base lg:text-lg">
+        <p className="text-gray-600 mt-2 text-sm sm:text-base lg:text-lg underline">
           Here's a snapshot of your wellness practice
         </p>
       </div>
@@ -349,11 +349,10 @@ export default function AdminDashboard() {
                               <p className="text-sm text-gray-600">{formattedDate} at {formattedTime}</p>
                             </div>
                           </div>
-                          <span className={`px-3 py-1 rounded-full text-xs font-semibold flex-shrink-0 ml-2 ${
-                            daysUntil === 0 ? 'bg-red-200 text-red-800' :
-                            daysUntil === 1 ? 'bg-orange-200 text-orange-800' :
-                            'bg-blue-200 text-blue-800'
-                          }`}>
+                          <span className={`px-3 py-1 rounded-full text-xs font-semibold flex-shrink-0 ml-2 ${daysUntil === 0 ? 'bg-red-200 text-red-800' :
+                              daysUntil === 1 ? 'bg-orange-200 text-orange-800' :
+                                'bg-blue-200 text-blue-800'
+                            }`}>
                             {daysUntil === 0 ? 'Today' : daysUntil === 1 ? 'Tomorrow' : `${daysUntil}d`}
                           </span>
                         </button>
