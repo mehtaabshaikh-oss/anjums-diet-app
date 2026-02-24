@@ -22,6 +22,8 @@ export async function GET(req: Request) {
         email,
         phone,
         package,
+        duration_months,
+        nutritionist,
         status,
         start_date,
         end_date,

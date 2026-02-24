@@ -91,4 +91,20 @@ test.describe('Clients', () => {
     // Package badge should be visible
     await expect(page.getByText(/Gold|Hybrid|Platinum/i).first()).toBeVisible()
   })
+
+  test('BUG: duration shows number of months, not just "Months"', async ({ page }) => {
+    // Regression: /api/client/profile was missing duration_months in SELECT,
+    // causing duration to display as bare "Months" with no number.
+    const clientId = process.env.TEST_CLIENT_ID
+    if (!clientId || clientId === 'REPLACE_WITH_TEST_CLIENT_UUID') {
+      test.skip(true, 'Set TEST_CLIENT_ID in .env.test')
+    }
+
+    await page.goto(`/admin/clients/${clientId}`)
+    await waitForLoad(page)
+    await expectNoError(page)
+
+    // Must show e.g. "3 Months" — a digit must precede "Months"
+    await expect(page.locator('text=/\\d+ Months/').first()).toBeVisible()
+  })
 })
