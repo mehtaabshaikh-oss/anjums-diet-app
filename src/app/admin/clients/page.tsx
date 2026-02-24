@@ -29,6 +29,9 @@ function ClientsPageContent() {
   const [error, setError] = useState('')
   const [sortBy, setSortBy] = useState<SortField>('name')
   const [sortOrder, setSortOrder] = useState<SortOrder>('asc')
+  const [currentPage, setCurrentPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(0)
+  const [totalItems, setTotalItems] = useState(0)
 
   // Check for status filter in query parameters on mount
   useEffect(() => {
@@ -38,21 +41,42 @@ function ClientsPageContent() {
     }
   }, [searchParams])
 
+  // Remove initial fetch hook to combine with dependencies
   useEffect(() => {
     fetchClients()
-  }, [])
+  }, [currentPage, searchTerm, statusFilter])
+
+  // Reset page to 1 when search or filter changes
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [searchTerm, statusFilter])
 
   const fetchClients = async () => {
     try {
       setIsLoading(true)
-      const response = await fetch('/api/admin/clients')
+      const params = new URLSearchParams()
+      params.append('page', currentPage.toString())
+      params.append('limit', '50')
+      if (searchTerm) params.append('q', searchTerm)
+      if (statusFilter !== 'all') params.append('status', statusFilter)
+
+      const response = await fetch(`/api/admin/clients?${params.toString()}`)
 
       if (!response.ok) {
         throw new Error('Failed to fetch clients')
       }
 
       const data = await response.json()
-      setClients(data)
+      // Fallback for non-paginated legacy API calls just in case
+      if (Array.isArray(data)) {
+        setClients(data)
+        setTotalItems(data.length)
+        setTotalPages(1)
+      } else {
+        setClients(data.items || [])
+        setTotalItems(data.total || 0)
+        setTotalPages(data.totalPages || 0)
+      }
     } catch (err) {
       setError('Failed to load clients')
       console.error(err)
@@ -72,39 +96,29 @@ function ClientsPageContent() {
     }
   }
 
-  const filteredClients = clients
-    .filter((client) => {
-      const matchesSearch =
-        client.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        client.email.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredClients = [...clients].sort((a, b) => {
+    let aValue: any = a[sortBy]
+    let bValue: any = b[sortBy]
 
-      const matchesStatus = statusFilter === 'all' || client.status === statusFilter
+    // Handle null values for next_appointment_date
+    if (sortBy === 'next_appointment_date') {
+      if (!aValue && !bValue) return 0
+      if (!aValue) return sortOrder === 'asc' ? 1 : -1
+      if (!bValue) return sortOrder === 'asc' ? -1 : 1
+      aValue = new Date(aValue).getTime()
+      bValue = new Date(bValue).getTime()
+    }
 
-      return matchesSearch && matchesStatus
-    })
-    .sort((a, b) => {
-      let aValue: any = a[sortBy]
-      let bValue: any = b[sortBy]
+    // String comparison (case-insensitive)
+    if (typeof aValue === 'string' && typeof bValue === 'string') {
+      aValue = aValue.toLowerCase()
+      bValue = bValue.toLowerCase()
+    }
 
-      // Handle null values for next_appointment_date
-      if (sortBy === 'next_appointment_date') {
-        if (!aValue && !bValue) return 0
-        if (!aValue) return sortOrder === 'asc' ? 1 : -1
-        if (!bValue) return sortOrder === 'asc' ? -1 : 1
-        aValue = new Date(aValue).getTime()
-        bValue = new Date(bValue).getTime()
-      }
-
-      // String comparison (case-insensitive)
-      if (typeof aValue === 'string' && typeof bValue === 'string') {
-        aValue = aValue.toLowerCase()
-        bValue = bValue.toLowerCase()
-      }
-
-      if (aValue < bValue) return sortOrder === 'asc' ? -1 : 1
-      if (aValue > bValue) return sortOrder === 'asc' ? 1 : -1
-      return 0
-    })
+    if (aValue < bValue) return sortOrder === 'asc' ? -1 : 1
+    if (aValue > bValue) return sortOrder === 'asc' ? 1 : -1
+    return 0
+  })
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -162,7 +176,7 @@ function ClientsPageContent() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Manage Clients</h1>
-          <p className="text-sm sm:text-base text-gray-600">Total: {clients.length} clients</p>
+          <p className="text-sm sm:text-base text-gray-600">Total: {totalItems} clients</p>
         </div>
         <Link
           href="/admin/clients/new"
@@ -358,11 +372,11 @@ function ClientsPageContent() {
                     <td className="px-6 py-4 text-sm text-gray-600">
                       {client.next_appointment_date
                         ? new Date(client.next_appointment_date).toLocaleDateString('en-US', {
-                            month: 'short',
-                            day: 'numeric',
-                            hour: '2-digit',
-                            minute: '2-digit',
-                          })
+                          month: 'short',
+                          day: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        })
                         : '—'}
                     </td>
                     <td className="px-6 py-4 text-right text-sm">
@@ -378,6 +392,58 @@ function ClientsPageContent() {
               </tbody>
             </table>
           </div>
+
+          {/* Pagination Controls */}
+          {totalPages > 1 && (
+            <div className="bg-white px-4 py-3 border-t border-gray-200 sm:px-6 flex items-center justify-between">
+              <div className="flex-1 flex justify-between sm:hidden">
+                <button
+                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                  disabled={currentPage === 1}
+                  className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:bg-gray-100 disabled:text-gray-400"
+                >
+                  Previous
+                </button>
+                <button
+                  onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                  disabled={currentPage === totalPages}
+                  className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:bg-gray-100 disabled:text-gray-400"
+                >
+                  Next
+                </button>
+              </div>
+              <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                <div>
+                  <p className="text-sm text-gray-700">
+                    Showing <span className="font-medium">{((currentPage - 1) * 50) + 1}</span> to <span className="font-medium">{Math.min(currentPage * 50, totalItems)}</span> of <span className="font-medium">{totalItems}</span> results
+                  </p>
+                </div>
+                <div>
+                  <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                    <button
+                      onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                      disabled={currentPage === 1}
+                      className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:bg-gray-100 disabled:text-gray-400"
+                    >
+                      <span className="sr-only">Previous</span>
+                      &larr;
+                    </button>
+                    <span className="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700">
+                      Page {currentPage} of {totalPages}
+                    </span>
+                    <button
+                      onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                      disabled={currentPage === totalPages}
+                      className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:bg-gray-100 disabled:text-gray-400"
+                    >
+                      <span className="sr-only">Next</span>
+                      &rarr;
+                    </button>
+                  </nav>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>

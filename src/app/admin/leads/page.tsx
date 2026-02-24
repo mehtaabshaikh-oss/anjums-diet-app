@@ -39,18 +39,41 @@ export default function LeadsPage() {
   const [isCreating, setIsCreating] = useState(false)
   const [sortBy, setSortBy] = useState<SortField>('created_at')
   const [sortOrder, setSortOrder] = useState<SortOrder>('desc')
+  const [currentPage, setCurrentPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(0)
+  const [totalItems, setTotalItems] = useState(0)
 
   useEffect(() => {
     fetchLeads()
-  }, [])
+  }, [currentPage, searchTerm, filterStatus, filterSource])
+
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [searchTerm, filterStatus, filterSource])
 
   const fetchLeads = async () => {
     try {
       setIsLoading(true)
-      const response = await fetch('/api/admin/leads')
+      const params = new URLSearchParams()
+      params.append('page', currentPage.toString())
+      params.append('limit', '50')
+      if (searchTerm) params.append('q', searchTerm)
+      if (filterStatus !== 'all') params.append('status', filterStatus)
+      if (filterSource !== 'all') params.append('source', filterSource)
+
+      const response = await fetch(`/api/admin/leads?${params.toString()}`)
       if (!response.ok) throw new Error('Failed to fetch leads')
       const data = await response.json()
-      setLeads(data)
+
+      if (Array.isArray(data)) {
+        setLeads(data)
+        setTotalItems(data.length)
+        setTotalPages(1)
+      } else {
+        setLeads(data.items || [])
+        setTotalItems(data.total || 0)
+        setTotalPages(data.totalPages || 0)
+      }
     } catch (err) {
       setError('Failed to load leads')
       console.error(err)
@@ -157,16 +180,7 @@ export default function LeadsPage() {
     }
   }
 
-  const filteredLeads = leads
-    .filter(lead => {
-      const matchesStatus = filterStatus === 'all' || lead.status === filterStatus
-      const matchesSource = filterSource === 'all' || lead.source === filterSource
-      const matchesSearch =
-        lead.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        lead.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        lead.phone?.includes(searchTerm)
-      return matchesStatus && matchesSource && matchesSearch
-    })
+  const filteredLeads = [...leads]
     .sort((a, b) => {
       let aValue: any = a[sortBy]
       let bValue: any = b[sortBy]
@@ -402,7 +416,7 @@ export default function LeadsPage() {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
           <p className="text-sm text-gray-600 font-medium">Total Leads</p>
-          <p className="text-3xl font-bold text-gray-900 mt-2">{leads.length}</p>
+          <p className="text-3xl font-bold text-gray-900 mt-2">{totalItems}</p>
         </div>
 
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
@@ -504,9 +518,8 @@ export default function LeadsPage() {
                       <tr
                         key={lead.id}
                         onClick={() => setSelectedLead(lead)}
-                        className={`border-b border-gray-200 cursor-pointer transition-colors hover:bg-gray-50 ${
-                          selectedLead?.id === lead.id ? 'bg-primary/5' : ''
-                        }`}
+                        className={`border-b border-gray-200 cursor-pointer transition-colors hover:bg-gray-50 ${selectedLead?.id === lead.id ? 'bg-primary/5' : ''
+                          }`}
                       >
                         <td className="px-3 sm:px-6 py-3 sm:py-4">
                           <p className="font-semibold text-gray-900 whitespace-nowrap">{lead.name}</p>
@@ -515,36 +528,34 @@ export default function LeadsPage() {
                         <td className="px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-gray-600 whitespace-nowrap">{lead.phone}</td>
                         <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
                           <span
-                            className={`px-2 sm:px-3 py-1 rounded-full text-xs font-medium capitalize ${
-                              lead.source === 'contact_form'
+                            className={`px-2 sm:px-3 py-1 rounded-full text-xs font-medium capitalize ${lead.source === 'contact_form'
                                 ? 'bg-blue-100 text-blue-800'
                                 : lead.source === 'email'
-                                ? 'bg-purple-100 text-purple-800'
-                                : lead.source === 'whatsapp'
-                                ? 'bg-green-100 text-green-800'
-                                : lead.source === 'phone_call'
-                                ? 'bg-orange-100 text-orange-800'
-                                : lead.source === 'referral'
-                                ? 'bg-pink-100 text-pink-800'
-                                : lead.source === 'social_media'
-                                ? 'bg-indigo-100 text-indigo-800'
-                                : 'bg-gray-100 text-gray-800'
-                            }`}
+                                  ? 'bg-purple-100 text-purple-800'
+                                  : lead.source === 'whatsapp'
+                                    ? 'bg-green-100 text-green-800'
+                                    : lead.source === 'phone_call'
+                                      ? 'bg-orange-100 text-orange-800'
+                                      : lead.source === 'referral'
+                                        ? 'bg-pink-100 text-pink-800'
+                                        : lead.source === 'social_media'
+                                          ? 'bg-indigo-100 text-indigo-800'
+                                          : 'bg-gray-100 text-gray-800'
+                              }`}
                           >
                             {lead.source.replace('_', ' ')}
                           </span>
                         </td>
                         <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
                           <span
-                            className={`px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-medium ${
-                              lead.status === 'new'
+                            className={`px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-medium ${lead.status === 'new'
                                 ? 'bg-blue-100 text-blue-800'
                                 : lead.status === 'contacted'
-                                ? 'bg-yellow-100 text-yellow-800'
-                                : lead.status === 'converted'
-                                ? 'bg-green-100 text-green-800'
-                                : 'bg-red-100 text-red-800'
-                            }`}
+                                  ? 'bg-yellow-100 text-yellow-800'
+                                  : lead.status === 'converted'
+                                    ? 'bg-green-100 text-green-800'
+                                    : 'bg-red-100 text-red-800'
+                              }`}
                           >
                             {lead.status.charAt(0).toUpperCase() + lead.status.slice(1)}
                           </span>
@@ -559,6 +570,58 @@ export default function LeadsPage() {
               </div>
             )}
           </div>
+
+          {/* Pagination Controls */}
+          {totalPages > 1 && (
+            <div className="mt-4 bg-white px-4 py-3 border border-gray-200 rounded-lg sm:px-6 flex items-center justify-between">
+              <div className="flex-1 flex justify-between sm:hidden">
+                <button
+                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                  disabled={currentPage === 1}
+                  className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:bg-gray-100 disabled:text-gray-400"
+                >
+                  Previous
+                </button>
+                <button
+                  onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                  disabled={currentPage === totalPages}
+                  className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:bg-gray-100 disabled:text-gray-400"
+                >
+                  Next
+                </button>
+              </div>
+              <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                <div>
+                  <p className="text-sm text-gray-700">
+                    Showing <span className="font-medium">{((currentPage - 1) * 50) + 1}</span> to <span className="font-medium">{Math.min(currentPage * 50, totalItems)}</span> of <span className="font-medium">{totalItems}</span> results
+                  </p>
+                </div>
+                <div>
+                  <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                    <button
+                      onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                      disabled={currentPage === 1}
+                      className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:bg-gray-100 disabled:text-gray-400"
+                    >
+                      <span className="sr-only">Previous</span>
+                      &larr;
+                    </button>
+                    <span className="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700">
+                      Page {currentPage} of {totalPages}
+                    </span>
+                    <button
+                      onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                      disabled={currentPage === totalPages}
+                      className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:bg-gray-100 disabled:text-gray-400"
+                    >
+                      <span className="sr-only">Next</span>
+                      &rarr;
+                    </button>
+                  </nav>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Lead Details Panel */}
@@ -630,11 +693,10 @@ export default function LeadsPage() {
                   <button
                     key={status}
                     onClick={() => updateLeadStatus(selectedLead.id, status)}
-                    className={`px-3 py-2 rounded-lg text-sm font-semibold transition-colors ${
-                      selectedLead.status === status
+                    className={`px-3 py-2 rounded-lg text-sm font-semibold transition-colors ${selectedLead.status === status
                         ? 'bg-primary text-white'
                         : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                    }`}
+                      }`}
                   >
                     {status.charAt(0).toUpperCase() + status.slice(1)}
                   </button>

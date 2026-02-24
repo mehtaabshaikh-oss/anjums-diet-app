@@ -1,6 +1,7 @@
 import { requireAdmin } from '@/lib/auth/requireAdmin'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { NextResponse } from 'next/server'
+import { appCache } from '@/lib/cache'
 
 export async function GET(req: Request) {
   const adminAuth = await requireAdmin()
@@ -8,17 +9,17 @@ export async function GET(req: Request) {
 
   try {
     const startTime = Date.now()
-    console.log('[ANALYTICS] Starting analytics fetch...')
+    const enableLogs = process.env.ENABLE_PERF_LOGS === 'true'
+    if (enableLogs) console.log('[ANALYTICS] Starting analytics fetch...')
+
+    const cacheKey = 'admin_analytics_dashboard'
+    const cachedData = appCache.get(cacheKey)
+    if (cachedData) {
+      if (enableLogs) console.log(`[ANALYTICS] Cache hit! Time: ${Date.now() - startTime}ms`)
+      return NextResponse.json(cachedData)
+    }
 
     const supabase = createAdminClient()
-
-    // OPTIMIZED: Fetch all clients once with all related data (replaces Q1, Q3-Q5, Q7-Q8)
-    console.time('[Q1] OPTIMIZED: All Clients + Weight Logs + Payments')
-    const { data: allClientsData } = await supabase
-      .from('clients')
-      .select('id, name, package, status, nutritionist, created_at, payments(amount, status, date), weight_logs(logged_date, weight_kg)')
-    console.timeEnd('[Q1] OPTIMIZED: All Clients + Weight Logs + Payments')
-    console.log(`[Q1] Fetched ${allClientsData?.length || 0} clients with all relations`)
 
     // Get date boundaries for filtering
     const now = new Date()
@@ -26,11 +27,34 @@ export async function GET(req: Request) {
     const currentYear = now.getFullYear()
     const firstDayOfMonth = new Date(currentYear, currentMonth, 1).toISOString().split('T')[0]
     const lastDayOfMonth = new Date(currentYear, currentMonth + 1, 0).toISOString().split('T')[0]
-    const monthStart = new Date(currentYear, currentMonth, 1).toISOString().split('T')[0]
-    const monthEnd = new Date(currentYear, currentMonth + 1, 0).toISOString().split('T')[0]
+
+    const sevenDaysAgo = new Date()
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7)
+
+    if (enableLogs) console.time('[ANALYTICS] Parallel DB Queries')
+    // Run Q1, Q2, Q3 in parallel
+    const [
+      { data: allClientsData },
+      { data: dietLogsData },
+      { data: newLeadsData }
+    ] = await Promise.all([
+      // Q1
+      supabase.from('clients').select('id, name, package, status, nutritionist, created_at, payments(amount, status, date), weight_logs(logged_date, weight_kg)'),
+      // Q2
+      supabase.from('diet_logs').select('logged_date, status').gte('logged_date', sevenDaysAgo.toISOString().split('T')[0]),
+      // Q3
+      supabase.from('leads').select('id').gte('created_at', sevenDaysAgo.toISOString())
+    ])
+    if (enableLogs) console.timeEnd('[ANALYTICS] Parallel DB Queries')
+
+    if (enableLogs) {
+      console.log(`[Q1] Fetched ${allClientsData?.length || 0} clients with all relations`)
+      console.log(`[Q2] Fetched ${dietLogsData?.length || 0} diet logs`)
+      console.log(`[Q3] Fetched ${newLeadsData?.length || 0} new leads`)
+    }
 
     // Process all calculations from single query
-    console.time('[P1] Client Data Processing')
+    if (enableLogs) console.time('[P1] Client Data Processing')
 
     // 1. Weight Loss Calculations
     let totalWeightLoss = 0
@@ -53,8 +77,8 @@ export async function GET(req: Request) {
 
     // Initialize last 6 months worth of days for new clients tracking
     const sixMonthsAgo = new Date(currentYear, currentMonth - 5, 1)
-    const today = new Date(currentYear, currentMonth + 1, 0)
-    for (let d = new Date(sixMonthsAgo); d <= today; d.setDate(d.getDate() + 1)) {
+    const todayEnd = new Date(currentYear, currentMonth + 1, 0)
+    for (let d = new Date(sixMonthsAgo); d <= todayEnd; d.setDate(d.getDate() + 1)) {
       const dateStr = new Date(d).toISOString().split('T')[0]
       newClientsByDay[dateStr] = 0
     }
@@ -82,7 +106,7 @@ export async function GET(req: Request) {
         // 3. Revenue by Package (active clients only)
         if (client.status === 'active') {
           const pkgKey = (client.package || 'Gold').charAt(0).toUpperCase() +
-                         (client.package || 'Gold').slice(1).toLowerCase()
+            (client.package || 'Gold').slice(1).toLowerCase()
 
           if (packageCountMap.hasOwnProperty(pkgKey)) {
             packageCountMap[pkgKey as keyof typeof packageCountMap]++
@@ -128,8 +152,10 @@ export async function GET(req: Request) {
       }
     }
 
-    console.timeEnd('[P1] Client Data Processing')
-    console.log(`[P1] Clients with progress: ${clientsWithLoss}`)
+    if (enableLogs) {
+      console.timeEnd('[P1] Client Data Processing')
+      console.log(`[P1] Clients with progress: ${clientsWithLoss}`)
+    }
 
     // Format outputs
     const averageWeightLoss =
@@ -146,23 +172,24 @@ export async function GET(req: Request) {
 
     // Group new clients by month (last 6 months)
     const newClientsTrend = []
+
+    // We already have newClientsByDay filled. We need to aggregate it correctly into month buckets.
+    const monthBuckets: { [key: string]: number } = {}
+    for (const [dateStr, count] of Object.entries(newClientsByDay)) {
+      if (count > 0) {
+        const d = new Date(dateStr)
+        const bucketKey = d.toLocaleDateString('en-US', { month: 'short' })
+        monthBuckets[bucketKey] = (monthBuckets[bucketKey] || 0) + count
+      }
+    }
+
+    // Reconstruct last 6 months list safely based on simple loop instead of complex day search
     for (let i = 5; i >= 0; i--) {
       const monthDate = new Date(currentYear, currentMonth - i, 1)
-      const monthStart = new Date(monthDate.getFullYear(), monthDate.getMonth(), 1)
-      const monthEnd = new Date(monthDate.getFullYear(), monthDate.getMonth() + 1, 0)
-
-      let monthCount = 0
-      for (const [dateStr, count] of Object.entries(newClientsByDay)) {
-        const date = new Date(dateStr)
-        if (date >= monthStart && date <= monthEnd) {
-          monthCount += count
-        }
-      }
-
       const monthName = monthDate.toLocaleDateString('en-US', { month: 'short' })
       newClientsTrend.push({
         month: monthName,
-        newClients: monthCount,
+        newClients: monthBuckets[monthName] || 0,
       })
     }
 
@@ -179,18 +206,6 @@ export async function GET(req: Request) {
         revenue: Math.round(revenue),
       })
     )
-
-    // 2. Diet Plan Adherence - Get diet logs for last 7 days (independent query)
-    console.time('[Q2] Diet Logs')
-    const sevenDaysAgo = new Date()
-    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7)
-
-    const { data: dietLogsData } = await supabase
-      .from('diet_logs')
-      .select('logged_date, status')
-      .gte('logged_date', sevenDaysAgo.toISOString().split('T')[0])
-    console.timeEnd('[Q2] Diet Logs')
-    console.log(`[Q2] Fetched ${dietLogsData?.length || 0} diet logs`)
 
     const adherenceByDay: { [key: string]: { submitted: number; total: number } } = {}
 
@@ -220,18 +235,6 @@ export async function GET(req: Request) {
         data.total > 0 ? Math.round((data.submitted / data.total) * 100) : 0,
     }))
 
-    // 5. New Leads This Week - Get leads created in last 7 days (independent query)
-    console.time('[Q3] New Leads This Week')
-    const sevenDaysAgoDate = new Date()
-    sevenDaysAgoDate.setDate(sevenDaysAgoDate.getDate() - 7)
-
-    const { data: newLeadsData } = await supabase
-      .from('leads')
-      .select('id')
-      .gte('created_at', sevenDaysAgoDate.toISOString())
-    console.timeEnd('[Q3] New Leads This Week')
-    console.log(`[Q3] Fetched ${newLeadsData?.length || 0} new leads`)
-
     const newLeadsThisWeek = newLeadsData ? newLeadsData.length : 0
 
     const response = {
@@ -247,17 +250,12 @@ export async function GET(req: Request) {
       revenueByNutritionist,
     }
 
-    const totalTime = Date.now() - startTime
-    const payloadSize = JSON.stringify(response).length
-    console.log(`[ANALYTICS] Total time: ${totalTime}ms`)
-    console.log(`[ANALYTICS] Payload size: ${payloadSize} bytes (~${(payloadSize / 1024).toFixed(1)}KB)`)
-    console.log(`[ANALYTICS] ---- Performance Summary ----`)
-    console.log(`[ANALYTICS] 3 database queries executed (OPTIMIZED from 8 queries)`)
-    console.log(`[ANALYTICS] Q1: Consolidated clients + weight_logs + payments`)
-    console.log(`[ANALYTICS] Q2: Diet logs (independent)`)
-    console.log(`[ANALYTICS] Q3: Leads (independent)`)
-    console.log(`[ANALYTICS] Response time: ${totalTime}ms`)
-    console.log(`[ANALYTICS] ================================`)
+    appCache.set(cacheKey, response, 60 * 1000)
+
+    if (enableLogs) {
+      const totalTime = Date.now() - startTime
+      console.log(`[ANALYTICS] Total time: ${totalTime}ms`)
+    }
 
     return NextResponse.json(response)
   } catch (error) {

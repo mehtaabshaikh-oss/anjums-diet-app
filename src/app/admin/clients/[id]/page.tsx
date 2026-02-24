@@ -3,8 +3,6 @@
 import { useState, useEffect } from 'react'
 import { useRouter, useParams, useSearchParams } from 'next/navigation'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
-import jsPDF from 'jspdf'
-import html2canvas from 'html2canvas'
 import AppointmentScheduler from '@/components/AppointmentScheduler'
 
 interface ClientData {
@@ -254,14 +252,14 @@ export default function ClientDetailPage() {
       const plans = await response.json()
       setDietPlans(plans)
 
-      // Fetch items for each plan
+      // Items are now eagerly loaded
+      const itemsMap: { [key: string]: any[] } = {}
       for (const plan of plans) {
-        const itemsResponse = await fetch(`/api/admin/diet-plans/${plan.id}/items`)
-        if (itemsResponse.ok) {
-          const items = await itemsResponse.json()
-          setDietPlanItems((prev) => ({ ...prev, [plan.id]: items }))
+        if (plan.diet_plan_items) {
+          itemsMap[plan.id] = plan.diet_plan_items;
         }
       }
+      setDietPlanItems(itemsMap)
     } catch (err) {
       console.error('Error fetching diet plans:', err)
     } finally {
@@ -368,6 +366,14 @@ export default function ClientDetailPage() {
 
       element.innerHTML = html
       document.body.appendChild(element)
+
+      // Dynamically load PDF libraries
+      const [html2canvasModule, jsPDFModule] = await Promise.all([
+        import('html2canvas'),
+        import('jspdf'),
+      ])
+      const html2canvas = html2canvasModule.default
+      const jsPDF = jsPDFModule.default
 
       // Convert HTML to canvas, then to PDF
       const canvas = await html2canvas(element, {

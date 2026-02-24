@@ -43,46 +43,40 @@ export async function GET(
       return NextResponse.json({ error: itemsError.message }, { status: 400 })
     }
 
-    // Get diet plan item details for each log item
-    const itemsWithDetails = await Promise.all(
-      (logItems || []).map(async (logItem: any) => {
-        if (!logItem.diet_plan_item_id) {
-          return {
-            id: logItem.id,
-            completed: logItem.completed,
-            comment: logItem.comment,
-            meal_type: 'other',
-            sequence: 0,
-            item_name: 'Unknown Item',
-            quantity: 0,
-            unit: '',
-            notes: null,
-          }
-        }
+    // Get all unique diet plan item IDs
+    const planItemIds = logItems
+      .map((item: any) => item.diet_plan_item_id)
+      .filter((id: string | null) => id != null)
 
-        const { data: planItem, error: planError } = await supabase
-          .from('diet_plan_items')
-          .select('id, meal_type, sequence, item_name, quantity, unit, notes')
-          .eq('id', logItem.diet_plan_item_id)
-          .single()
+    // Fetch all plan items in one query (Eliminate N+1)
+    let planItemsMap = new Map()
+    if (planItemIds.length > 0) {
+      const { data: planItemsData, error: planItemsError } = await supabase
+        .from('diet_plan_items')
+        .select('id, meal_type, sequence, item_name, quantity, unit, notes')
+        .in('id', planItemIds)
 
-        if (planError) {
-          console.error('Error fetching plan item:', planError, 'for id:', logItem.diet_plan_item_id)
-        }
+      if (!planItemsError && planItemsData) {
+        planItemsData.forEach((item: any) => planItemsMap.set(item.id, item))
+      }
+    }
 
-        return {
-          id: logItem.id,
-          completed: logItem.completed,
-          comment: logItem.comment,
-          meal_type: planItem?.meal_type || 'other',
-          sequence: planItem?.sequence || 0,
-          item_name: planItem?.item_name || 'Unknown Item',
-          quantity: planItem?.quantity || 0,
-          unit: planItem?.unit || '',
-          notes: planItem?.notes || null,
-        }
-      })
-    )
+    // Map log items with their plan details in memory
+    const itemsWithDetails = (logItems || []).map((logItem: any) => {
+      const planItem = logItem.diet_plan_item_id ? planItemsMap.get(logItem.diet_plan_item_id) : null
+
+      return {
+        id: logItem.id,
+        completed: logItem.completed,
+        comment: logItem.comment,
+        meal_type: planItem?.meal_type || 'other',
+        sequence: planItem?.sequence || 0,
+        item_name: planItem?.item_name || 'Unknown Item',
+        quantity: planItem?.quantity || 0,
+        unit: planItem?.unit || '',
+        notes: planItem?.notes || null,
+      }
+    })
 
     // Sort by meal type and sequence
     itemsWithDetails.sort((a, b) => {

@@ -1,6 +1,7 @@
 import { requireAdmin } from '@/lib/auth/requireAdmin'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { NextResponse } from 'next/server'
+import { appCache } from '@/lib/cache'
 
 export async function GET(req: Request) {
   const adminAuth = await requireAdmin()
@@ -8,51 +9,46 @@ export async function GET(req: Request) {
 
   try {
     const startTime = Date.now()
-    console.log('[STATS] Starting stats fetch...')
+    const enableLogs = process.env.ENABLE_PERF_LOGS === 'true'
+    if (enableLogs) console.log('[STATS] Starting stats fetch...')
+
+    const cacheKey = 'admin_stats_dashboard'
+    const cachedStats = appCache.get(cacheKey)
+    if (cachedStats) {
+      if (enableLogs) console.log(`[STATS] Cache hit! Time: ${Date.now() - startTime}ms`)
+      return NextResponse.json(cachedStats)
+    }
 
     const supabase = createAdminClient()
 
-    // Get total clients
-    console.time('[STATS-Q1] Total Clients Count')
-    const { count: totalClients } = await supabase
-      .from('clients')
-      .select('*', { count: 'exact', head: true })
-    console.timeEnd('[STATS-Q1] Total Clients Count')
-    console.log(`[STATS-Q1] Total clients: ${totalClients}`)
-
-    // Get active clients (status = 'active')
-    console.time('[STATS-Q2] Active Clients Count')
-    const { count: activeClients } = await supabase
-      .from('clients')
-      .select('*', { count: 'exact', head: true })
-      .eq('status', 'active')
-    console.timeEnd('[STATS-Q2] Active Clients Count')
-    console.log(`[STATS-Q2] Active clients: ${activeClients}`)
-
-    // Get logs submitted today
-    console.time('[STATS-Q3] Diet Logs Today')
     const today = new Date().toISOString().split('T')[0]
-    const { count: logsSubmittedToday } = await supabase
-      .from('diet_logs')
-      .select('*', { count: 'exact', head: true })
-      .eq('logged_date', today)
-      .eq('status', 'submitted')
-    console.timeEnd('[STATS-Q3] Diet Logs Today')
-    console.log(`[STATS-Q3] Logs submitted today: ${logsSubmittedToday}`)
-
-    // Get upcoming appointments (next 7 days)
-    console.time('[STATS-Q4] Upcoming Appointments')
     const now = new Date()
     const sevenDaysLater = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000)
 
-    const { data: appointmentsData, count: upcomingAppointments } = await supabase
-      .from('clients')
-      .select('id, name, nutritionist, next_appointment_date', { count: 'exact' })
-      .gte('next_appointment_date', now.toISOString())
-      .lte('next_appointment_date', sevenDaysLater.toISOString())
-      .order('next_appointment_date', { ascending: true })
-    console.timeEnd('[STATS-Q4] Upcoming Appointments')
-    console.log(`[STATS-Q4] Fetched ${appointmentsData?.length || 0} upcoming appointments`)
+    if (enableLogs) console.time('[STATS] DB Queries')
+    // Run all Q1-Q4 queries in parallel
+    const [
+      { count: totalClients },
+      { count: activeClients },
+      { count: logsSubmittedToday },
+      { data: appointmentsData, count: upcomingAppointments }
+    ] = await Promise.all([
+      supabase.from('clients').select('*', { count: 'exact', head: true }),
+      supabase.from('clients').select('*', { count: 'exact', head: true }).eq('status', 'active'),
+      supabase.from('diet_logs').select('*', { count: 'exact', head: true }).eq('logged_date', today).eq('status', 'submitted'),
+      supabase.from('clients').select('id, name, nutritionist, next_appointment_date', { count: 'exact' })
+        .gte('next_appointment_date', now.toISOString())
+        .lte('next_appointment_date', sevenDaysLater.toISOString())
+        .order('next_appointment_date', { ascending: true })
+    ])
+    if (enableLogs) console.timeEnd('[STATS] DB Queries')
+
+    if (enableLogs) {
+      console.log(`[STATS-Q1] Total clients: ${totalClients}`)
+      console.log(`[STATS-Q2] Active clients: ${activeClients}`)
+      console.log(`[STATS-Q3] Logs submitted today: ${logsSubmittedToday}`)
+      console.log(`[STATS-Q4] Fetched ${appointmentsData?.length || 0} upcoming appointments`)
+    }
 
     const response = {
       totalClients: totalClients || 0,
@@ -62,10 +58,12 @@ export async function GET(req: Request) {
       appointments: appointmentsData || [],
     }
 
-    const totalTime = Date.now() - startTime
-    const payloadSize = JSON.stringify(response).length
-    console.log(`[STATS] Total time: ${totalTime}ms`)
-    console.log(`[STATS] Payload size: ${payloadSize} bytes (~${(payloadSize / 1024).toFixed(1)}KB)`)
+    appCache.set(cacheKey, response, 30 * 1000)
+
+    if (enableLogs) {
+      const totalTime = Date.now() - startTime
+      console.log(`[STATS] Total time: ${totalTime}ms`)
+    }
 
     return NextResponse.json(response)
   } catch (error) {

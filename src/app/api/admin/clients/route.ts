@@ -11,17 +11,40 @@ export async function GET(req: Request) {
     const supabase = createAdminClient()
 
 
-    // Fetch all clients
-    const { data: clients, error } = await supabase
+    const url = new URL(req.url)
+    const page = parseInt(url.searchParams.get('page') || '1')
+    let limit = parseInt(url.searchParams.get('limit') || '50')
+    if (limit > 100) limit = 100
+    const q = url.searchParams.get('q') || ''
+    const status = url.searchParams.get('status') || ''
+
+    let query = supabase
       .from('clients')
-      .select('id, name, email, phone, package, duration_months, nutritionist, status, start_date, end_date, next_appointment_date')
+      .select('id, name, email, phone, package, duration_months, nutritionist, status, start_date, end_date, next_appointment_date', { count: 'exact' })
+
+    if (q) {
+      query = query.or(`name.ilike.%${q}%,email.ilike.%${q}%,phone.ilike.%${q}%`)
+    }
+    if (status) {
+      query = query.eq('status', status)
+    }
+
+    // Fetch paginated clients
+    const { data: clients, error, count } = await query
       .order('created_at', { ascending: false })
+      .range((page - 1) * limit, page * limit - 1)
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 400 })
     }
 
-    return NextResponse.json(clients || [])
+    return NextResponse.json({
+      items: clients || [],
+      total: count || 0,
+      page,
+      limit,
+      totalPages: count ? Math.ceil(count / limit) : 0,
+    })
   } catch (error) {
     console.error('Error fetching clients:', error)
     return NextResponse.json(

@@ -11,15 +11,42 @@ export async function GET(req: Request) {
 
     // Check if user is authenticated
 
-    // Fetch all leads
-    const { data: leads, error } = await supabase
+    const url = new URL(req.url)
+    const page = parseInt(url.searchParams.get('page') || '1')
+    let limit = parseInt(url.searchParams.get('limit') || '50')
+    if (limit > 100) limit = 100
+    const q = url.searchParams.get('q') || ''
+    const status = url.searchParams.get('status') || ''
+    const source = url.searchParams.get('source') || ''
+
+    let query = supabase
       .from('leads')
-      .select('*')
+      .select('*', { count: 'exact' })
+
+    if (q) {
+      query = query.or(`name.ilike.%${q}%,email.ilike.%${q}%,phone.ilike.%${q}%`)
+    }
+    if (status) {
+      query = query.eq('status', status)
+    }
+    if (source) {
+      query = query.eq('source', source)
+    }
+
+    // Fetch all leads
+    const { data: leads, error, count } = await query
       .order('created_at', { ascending: false })
+      .range((page - 1) * limit, page * limit - 1)
 
     if (error) throw error
 
-    return NextResponse.json(leads)
+    return NextResponse.json({
+      items: leads || [],
+      total: count || 0,
+      page,
+      limit,
+      totalPages: count ? Math.ceil(count / limit) : 0,
+    })
   } catch (error) {
     console.error('Error fetching leads:', error)
     return NextResponse.json(

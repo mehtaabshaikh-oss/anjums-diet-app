@@ -58,14 +58,14 @@ export default function ClientDietPlansPage() {
       const data = await response.json()
       setDietPlans(data)
 
-      // Fetch items for each plan
+      // Items are now eagerly loaded
+      const itemsMap: { [key: string]: DietPlanItem[] } = {}
       for (const plan of data) {
-        const itemsResponse = await fetch(`/api/admin/diet-plans/${plan.id}/items`)
-        if (itemsResponse.ok) {
-          const items = await itemsResponse.json()
-          setPlanItems(prev => ({ ...prev, [plan.id]: items }))
+        if (plan.diet_plan_items) {
+          itemsMap[plan.id] = plan.diet_plan_items;
         }
       }
+      setPlanItems(itemsMap)
     } catch (err) {
       setError('Failed to load diet plans')
       console.error(err)
@@ -540,17 +540,15 @@ export default function ClientDietPlansPage() {
                       )}
                     </div>
                     <div className="flex items-center gap-4">
-                      <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                        plan.active
+                      <span className={`px-3 py-1 rounded-full text-sm font-medium ${plan.active
                           ? 'bg-green-100 text-green-800'
                           : 'bg-gray-100 text-gray-800'
-                      }`}>
+                        }`}>
                         {plan.active ? 'Active' : 'Inactive'}
                       </span>
                       <svg
-                        className={`w-5 h-5 text-gray-400 transition-transform ${
-                          expandedPlanId === plan.id ? 'transform rotate-180' : ''
-                        }`}
+                        className={`w-5 h-5 text-gray-400 transition-transform ${expandedPlanId === plan.id ? 'transform rotate-180' : ''
+                          }`}
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"

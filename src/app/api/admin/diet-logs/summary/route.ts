@@ -9,7 +9,6 @@ export async function GET(req: Request) {
   try {
     const supabase = createAdminClient()
 
-
     // Get query parameters
     const url = new URL(req.url)
     const loggedDate = url.searchParams.get('logged_date') || new Date().toISOString().split('T')[0]
@@ -62,6 +61,29 @@ export async function GET(req: Request) {
       )
       summary.total_clients_with_plans = clientsWithPlans.length
 
+      // BULK FETCH DIET LOG ITEMS (Eliminate N+1)
+      const submittedLogIds = clientsWithPlans
+        .map((client: any) => client.diet_logs?.find((log: any) => log.logged_date === loggedDate))
+        .filter((log: any) => log && log.status === 'submitted')
+        .map((log: any) => log.id)
+
+      const itemsByLogId = new Map()
+      if (submittedLogIds.length > 0) {
+        const { data: allLogItems } = await supabase
+          .from('diet_log_items')
+          .select('diet_log_id, completed')
+          .in('diet_log_id', submittedLogIds)
+
+        if (allLogItems) {
+          allLogItems.forEach((item: any) => {
+            if (!itemsByLogId.has(item.diet_log_id)) {
+              itemsByLogId.set(item.diet_log_id, [])
+            }
+            itemsByLogId.get(item.diet_log_id).push(item)
+          })
+        }
+      }
+
       for (const client of clientsWithPlans) {
         // Find log for today
         const todayLog = client.diet_logs?.find(
@@ -81,11 +103,8 @@ export async function GET(req: Request) {
         let totalItems = 0
         let completedItems = 0
         if (todayLog && todayLog.status === 'submitted') {
-          // Get log items and calculate adherence
-          const { data: logItems } = await supabase
-            .from('diet_log_items')
-            .select('completed')
-            .eq('diet_log_id', todayLog.id)
+          // Get log items from Map
+          const logItems = itemsByLogId.get(todayLog.id) || []
 
           if (logItems && logItems.length > 0) {
             totalItems = logItems.length

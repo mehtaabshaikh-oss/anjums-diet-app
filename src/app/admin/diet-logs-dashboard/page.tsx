@@ -36,9 +36,25 @@ export default function DietLogsDashboard() {
 
   useEffect(() => {
     fetchDashboardData()
-    // Refresh every 30 seconds
-    const interval = setInterval(fetchDashboardData, 30000)
-    return () => clearInterval(interval)
+    // Refresh every 2 minutes only if page is visible
+    const interval = setInterval(() => {
+      if (document.visibilityState === 'visible') {
+        fetchDashboardData()
+      }
+    }, 120000)
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        fetchDashboardData()
+      }
+    }
+
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+
+    return () => {
+      clearInterval(interval)
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
+    }
   }, [])
 
   const fetchDashboardData = async () => {
@@ -368,9 +384,9 @@ export default function DietLogsDashboard() {
                     <td className="px-6 py-4 text-sm text-gray-600">
                       {client.submission_time
                         ? new Date(client.submission_time).toLocaleTimeString('en-US', {
-                            hour: '2-digit',
-                            minute: '2-digit',
-                          })
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        })
                         : '-'}
                     </td>
                     <td className="px-6 py-4 text-sm font-semibold text-gray-900">
@@ -380,13 +396,12 @@ export default function DietLogsDashboard() {
                       <div className="flex items-center gap-2">
                         <div className="w-16 bg-gray-200 rounded-full h-2">
                           <div
-                            className={`h-2 rounded-full transition-all ${
-                              client.adherence_percentage >= 80
+                            className={`h-2 rounded-full transition-all ${client.adherence_percentage >= 80
                                 ? 'bg-green-500'
                                 : client.adherence_percentage >= 60
-                                ? 'bg-yellow-500'
-                                : 'bg-red-500'
-                            }`}
+                                  ? 'bg-yellow-500'
+                                  : 'bg-red-500'
+                              }`}
                             style={{ width: `${client.adherence_percentage}%` }}
                           />
                         </div>
@@ -397,13 +412,12 @@ export default function DietLogsDashboard() {
                     </td>
                     <td className="px-6 py-4">
                       <span
-                        className={`px-3 py-1 rounded-full text-sm font-medium ${
-                          client.status === 'ON_TRACK' || client.status === 'SUBMITTED'
+                        className={`px-3 py-1 rounded-full text-sm font-medium ${client.status === 'ON_TRACK' || client.status === 'SUBMITTED'
                             ? 'bg-green-100 text-green-800'
                             : client.status === 'PENDING'
-                            ? 'bg-yellow-100 text-yellow-800'
-                            : 'bg-red-100 text-red-800'
-                        }`}
+                              ? 'bg-yellow-100 text-yellow-800'
+                              : 'bg-red-100 text-red-800'
+                          }`}
                       >
                         {client.status}
                       </span>
@@ -485,19 +499,17 @@ export default function DietLogsDashboard() {
                           {items.map((item: any, idx: number) => (
                             <div
                               key={idx}
-                              className={`p-4 rounded-lg border-2 ${
-                                item.completed
+                              className={`p-4 rounded-lg border-2 ${item.completed
                                   ? 'bg-green-50 border-green-200'
                                   : 'bg-red-50 border-red-200'
-                              }`}
+                                }`}
                             >
                               <div className="flex items-start justify-between">
                                 <div className="flex-1">
                                   <div className="flex items-center gap-2">
                                     <span
-                                      className={`text-xl ${
-                                        item.completed ? 'text-green-600' : 'text-red-600'
-                                      }`}
+                                      className={`text-xl ${item.completed ? 'text-green-600' : 'text-red-600'
+                                        }`}
                                     >
                                       {item.completed ? '✓' : '✗'}
                                     </span>

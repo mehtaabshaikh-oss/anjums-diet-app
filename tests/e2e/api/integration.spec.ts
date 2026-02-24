@@ -52,8 +52,8 @@ test.describe.serial('End-to-End API Integration Suite', () => {
         // View leads
         const getRes = await adminReq.get('/api/admin/leads')
         expect(getRes.ok()).toBeTruthy()
-        const leads = await getRes.json()
-        expect(Array.isArray(leads)).toBeTruthy()
+        const leadsRes = await getRes.json()
+        expect(Array.isArray(leadsRes.items)).toBeTruthy()
     })
 
     test('2. Create and view Clients (Admin)', async () => {
@@ -90,8 +90,8 @@ test.describe.serial('End-to-End API Integration Suite', () => {
         // View Clients
         const getRes = await adminReq.get('/api/admin/clients')
         expect(getRes.ok()).toBeTruthy()
-        const clients = await getRes.json()
-        expect(Array.isArray(clients)).toBeTruthy()
+        const clientsRes = await getRes.json()
+        expect(Array.isArray(clientsRes.items)).toBeTruthy()
     })
 
     test('3. Add and view Appointments (Admin)', async () => {

@@ -80,7 +80,7 @@ export async function GET(req: Request) {
 
     let query = supabase
       .from('diet_plans')
-      .select('*')
+      .select('*, diet_plan_items(*)')
 
     if (clientId) {
       query = query.eq('client_id', clientId)
