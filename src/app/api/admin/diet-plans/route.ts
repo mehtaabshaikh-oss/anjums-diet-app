@@ -5,22 +5,6 @@ export async function POST(req: Request) {
   try {
     const supabase = createAdminClient()
 
-    // Check if user is authenticated and is admin
-
-    // Check if user is admin
-    const { data: userData } = await supabase
-      .from('users')
-      .select('role')
-      .eq('id', user.id)
-      .single()
-
-    if (!userData || (userData.role !== 'admin' && userData.role !== 'staff')) {
-      return NextResponse.json(
-        { error: 'Only admins and staff can create diet plans' },
-        { status: 403 }
-      )
-    }
-
     const { client_id, name, description, items } = await req.json()
 
     // Create diet plan
@@ -31,7 +15,6 @@ export async function POST(req: Request) {
         name,
         description,
         active: true,
-        created_by: user.id,
       })
       .select()
       .single()

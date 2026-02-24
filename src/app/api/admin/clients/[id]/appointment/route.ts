@@ -10,20 +10,6 @@ export async function PUT(
     const supabase = createAdminClient()
 
 
-    // Check if user is admin or staff
-    const { data: userData } = await supabase
-      .from('users')
-      .select('role')
-      .eq('id', user.id)
-      .single()
-
-    if (!userData) {
-      return NextResponse.json(
-        { error: 'User not found' },
-        { status: 404 }
-      )
-    }
-
     const { next_appointment_date } = await req.json()
 
     // Update client appointment

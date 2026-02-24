@@ -10,20 +10,6 @@ export async function PUT(
     const supabase = createAdminClient()
 
 
-    // Check if user is admin
-    const { data: userData } = await supabase
-      .from('users')
-      .select('role')
-      .eq('id', user.id)
-      .single()
-
-    if (!userData || (userData.role !== 'admin' && userData.role !== 'staff')) {
-      return NextResponse.json(
-        { error: 'Only admins and staff can update diet plans' },
-        { status: 403 }
-      )
-    }
-
     const { name, description, active, items } = await req.json()
 
     // Update diet plan
@@ -96,20 +82,6 @@ export async function PATCH(
     const supabase = createAdminClient()
 
 
-    // Check if user is admin
-    const { data: userData } = await supabase
-      .from('users')
-      .select('role')
-      .eq('id', user.id)
-      .single()
-
-    if (!userData || (userData.role !== 'admin' && userData.role !== 'staff')) {
-      return NextResponse.json(
-        { error: 'Only admins and staff can archive diet plans' },
-        { status: 403 }
-      )
-    }
-
     const { active } = await req.json()
 
     // Archive diet plan by setting active to false
@@ -145,20 +117,6 @@ export async function DELETE(
   try {
     const supabase = createAdminClient()
 
-
-    // Check if user is admin
-    const { data: userData } = await supabase
-      .from('users')
-      .select('role')
-      .eq('id', user.id)
-      .single()
-
-    if (!userData || (userData.role !== 'admin' && userData.role !== 'staff')) {
-      return NextResponse.json(
-        { error: 'Only admins and staff can delete diet plans' },
-        { status: 403 }
-      )
-    }
 
     // Delete will cascade to diet_plan_items
     const { error } = await supabase
