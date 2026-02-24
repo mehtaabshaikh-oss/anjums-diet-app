@@ -48,10 +48,8 @@ export async function GET(req: Request) {
 
     if (dietPlanError && dietPlanError.code !== 'PGRST116') {
       // PGRST116 = no rows found
-      return NextResponse.json(
-        { error: dietPlanError.message },
-        { status: 400 }
-      )
+      console.error('API Error:', dietPlanError);
+      return NextResponse.json({ error: 'Bad request' }, { status: 400 })
     }
 
     if (!dietPlan) {

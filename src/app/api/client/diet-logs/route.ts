@@ -52,10 +52,8 @@ export async function POST(req: Request) {
         .single()
 
       if (createError) {
-        return NextResponse.json(
-          { error: createError.message },
-          { status: 400 }
-        )
+        console.error('API Error:', createError);
+      return NextResponse.json({ error: 'Bad request' }, { status: 400 })
       }
 
       dietLog = newLog
@@ -94,10 +92,8 @@ export async function POST(req: Request) {
       .insert(logItems)
 
     if (itemsError) {
-      return NextResponse.json(
-        { error: itemsError.message },
-        { status: 400 }
-      )
+      console.error('API Error:', itemsError);
+      return NextResponse.json({ error: 'Bad request' }, { status: 400 })
     }
 
     return NextResponse.json({
@@ -160,7 +156,8 @@ export async function GET(req: Request) {
     })
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 400 })
+      console.error('API Error:', error);
+      return NextResponse.json({ error: 'Bad request' }, { status: 400 })
     }
 
     return NextResponse.json(dietLogs)

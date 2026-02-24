@@ -18,7 +18,8 @@ export async function GET(req: Request) {
       .order('name')
 
     if (clientsError) {
-      return NextResponse.json({ error: clientsError.message }, { status: 400 })
+      console.error('API Error:', clientsError);
+      return NextResponse.json({ error: 'Bad request' }, { status: 400 })
     }
 
     // Fetch all active clients

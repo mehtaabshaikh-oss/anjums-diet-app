@@ -181,7 +181,8 @@ export async function POST(
       .single()
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 400 })
+      console.error('API Error:', error);
+      return NextResponse.json({ error: 'Bad request' }, { status: 400 })
     }
 
     return NextResponse.json(data)

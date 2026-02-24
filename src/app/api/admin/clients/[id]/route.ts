@@ -51,7 +51,8 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
       .eq('id', id)
 
     if (clientError) {
-      return NextResponse.json({ error: clientError.message }, { status: 400 })
+      console.error('API Error:', clientError);
+      return NextResponse.json({ error: 'Bad request' }, { status: 400 })
     }
 
     // Update client_profiles table
@@ -220,7 +221,8 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
 
     if (deleteError) {
       console.error('Client deletion error:', deleteError)
-      return NextResponse.json({ error: deleteError.message }, { status: 400 })
+      console.error('API Error:', deleteError);
+      return NextResponse.json({ error: 'Bad request' }, { status: 400 })
     }
 
     return NextResponse.json({ message: 'Client deleted successfully' }, { status: 200 })

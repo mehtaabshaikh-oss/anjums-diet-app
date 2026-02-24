@@ -28,7 +28,8 @@ export async function PUT(
       .single()
 
     if (updateError) {
-      return NextResponse.json({ error: updateError.message }, { status: 400 })
+      console.error('API Error:', updateError);
+      return NextResponse.json({ error: 'Bad request' }, { status: 400 })
     }
 
     return NextResponse.json(client)
@@ -61,7 +62,8 @@ export async function GET(
       .single()
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 400 })
+      console.error('API Error:', error);
+      return NextResponse.json({ error: 'Bad request' }, { status: 400 })
     }
 
     return NextResponse.json(client)

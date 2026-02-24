@@ -40,7 +40,8 @@ export async function GET(
       .eq('diet_log_id', logId)
 
     if (itemsError) {
-      return NextResponse.json({ error: itemsError.message }, { status: 400 })
+      console.error('API Error:', itemsError);
+      return NextResponse.json({ error: 'Bad request' }, { status: 400 })
     }
 
     // Get all unique diet plan item IDs

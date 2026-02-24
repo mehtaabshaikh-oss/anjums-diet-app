@@ -30,7 +30,8 @@ export async function POST(
       })
 
     if (logError) {
-      return NextResponse.json({ error: logError.message }, { status: 400 })
+      console.error('API Error:', logError);
+      return NextResponse.json({ error: 'Bad request' }, { status: 400 })
     }
 
     // Also update client profile with latest measurements (if these columns exist)

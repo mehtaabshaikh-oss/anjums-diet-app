@@ -72,7 +72,8 @@ export async function POST(req: Request) {
       .eq('id', client_id)
 
     if (updateError) {
-      return NextResponse.json({ error: updateError.message }, { status: 400 })
+      console.error('API Error:', updateError);
+      return NextResponse.json({ error: 'Bad request' }, { status: 400 })
     }
 
     return NextResponse.json({ success: true })

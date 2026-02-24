@@ -30,7 +30,8 @@ export async function PUT(
       .single()
 
     if (updateError) {
-      return NextResponse.json({ error: updateError.message }, { status: 400 })
+      console.error('API Error:', updateError);
+      return NextResponse.json({ error: 'Bad request' }, { status: 400 })
     }
 
     // If items provided, update them
@@ -103,7 +104,8 @@ export async function PATCH(
       .single()
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 400 })
+      console.error('API Error:', error);
+      return NextResponse.json({ error: 'Bad request' }, { status: 400 })
     }
 
     return NextResponse.json(dietPlan)
@@ -135,7 +137,8 @@ export async function DELETE(
       .eq('id', id)
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 400 })
+      console.error('API Error:', error);
+      return NextResponse.json({ error: 'Bad request' }, { status: 400 })
     }
 
     return NextResponse.json({ success: true })

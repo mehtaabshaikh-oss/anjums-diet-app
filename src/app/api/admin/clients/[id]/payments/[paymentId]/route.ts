@@ -33,7 +33,8 @@ export async function PUT(
       .single()
 
     if (updateError) {
-      return NextResponse.json({ error: updateError.message }, { status: 400 })
+      console.error('API Error:', updateError);
+      return NextResponse.json({ error: 'Bad request' }, { status: 400 })
     }
 
     return NextResponse.json(payment)
@@ -66,7 +67,8 @@ export async function DELETE(
       .eq('client_id', id)
 
     if (deleteError) {
-      return NextResponse.json({ error: deleteError.message }, { status: 400 })
+      console.error('API Error:', deleteError);
+      return NextResponse.json({ error: 'Bad request' }, { status: 400 })
     }
 
     return NextResponse.json({ success: true })

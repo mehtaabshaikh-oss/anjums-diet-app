@@ -42,7 +42,8 @@ export async function GET(req: Request) {
 
     if (error && error.code !== 'PGRST116') {
       // PGRST116 means no rows found, which is expected
-      return NextResponse.json({ error: error.message }, { status: 400 })
+      console.error('API Error:', error);
+      return NextResponse.json({ error: 'Bad request' }, { status: 400 })
     }
 
     return NextResponse.json({

@@ -40,7 +40,8 @@ export async function GET(req: Request) {
     const { data: clients, error: clientsError } = await clientsQuery
 
     if (clientsError) {
-      return NextResponse.json({ error: clientsError.message }, { status: 400 })
+      console.error('API Error:', clientsError);
+      return NextResponse.json({ error: 'Bad request' }, { status: 400 })
     }
 
     // Process the data to create summary

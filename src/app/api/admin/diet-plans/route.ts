@@ -24,7 +24,8 @@ export async function POST(req: Request) {
       .single()
 
     if (dietPlanError) {
-      return NextResponse.json({ error: dietPlanError.message }, { status: 400 })
+      console.error('API Error:', dietPlanError);
+      return NextResponse.json({ error: 'Bad request' }, { status: 400 })
     }
 
     // Insert diet plan items if provided
@@ -91,7 +92,8 @@ export async function GET(req: Request) {
     })
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 400 })
+      console.error('API Error:', error);
+      return NextResponse.json({ error: 'Bad request' }, { status: 400 })
     }
 
     return NextResponse.json(dietPlans)
