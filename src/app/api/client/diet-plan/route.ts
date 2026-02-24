@@ -46,6 +46,7 @@ export async function GET(req: Request) {
           item_name,
           quantity,
           unit,
+          time,
           notes
         )
       `)
