@@ -6,13 +6,6 @@ export async function GET(req: Request) {
     const supabase = createAdminClient()
 
     // Check if user is authenticated
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
-
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
 
     // Fetch all leads
     const { data: leads, error } = await supabase

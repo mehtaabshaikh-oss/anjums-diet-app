@@ -5,13 +5,6 @@ export async function GET(req: Request) {
   try {
     const supabase = createAdminClient()
 
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
-
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
 
     // Get query parameters
     const url = new URL(req.url)

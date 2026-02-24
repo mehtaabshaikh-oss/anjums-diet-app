@@ -6,13 +6,6 @@ export async function POST(req: Request) {
     const supabase = createAdminClient()
 
     // Check if user is authenticated and is admin
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
-
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
 
     // Check if user is admin
     const { data: userData } = await supabase
@@ -90,13 +83,6 @@ export async function GET(req: Request) {
   try {
     const supabase = createAdminClient()
 
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
-
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
 
     // Get query parameter for filtering by client_id
     const url = new URL(req.url)

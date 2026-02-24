@@ -6,13 +6,6 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
     const { id } = await params
     const supabase = createAdminClient()
 
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
-
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
 
     // Fetch all payments for this client
     const { data: payments, error } = await supabase
@@ -40,13 +33,6 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     const { id } = await params
     const supabase = createAdminClient()
 
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
-
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
 
     const body = await req.json()
     const { amount, date, method, status, notes } = body

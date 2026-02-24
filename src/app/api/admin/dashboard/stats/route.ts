@@ -8,14 +8,6 @@ export async function GET(req: Request) {
 
     const supabase = createAdminClient()
 
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
-
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
     // Get total clients
     console.time('[STATS-Q1] Total Clients Count')
     const { count: totalClients } = await supabase

@@ -8,14 +8,6 @@ export async function GET(req: Request) {
 
     const supabase = createAdminClient()
 
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
-
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
     // OPTIMIZED: Fetch all clients once with all related data (replaces Q1, Q3-Q5, Q7-Q8)
     console.time('[Q1] OPTIMIZED: All Clients + Weight Logs + Payments')
     const { data: allClientsData } = await supabase

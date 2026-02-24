@@ -9,13 +9,6 @@ export async function PUT(
     const { id, paymentId } = await params
     const supabase = createAdminClient()
 
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
-
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
 
     const body = await req.json()
     const { amount, date, method, status, notes } = body
@@ -57,13 +50,6 @@ export async function DELETE(
     const { id, paymentId } = await params
     const supabase = createAdminClient()
 
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
-
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
 
     // Delete payment
     const { error: deleteError } = await supabase

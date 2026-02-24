@@ -9,13 +9,6 @@ export async function POST(
   try {
     const supabase = createAdminClient()
 
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
-
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
 
     const { chest_cm, waist_cm, hip_cm, thigh_cm, logged_date, notes } = await req.json()
 

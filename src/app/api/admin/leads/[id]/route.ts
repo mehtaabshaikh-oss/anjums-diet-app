@@ -10,13 +10,6 @@ export async function PUT(
     const supabase = createAdminClient()
 
     // Check if user is authenticated
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
-
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
 
     const body = await req.json()
     const { status, notes } = body
@@ -56,13 +49,6 @@ export async function DELETE(
     const supabase = createAdminClient()
 
     // Check if user is authenticated
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
-
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
 
     // Delete lead
     const { error } = await supabase
