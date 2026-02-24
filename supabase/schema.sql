@@ -1,5 +1,12 @@
 -- ===== Anjum's Diet & Wellness Database Schema =====
 -- Run this in Supabase SQL Editor (Dashboard > SQL Editor > New Query)
+--
+-- SECURITY ARCHITECTURE (updated Feb 2026):
+-- All API routes use the SUPABASE_SERVICE_ROLE_KEY (server-side only).
+-- The service_role bypasses RLS entirely — no SELECT policies needed for it.
+-- RLS policies below define access for 'authenticated' role (Supabase Auth users)
+-- and 'anon' role (public). Anon key is public — never grant anon SELECT on
+-- sensitive tables. The leads table is the only intentional public-insert table.
 
 -- Enable UUID extension
 create extension if not exists "uuid-ossp";
