@@ -1,11 +1,27 @@
 import { createAdminClient } from '@/lib/supabase/admin'
 import { NextResponse } from 'next/server'
+import { cookies } from 'next/headers'
+import { verifyJwt } from '@/lib/auth/jwt'
 
 export async function POST(req: Request) {
   try {
     const supabase = createAdminClient()
 
-    const { client_id, logged_date, items } = await req.json()
+    // Verify JWT token
+    const cookieStore = await cookies()
+    const token = cookieStore.get('client_token')?.value
+
+    if (!token) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const payload = await verifyJwt(token)
+    if (!payload?.clientId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const client_id = payload.clientId
+    const { logged_date, items } = await req.json()
 
     if (!client_id || !logged_date || !items) {
       return NextResponse.json(
@@ -101,16 +117,22 @@ export async function GET(req: Request) {
   try {
     const supabase = createAdminClient()
 
-    const url = new URL(req.url)
-    const clientId = url.searchParams.get('client_id')
-    const loggedDate = url.searchParams.get('logged_date')
+    // Verify JWT token
+    const cookieStore = await cookies()
+    const token = cookieStore.get('client_token')?.value
 
-    if (!clientId) {
-      return NextResponse.json(
-        { error: 'Client ID required' },
-        { status: 400 }
-      )
+    if (!token) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
+
+    const payload = await verifyJwt(token)
+    if (!payload?.clientId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const clientId = payload.clientId
+    const url = new URL(req.url)
+    const loggedDate = url.searchParams.get('logged_date')
 
     let query = supabase
       .from('diet_logs')

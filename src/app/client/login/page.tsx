@@ -30,8 +30,7 @@ export default function ClientLoginPage() {
         return
       }
 
-      // Store client info in localStorage
-      localStorage.setItem('client_id', data.client.id)
+      // Store client public info in localStorage for UI
       localStorage.setItem('client_name', data.client.name)
       localStorage.setItem('client_email', data.client.email)
 

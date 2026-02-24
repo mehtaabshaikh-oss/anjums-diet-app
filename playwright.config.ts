@@ -56,5 +56,12 @@ export default defineConfig({
         storageState: 'tests/e2e/.auth/client.json',
       },
     },
+
+    // ── API tests (standalone, mix of auth states) ────────────────
+    {
+      name: 'api',
+      testMatch: /api\/.*\.spec\.ts/,
+      dependencies: ['admin-setup', 'client-setup'],
+    },
   ],
 })

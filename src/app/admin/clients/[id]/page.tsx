@@ -182,7 +182,7 @@ export default function ClientDetailPage() {
 
   const fetchClientData = async () => {
     try {
-      const response = await fetch(`/api/client/profile?client_id=${clientId}`)
+      const response = await fetch(`/api/admin/clients/${clientId}`)
       if (!response.ok) {
         throw new Error('Failed to fetch client')
       }
@@ -407,7 +407,7 @@ export default function ClientDetailPage() {
 
     // Check if at least one measurement is entered
     const hasAnyMeasurement = measurementsFormData.chest_cm || measurementsFormData.waist_cm ||
-                              measurementsFormData.hip_cm || measurementsFormData.thigh_cm
+      measurementsFormData.hip_cm || measurementsFormData.thigh_cm
 
     if (!hasAnyMeasurement) {
       setMeasurementsError('Please enter at least one measurement')
@@ -731,11 +731,10 @@ export default function ClientDetailPage() {
           <p className="text-gray-600 mt-1">{client.email}</p>
         </div>
         <div className="text-right">
-          <span className={`px-4 py-2 rounded-full text-sm font-medium capitalize ${
-            client.status === 'active' ? 'bg-green-100 text-green-800' :
-            client.status === 'expired' ? 'bg-red-100 text-red-800' :
-            'bg-yellow-100 text-yellow-800'
-          }`}>
+          <span className={`px-4 py-2 rounded-full text-sm font-medium capitalize ${client.status === 'active' ? 'bg-green-100 text-green-800' :
+              client.status === 'expired' ? 'bg-red-100 text-red-800' :
+                'bg-yellow-100 text-yellow-800'
+            }`}>
             {client.status}
           </span>
         </div>
@@ -788,61 +787,55 @@ export default function ClientDetailPage() {
       <div className="flex gap-4 border-b border-gray-200 overflow-x-auto">
         <button
           onClick={() => setActiveTab('profile')}
-          className={`px-4 py-3 font-semibold border-b-2 transition-colors whitespace-nowrap ${
-            activeTab === 'profile'
+          className={`px-4 py-3 font-semibold border-b-2 transition-colors whitespace-nowrap ${activeTab === 'profile'
               ? 'border-primary text-primary'
               : 'border-transparent text-gray-600 hover:text-gray-900'
-          }`}
+            }`}
         >
           Profile
         </button>
         <button
           onClick={() => setActiveTab('diet-plans')}
-          className={`px-4 py-3 font-semibold border-b-2 transition-colors whitespace-nowrap ${
-            activeTab === 'diet-plans'
+          className={`px-4 py-3 font-semibold border-b-2 transition-colors whitespace-nowrap ${activeTab === 'diet-plans'
               ? 'border-primary text-primary'
               : 'border-transparent text-gray-600 hover:text-gray-900'
-          }`}
+            }`}
         >
           Diet Plans
         </button>
         <button
           onClick={() => setActiveTab('payments')}
-          className={`px-4 py-3 font-semibold border-b-2 transition-colors whitespace-nowrap ${
-            activeTab === 'payments'
+          className={`px-4 py-3 font-semibold border-b-2 transition-colors whitespace-nowrap ${activeTab === 'payments'
               ? 'border-primary text-primary'
               : 'border-transparent text-gray-600 hover:text-gray-900'
-          }`}
+            }`}
         >
           Payments
         </button>
         <button
           onClick={() => setActiveTab('progress')}
-          className={`px-4 py-3 font-semibold border-b-2 transition-colors whitespace-nowrap ${
-            activeTab === 'progress'
+          className={`px-4 py-3 font-semibold border-b-2 transition-colors whitespace-nowrap ${activeTab === 'progress'
               ? 'border-primary text-primary'
               : 'border-transparent text-gray-600 hover:text-gray-900'
-          }`}
+            }`}
         >
           Progress
         </button>
         <button
           onClick={() => setActiveTab('notes')}
-          className={`px-4 py-3 font-semibold border-b-2 transition-colors whitespace-nowrap ${
-            activeTab === 'notes'
+          className={`px-4 py-3 font-semibold border-b-2 transition-colors whitespace-nowrap ${activeTab === 'notes'
               ? 'border-primary text-primary'
               : 'border-transparent text-gray-600 hover:text-gray-900'
-          }`}
+            }`}
         >
           Notes
         </button>
         <button
           onClick={() => setActiveTab('logs')}
-          className={`px-4 py-3 font-semibold border-b-2 transition-colors whitespace-nowrap ${
-            activeTab === 'logs'
+          className={`px-4 py-3 font-semibold border-b-2 transition-colors whitespace-nowrap ${activeTab === 'logs'
               ? 'border-primary text-primary'
               : 'border-transparent text-gray-600 hover:text-gray-900'
-          }`}
+            }`}
         >
           Logs
         </button>
@@ -855,11 +848,10 @@ export default function ClientDetailPage() {
           <div className="flex justify-end">
             <button
               onClick={handleEditProfile}
-              className={`px-6 py-2 font-semibold rounded-lg transition-colors ${
-                isEditingProfile
+              className={`px-6 py-2 font-semibold rounded-lg transition-colors ${isEditingProfile
                   ? 'bg-gray-400 text-white hover:bg-gray-500'
                   : 'bg-primary text-white hover:bg-primary-dark'
-              }`}
+                }`}
             >
               {isEditingProfile ? 'Cancel Edit' : '✎ Edit Profile'}
             </button>
@@ -885,38 +877,38 @@ export default function ClientDetailPage() {
                   </div>
                   <h3 className="text-xl font-bold text-gray-900">Contact Information</h3>
                 </div>
-              {isEditingProfile ? (
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
-                    <input
-                      type="email"
-                      value={editFormData.email}
-                      onChange={(e) => setEditFormData({ ...editFormData, email: e.target.value })}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                    />
+                {isEditingProfile ? (
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                      <input
+                        type="email"
+                        value={editFormData.email}
+                        onChange={(e) => setEditFormData({ ...editFormData, email: e.target.value })}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Phone</label>
+                      <input
+                        type="tel"
+                        value={editFormData.phone}
+                        onChange={(e) => setEditFormData({ ...editFormData, phone: e.target.value })}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                      />
+                    </div>
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Phone</label>
-                    <input
-                      type="tel"
-                      value={editFormData.phone}
-                      onChange={(e) => setEditFormData({ ...editFormData, phone: e.target.value })}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                    />
+                ) : (
+                  <div className="space-y-4">
+                    <div>
+                      <p className="text-sm text-gray-600 mb-1">Email</p>
+                      <p className="text-lg font-semibold text-gray-900">{client.email}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-600 mb-1">Phone</p>
+                      <p className="text-lg font-semibold text-gray-900">{client.phone}</p>
+                    </div>
                   </div>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  <div>
-                    <p className="text-sm text-gray-600 mb-1">Email</p>
-                    <p className="text-lg font-semibold text-gray-900">{client.email}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-600 mb-1">Phone</p>
-                    <p className="text-lg font-semibold text-gray-900">{client.phone}</p>
-                  </div>
-                </div>
                 )}
               </div>
             </div>
@@ -933,308 +925,307 @@ export default function ClientDetailPage() {
                   </div>
                   <h3 className="text-xl font-bold text-gray-900">Membership Details</h3>
                 </div>
-              {isEditingProfile ? (
-                <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Package Type</label>
-                  <select
-                    value={editFormData.package}
-                    onChange={(e) => setEditFormData({ ...editFormData, package: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                  >
-                    <option value="gold">Gold</option>
-                    <option value="hybrid">Hybrid</option>
-                    <option value="platinum">Platinum</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Duration</label>
-                  <select
-                    value={editFormData.duration_months}
-                    onChange={(e) => setEditFormData({ ...editFormData, duration_months: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                  >
-                    <option value="3">3 Months</option>
-                    <option value="6">6 Months</option>
-                    <option value="9">9 Months</option>
-                    <option value="12">12 Months (1 Year)</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
-                  <select
-                    value={editFormData.status || client.status}
-                    onChange={(e) => setEditFormData({ ...editFormData, status: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                  >
-                    <option value="active">Active</option>
-                    <option value="cancelled">Cancelled</option>
-                    <option value="paused">Paused</option>
-                    <option value="expired">Expired</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Start Date</label>
-                  <input
-                    type="date"
-                    value={editFormData.start_date}
-                    onChange={(e) => setEditFormData({ ...editFormData, start_date: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">End Date</label>
-                  <input
-                    type="date"
-                    value={editFormData.end_date}
-                    onChange={(e) => setEditFormData({ ...editFormData, end_date: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Assigned Nutritionist</label>
-                  <select
-                    value={editFormData.nutritionist}
-                    onChange={(e) => setEditFormData({ ...editFormData, nutritionist: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                  >
-                    <option value="anjum">Anjum</option>
-                    <option value="nutritionist_1">Nutritionist 1</option>
-                    <option value="nutritionist_2">Nutritionist 2</option>
-                    <option value="nutritionist_3">Nutritionist 3</option>
-                  </select>
-                </div>
-                </div>
-              ) : (
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <p className="text-sm text-gray-600 mb-1">Package</p>
-                    <p className="text-lg font-semibold text-gray-900 capitalize">{client.package}</p>
+                {isEditingProfile ? (
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Package Type</label>
+                      <select
+                        value={editFormData.package}
+                        onChange={(e) => setEditFormData({ ...editFormData, package: e.target.value })}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                      >
+                        <option value="gold">Gold</option>
+                        <option value="hybrid">Hybrid</option>
+                        <option value="platinum">Platinum</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Duration</label>
+                      <select
+                        value={editFormData.duration_months}
+                        onChange={(e) => setEditFormData({ ...editFormData, duration_months: e.target.value })}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                      >
+                        <option value="3">3 Months</option>
+                        <option value="6">6 Months</option>
+                        <option value="9">9 Months</option>
+                        <option value="12">12 Months (1 Year)</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
+                      <select
+                        value={editFormData.status || client.status}
+                        onChange={(e) => setEditFormData({ ...editFormData, status: e.target.value })}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                      >
+                        <option value="active">Active</option>
+                        <option value="cancelled">Cancelled</option>
+                        <option value="paused">Paused</option>
+                        <option value="expired">Expired</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Start Date</label>
+                      <input
+                        type="date"
+                        value={editFormData.start_date}
+                        onChange={(e) => setEditFormData({ ...editFormData, start_date: e.target.value })}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">End Date</label>
+                      <input
+                        type="date"
+                        value={editFormData.end_date}
+                        onChange={(e) => setEditFormData({ ...editFormData, end_date: e.target.value })}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Assigned Nutritionist</label>
+                      <select
+                        value={editFormData.nutritionist}
+                        onChange={(e) => setEditFormData({ ...editFormData, nutritionist: e.target.value })}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                      >
+                        <option value="anjum">Anjum</option>
+                        <option value="nutritionist_1">Nutritionist 1</option>
+                        <option value="nutritionist_2">Nutritionist 2</option>
+                        <option value="nutritionist_3">Nutritionist 3</option>
+                      </select>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-sm text-gray-600 mb-1">Duration</p>
-                    <p className="text-lg font-semibold text-gray-900">
-                      {client.duration_months} {client.duration_months === 12 ? 'Months (1 Year)' : 'Months'}
-                    </p>
+                ) : (
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-sm text-gray-600 mb-1">Package</p>
+                      <p className="text-lg font-semibold text-gray-900 capitalize">{client.package}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-600 mb-1">Duration</p>
+                      <p className="text-lg font-semibold text-gray-900">
+                        {client.duration_months} {client.duration_months === 12 ? 'Months (1 Year)' : 'Months'}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-600 mb-1">Status</p>
+                      <span className={`px-3 py-1 rounded-full text-sm font-semibold inline-block ${client.status === 'active' ? 'bg-green-100 text-green-800' :
+                          client.status === 'expired' ? 'bg-red-100 text-red-800' :
+                            'bg-yellow-100 text-yellow-800'
+                        }`}>
+                        {client.status}
+                      </span>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-600 mb-1">Start Date</p>
+                      <p className="text-lg font-semibold text-gray-900">
+                        {new Date(client.start_date).toLocaleDateString()}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-600 mb-1">End Date</p>
+                      <p className="text-lg font-semibold text-gray-900">
+                        {new Date(client.end_date).toLocaleDateString()}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-600 mb-1">Assigned Nutritionist</p>
+                      <p className="text-lg font-semibold text-gray-900 capitalize">
+                        {(client as any).nutritionist ? (client as any).nutritionist.replace(/_/g, ' ') : 'Anjum'}
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-sm text-gray-600 mb-1">Status</p>
-                    <span className={`px-3 py-1 rounded-full text-sm font-semibold inline-block ${
-                      client.status === 'active' ? 'bg-green-100 text-green-800' :
-                      client.status === 'expired' ? 'bg-red-100 text-red-800' :
-                      'bg-yellow-100 text-yellow-800'
-                    }`}>
-                      {client.status}
-                    </span>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-600 mb-1">Start Date</p>
-                    <p className="text-lg font-semibold text-gray-900">
-                      {new Date(client.start_date).toLocaleDateString()}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-600 mb-1">End Date</p>
-                    <p className="text-lg font-semibold text-gray-900">
-                      {new Date(client.end_date).toLocaleDateString()}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-600 mb-1">Assigned Nutritionist</p>
-                    <p className="text-lg font-semibold text-gray-900 capitalize">
-                      {(client as any).nutritionist ? (client as any).nutritionist.replace(/_/g, ' ') : 'Anjum'}
-                    </p>
-                  </div>
-                </div>
-              )}
+                )}
+              </div>
             </div>
           </div>
-        </div>
 
           {/* Row 2: Health Metrics & Body Measurements */}
           <div className="grid lg:grid-cols-2 gap-6">
             {/* Health Metrics */}
             {profile && (
-            <div className="relative bg-gradient-to-br from-indigo-50 to-white rounded-xl shadow-sm border border-indigo-100 p-6 hover:shadow-lg transition-all duration-300 overflow-hidden group">
-              <div className="absolute inset-0 bg-gradient-to-br from-indigo-100 to-transparent opacity-0 group-hover:opacity-20 transition-opacity duration-300"></div>
-              <div className="relative z-10">
-                <div className="flex items-center gap-2 mb-4">
-                  <div className="p-2 bg-indigo-100 rounded-lg">
-                    <svg className="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                    </svg>
+              <div className="relative bg-gradient-to-br from-indigo-50 to-white rounded-xl shadow-sm border border-indigo-100 p-6 hover:shadow-lg transition-all duration-300 overflow-hidden group">
+                <div className="absolute inset-0 bg-gradient-to-br from-indigo-100 to-transparent opacity-0 group-hover:opacity-20 transition-opacity duration-300"></div>
+                <div className="relative z-10">
+                  <div className="flex items-center gap-2 mb-4">
+                    <div className="p-2 bg-indigo-100 rounded-lg">
+                      <svg className="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                    </div>
+                    <h3 className="text-xl font-bold text-gray-900">Health Metrics</h3>
                   </div>
-                  <h3 className="text-xl font-bold text-gray-900">Health Metrics</h3>
+                  {isEditingProfile ? (
+                    <div className="grid md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Age (years)</label>
+                        <input
+                          type="number"
+                          value={editFormData.age}
+                          onChange={(e) => setEditFormData({ ...editFormData, age: e.target.value })}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Gender</label>
+                        <select
+                          value={editFormData.gender}
+                          onChange={(e) => setEditFormData({ ...editFormData, gender: e.target.value })}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                        >
+                          <option value="">Select</option>
+                          <option value="male">Male</option>
+                          <option value="female">Female</option>
+                          <option value="other">Other</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Height (cm)</label>
+                        <input
+                          type="number"
+                          step="0.1"
+                          value={editFormData.height_cm}
+                          onChange={(e) => setEditFormData({ ...editFormData, height_cm: e.target.value })}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Start Weight (kg)</label>
+                        <input
+                          type="number"
+                          step="0.1"
+                          value={editFormData.weight_kg}
+                          onChange={(e) => setEditFormData({ ...editFormData, weight_kg: e.target.value })}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Target Weight (kg)</label>
+                        <input
+                          type="number"
+                          step="0.1"
+                          value={editFormData.target_weight_kg}
+                          onChange={(e) => setEditFormData({ ...editFormData, target_weight_kg: e.target.value })}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                        />
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="grid md:grid-cols-3 gap-6">
+                      <div>
+                        <p className="text-sm text-gray-600 mb-1">Age</p>
+                        <p className="text-lg font-semibold text-gray-900">{profile.age || '−'} {profile.age ? 'years' : ''}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-gray-600 mb-1">Gender</p>
+                        <p className="text-lg font-semibold text-gray-900 capitalize">{profile.gender || '−'}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-gray-600 mb-1">Height</p>
+                        <p className="text-lg font-semibold text-gray-900">{profile.height_cm || '−'} {profile.height_cm ? 'cm' : ''}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-gray-600 mb-1">Start Weight</p>
+                        <p className="text-lg font-semibold text-gray-900">{profile.weight_kg || '−'} {profile.weight_kg ? 'kg' : ''}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-gray-600 mb-1">Target Weight</p>
+                        <p className="text-lg font-semibold text-gray-900">{profile.target_weight_kg || '−'} {profile.target_weight_kg ? 'kg' : ''}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-gray-600 mb-1">BMI</p>
+                        <p className="text-lg font-semibold text-gray-900">
+                          {profile.height_cm && profile.weight_kg
+                            ? (profile.weight_kg / ((profile.height_cm / 100) ** 2)).toFixed(1)
+                            : '−'}
+                        </p>
+                      </div>
+                    </div>
+                  )}
                 </div>
-              {isEditingProfile ? (
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Age (years)</label>
-                    <input
-                      type="number"
-                      value={editFormData.age}
-                      onChange={(e) => setEditFormData({ ...editFormData, age: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Gender</label>
-                    <select
-                      value={editFormData.gender}
-                      onChange={(e) => setEditFormData({ ...editFormData, gender: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                    >
-                      <option value="">Select</option>
-                      <option value="male">Male</option>
-                      <option value="female">Female</option>
-                      <option value="other">Other</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Height (cm)</label>
-                    <input
-                      type="number"
-                      step="0.1"
-                      value={editFormData.height_cm}
-                      onChange={(e) => setEditFormData({ ...editFormData, height_cm: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Start Weight (kg)</label>
-                    <input
-                      type="number"
-                      step="0.1"
-                      value={editFormData.weight_kg}
-                      onChange={(e) => setEditFormData({ ...editFormData, weight_kg: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Target Weight (kg)</label>
-                    <input
-                      type="number"
-                      step="0.1"
-                      value={editFormData.target_weight_kg}
-                      onChange={(e) => setEditFormData({ ...editFormData, target_weight_kg: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                    />
-                  </div>
-                </div>
-              ) : (
-                <div className="grid md:grid-cols-3 gap-6">
-                  <div>
-                    <p className="text-sm text-gray-600 mb-1">Age</p>
-                    <p className="text-lg font-semibold text-gray-900">{profile.age || '−'} {profile.age ? 'years' : ''}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-600 mb-1">Gender</p>
-                    <p className="text-lg font-semibold text-gray-900 capitalize">{profile.gender || '−'}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-600 mb-1">Height</p>
-                    <p className="text-lg font-semibold text-gray-900">{profile.height_cm || '−'} {profile.height_cm ? 'cm' : ''}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-600 mb-1">Start Weight</p>
-                    <p className="text-lg font-semibold text-gray-900">{profile.weight_kg || '−'} {profile.weight_kg ? 'kg' : ''}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-600 mb-1">Target Weight</p>
-                    <p className="text-lg font-semibold text-gray-900">{profile.target_weight_kg || '−'} {profile.target_weight_kg ? 'kg' : ''}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-600 mb-1">BMI</p>
-                    <p className="text-lg font-semibold text-gray-900">
-                      {profile.height_cm && profile.weight_kg
-                        ? (profile.weight_kg / ((profile.height_cm / 100) ** 2)).toFixed(1)
-                        : '−'}
-                    </p>
-                  </div>
-                </div>
-              )}
               </div>
-            </div>
             )}
 
             {/* Body Measurements */}
             {profile && (
-            <div className="relative bg-gradient-to-br from-purple-50 to-white rounded-xl shadow-sm border border-purple-100 p-6 hover:shadow-lg transition-all duration-300 overflow-hidden group">
-              <div className="absolute inset-0 bg-gradient-to-br from-purple-100 to-transparent opacity-0 group-hover:opacity-20 transition-opacity duration-300"></div>
-              <div className="relative z-10">
-                <div className="flex items-center gap-2 mb-4">
-                  <div className="p-2 bg-purple-100 rounded-lg">
-                    <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                    </svg>
+              <div className="relative bg-gradient-to-br from-purple-50 to-white rounded-xl shadow-sm border border-purple-100 p-6 hover:shadow-lg transition-all duration-300 overflow-hidden group">
+                <div className="absolute inset-0 bg-gradient-to-br from-purple-100 to-transparent opacity-0 group-hover:opacity-20 transition-opacity duration-300"></div>
+                <div className="relative z-10">
+                  <div className="flex items-center gap-2 mb-4">
+                    <div className="p-2 bg-purple-100 rounded-lg">
+                      <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                      </svg>
+                    </div>
+                    <h3 className="text-xl font-bold text-gray-900">Body Measurements</h3>
                   </div>
-                  <h3 className="text-xl font-bold text-gray-900">Body Measurements</h3>
+                  {isEditingProfile ? (
+                    <div className="grid md:grid-cols-4 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Chest (cm)</label>
+                        <input
+                          type="number"
+                          step="0.1"
+                          value={editFormData.chest_cm}
+                          onChange={(e) => setEditFormData({ ...editFormData, chest_cm: e.target.value })}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Waist (cm)</label>
+                        <input
+                          type="number"
+                          step="0.1"
+                          value={editFormData.waist_cm}
+                          onChange={(e) => setEditFormData({ ...editFormData, waist_cm: e.target.value })}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Hip (cm)</label>
+                        <input
+                          type="number"
+                          step="0.1"
+                          value={editFormData.hip_cm}
+                          onChange={(e) => setEditFormData({ ...editFormData, hip_cm: e.target.value })}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Thigh (cm)</label>
+                        <input
+                          type="number"
+                          step="0.1"
+                          value={editFormData.thigh_cm}
+                          onChange={(e) => setEditFormData({ ...editFormData, thigh_cm: e.target.value })}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                        />
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="grid md:grid-cols-4 gap-6">
+                      <div>
+                        <p className="text-sm text-gray-600 mb-1">Chest</p>
+                        <p className="text-lg font-semibold text-gray-900">{profile.chest_cm || '−'} {profile.chest_cm ? 'cm' : ''}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-gray-600 mb-1">Waist</p>
+                        <p className="text-lg font-semibold text-gray-900">{profile.waist_cm || '−'} {profile.waist_cm ? 'cm' : ''}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-gray-600 mb-1">Hip</p>
+                        <p className="text-lg font-semibold text-gray-900">{profile.hip_cm || '−'} {profile.hip_cm ? 'cm' : ''}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-gray-600 mb-1">Thigh</p>
+                        <p className="text-lg font-semibold text-gray-900">{profile.thigh_cm || '−'} {profile.thigh_cm ? 'cm' : ''}</p>
+                      </div>
+                    </div>
+                  )}
                 </div>
-              {isEditingProfile ? (
-                <div className="grid md:grid-cols-4 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Chest (cm)</label>
-                    <input
-                      type="number"
-                      step="0.1"
-                      value={editFormData.chest_cm}
-                      onChange={(e) => setEditFormData({ ...editFormData, chest_cm: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Waist (cm)</label>
-                    <input
-                      type="number"
-                      step="0.1"
-                      value={editFormData.waist_cm}
-                      onChange={(e) => setEditFormData({ ...editFormData, waist_cm: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Hip (cm)</label>
-                    <input
-                      type="number"
-                      step="0.1"
-                      value={editFormData.hip_cm}
-                      onChange={(e) => setEditFormData({ ...editFormData, hip_cm: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Thigh (cm)</label>
-                    <input
-                      type="number"
-                      step="0.1"
-                      value={editFormData.thigh_cm}
-                      onChange={(e) => setEditFormData({ ...editFormData, thigh_cm: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                    />
-                  </div>
-                </div>
-              ) : (
-                <div className="grid md:grid-cols-4 gap-6">
-                  <div>
-                    <p className="text-sm text-gray-600 mb-1">Chest</p>
-                    <p className="text-lg font-semibold text-gray-900">{profile.chest_cm || '−'} {profile.chest_cm ? 'cm' : ''}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-600 mb-1">Waist</p>
-                    <p className="text-lg font-semibold text-gray-900">{profile.waist_cm || '−'} {profile.waist_cm ? 'cm' : ''}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-600 mb-1">Hip</p>
-                    <p className="text-lg font-semibold text-gray-900">{profile.hip_cm || '−'} {profile.hip_cm ? 'cm' : ''}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-600 mb-1">Thigh</p>
-                    <p className="text-lg font-semibold text-gray-900">{profile.thigh_cm || '−'} {profile.thigh_cm ? 'cm' : ''}</p>
-                  </div>
-                </div>
-              )}
               </div>
-            </div>
             )}
           </div>
 
@@ -1252,71 +1243,71 @@ export default function ClientDetailPage() {
                   </div>
                   <h3 className="text-xl font-bold text-gray-900">Diet & Preferences</h3>
                 </div>
-            {isEditingProfile ? (
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Diet Preference</label>
-                  <select
-                    value={editFormData.dietary_preference}
-                    onChange={(e) => setEditFormData({ ...editFormData, dietary_preference: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                  >
-                    <option value="">Select preference</option>
-                    <option value="vegetarian">Vegetarian</option>
-                    <option value="non-vegetarian">Non-Vegetarian</option>
-                    <option value="vegan">Vegan</option>
-                    <option value="jain">Jain</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Allergies</label>
-                  <textarea
-                    value={editFormData.allergies}
-                    onChange={(e) => setEditFormData({ ...editFormData, allergies: e.target.value })}
-                    placeholder="List any allergies"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                    rows={2}
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Medical Conditions</label>
-                  <textarea
-                    value={editFormData.medical_conditions}
-                    onChange={(e) => setEditFormData({ ...editFormData, medical_conditions: e.target.value })}
-                    placeholder="List any medical conditions"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                    rows={2}
-                  />
-                </div>
-              </div>
-            ) : (
-              profile ? (
-                <div className="space-y-4">
-                  <div>
-                    <p className="text-sm text-gray-600 mb-2">Diet Preference</p>
-                    <p className="text-lg font-semibold text-gray-900 capitalize">{profile.dietary_preference || '−'}</p>
+                {isEditingProfile ? (
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Diet Preference</label>
+                      <select
+                        value={editFormData.dietary_preference}
+                        onChange={(e) => setEditFormData({ ...editFormData, dietary_preference: e.target.value })}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                      >
+                        <option value="">Select preference</option>
+                        <option value="vegetarian">Vegetarian</option>
+                        <option value="non-vegetarian">Non-Vegetarian</option>
+                        <option value="vegan">Vegan</option>
+                        <option value="jain">Jain</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Allergies</label>
+                      <textarea
+                        value={editFormData.allergies}
+                        onChange={(e) => setEditFormData({ ...editFormData, allergies: e.target.value })}
+                        placeholder="List any allergies"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                        rows={2}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Medical Conditions</label>
+                      <textarea
+                        value={editFormData.medical_conditions}
+                        onChange={(e) => setEditFormData({ ...editFormData, medical_conditions: e.target.value })}
+                        placeholder="List any medical conditions"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                        rows={2}
+                      />
+                    </div>
                   </div>
-                  {profile.allergies && (
-                    <div className="border-t border-gray-200 pt-4">
-                      <p className="text-sm text-gray-600 mb-2 font-medium">Allergies</p>
-                      <div className="bg-red-50 border border-red-200 rounded-lg p-3">
-                        <p className="text-gray-800">{profile.allergies}</p>
-                      </div>
-                    </div>
-                  )}
-                  {profile.medical_conditions && (
-                    <div className="border-t border-gray-200 pt-4">
-                      <p className="text-sm text-gray-600 mb-2 font-medium">Medical Conditions</p>
-                      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
-                        <p className="text-gray-800">{profile.medical_conditions}</p>
-                      </div>
-                    </div>
-                  )}
-                </div>
                 ) : (
-                  <p className="text-gray-500 italic">No diet preferences recorded yet. Add details in the Progress tab.</p>
-                )
-              )}
+                  profile ? (
+                    <div className="space-y-4">
+                      <div>
+                        <p className="text-sm text-gray-600 mb-2">Diet Preference</p>
+                        <p className="text-lg font-semibold text-gray-900 capitalize">{profile.dietary_preference || '−'}</p>
+                      </div>
+                      {profile.allergies && (
+                        <div className="border-t border-gray-200 pt-4">
+                          <p className="text-sm text-gray-600 mb-2 font-medium">Allergies</p>
+                          <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+                            <p className="text-gray-800">{profile.allergies}</p>
+                          </div>
+                        </div>
+                      )}
+                      {profile.medical_conditions && (
+                        <div className="border-t border-gray-200 pt-4">
+                          <p className="text-sm text-gray-600 mb-2 font-medium">Medical Conditions</p>
+                          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+                            <p className="text-gray-800">{profile.medical_conditions}</p>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <p className="text-gray-500 italic">No diet preferences recorded yet. Add details in the Progress tab.</p>
+                  )
+                )}
               </div>
             </div>
 
@@ -1378,11 +1369,10 @@ export default function ClientDetailPage() {
                                     {new Date(payment.date).toLocaleDateString()} • {payment.method.replace('_', ' ')}
                                   </p>
                                 </div>
-                                <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
-                                  payment.status === 'paid' ? 'bg-green-100 text-green-800' :
-                                  payment.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                                  'bg-blue-100 text-blue-800'
-                                }`}>
+                                <span className={`px-2 py-1 text-xs font-semibold rounded-full ${payment.status === 'paid' ? 'bg-green-100 text-green-800' :
+                                    payment.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                                      'bg-blue-100 text-blue-800'
+                                  }`}>
                                   {payment.status}
                                 </span>
                               </div>
@@ -1495,17 +1485,15 @@ export default function ClientDetailPage() {
                       >
                         📄 PDF
                       </button>
-                      <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                        plan.active
+                      <span className={`px-3 py-1 rounded-full text-sm font-medium ${plan.active
                           ? 'bg-green-100 text-green-800'
                           : 'bg-gray-100 text-gray-800'
-                      }`}>
+                        }`}>
                         {plan.active ? 'Active' : 'Inactive'}
                       </span>
                       <svg
-                        className={`w-5 h-5 text-gray-400 transition-transform ${
-                          expandedPlanId === plan.id ? 'transform rotate-180' : ''
-                        }`}
+                        className={`w-5 h-5 text-gray-400 transition-transform ${expandedPlanId === plan.id ? 'transform rotate-180' : ''
+                          }`}
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
@@ -1700,55 +1688,411 @@ export default function ClientDetailPage() {
             </div>
           ) : (
             <>
-          {/* 1. TOTAL PROGRESS - Hero Stat */}
-          {client?.measurements_logs && client.measurements_logs.length > 0 && (
-            <>
-              <div className="bg-gradient-to-r from-primary/10 to-primary/5 rounded-xl border-2 border-primary p-8 text-center">
-                <p className="text-sm font-semibold text-primary uppercase tracking-wide mb-2">Total Progress</p>
-                <p className="text-5xl font-bold text-gray-900 mb-1">
-                  {(() => {
-                    const firstLog = client.measurements_logs[0]
-                    const latestLog = client.measurements_logs[client.measurements_logs.length - 1]
+              {/* 1. TOTAL PROGRESS - Hero Stat */}
+              {client?.measurements_logs && client.measurements_logs.length > 0 && (
+                <>
+                  <div className="bg-gradient-to-r from-primary/10 to-primary/5 rounded-xl border-2 border-primary p-8 text-center">
+                    <p className="text-sm font-semibold text-primary uppercase tracking-wide mb-2">Total Progress</p>
+                    <p className="text-5xl font-bold text-gray-900 mb-1">
+                      {(() => {
+                        const firstLog = client.measurements_logs[0]
+                        const latestLog = client.measurements_logs[client.measurements_logs.length - 1]
 
-                    const initialTotal = (firstLog.chest_cm || 0) + (firstLog.waist_cm || 0) + (firstLog.hip_cm || 0) + (firstLog.thigh_cm || 0)
-                    const latestTotal = (latestLog.chest_cm || 0) + (latestLog.waist_cm || 0) + (latestLog.hip_cm || 0) + (latestLog.thigh_cm || 0)
+                        const initialTotal = (firstLog.chest_cm || 0) + (firstLog.waist_cm || 0) + (firstLog.hip_cm || 0) + (firstLog.thigh_cm || 0)
+                        const latestTotal = (latestLog.chest_cm || 0) + (latestLog.waist_cm || 0) + (latestLog.hip_cm || 0) + (latestLog.thigh_cm || 0)
 
-                    const totalReduction = initialTotal - latestTotal
-                    return totalReduction > 0 ? `${totalReduction.toFixed(1)} cm` : '−'
-                  })()}
-                </p>
-                <p className="text-lg text-primary font-semibold">cm Lost</p>
-              </div>
+                        const totalReduction = initialTotal - latestTotal
+                        return totalReduction > 0 ? `${totalReduction.toFixed(1)} cm` : '−'
+                      })()}
+                    </p>
+                    <p className="text-lg text-primary font-semibold">cm Lost</p>
+                  </div>
 
-              {/* Add Measurements Button */}
-              <button
-                onClick={() => setShowAddMeasurements(!showAddMeasurements)}
-                className="px-6 py-3 bg-primary text-white font-semibold rounded-lg hover:bg-primary-dark transition-colors"
-              >
-                + Add Measurements
-              </button>
+                  {/* Add Measurements Button */}
+                  <button
+                    onClick={() => setShowAddMeasurements(!showAddMeasurements)}
+                    className="px-6 py-3 bg-primary text-white font-semibold rounded-lg hover:bg-primary-dark transition-colors"
+                  >
+                    + Add Measurements
+                  </button>
 
-              {/* Add Measurements Form - Appears right after button */}
-              {showAddMeasurements && (
+                  {/* Add Measurements Form - Appears right after button */}
+                  {showAddMeasurements && (
+                    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                      <h3 className="text-xl font-bold text-gray-900 mb-4">Record Body Measurements</h3>
+                      <form onSubmit={handleAddMeasurements} className="space-y-4">
+                        {measurementsError && (
+                          <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+                            <p className="text-red-700 text-sm">{measurementsError}</p>
+                          </div>
+                        )}
+
+                        <div className="grid md:grid-cols-3 gap-4">
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                              Date
+                            </label>
+                            <input
+                              type="date"
+                              value={measurementsFormData.logged_date}
+                              onChange={(e) =>
+                                setMeasurementsFormData({ ...measurementsFormData, logged_date: e.target.value })
+                              }
+                              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                              Chest (cm)
+                            </label>
+                            <input
+                              type="number"
+                              step="0.1"
+                              value={measurementsFormData.chest_cm}
+                              onChange={(e) =>
+                                setMeasurementsFormData({ ...measurementsFormData, chest_cm: e.target.value })
+                              }
+                              placeholder="e.g., 95.5"
+                              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                              Waist (cm)
+                            </label>
+                            <input
+                              type="number"
+                              step="0.1"
+                              value={measurementsFormData.waist_cm}
+                              onChange={(e) =>
+                                setMeasurementsFormData({ ...measurementsFormData, waist_cm: e.target.value })
+                              }
+                              placeholder="e.g., 80"
+                              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                              Hip (cm)
+                            </label>
+                            <input
+                              type="number"
+                              step="0.1"
+                              value={measurementsFormData.hip_cm}
+                              onChange={(e) =>
+                                setMeasurementsFormData({ ...measurementsFormData, hip_cm: e.target.value })
+                              }
+                              placeholder="e.g., 100"
+                              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                              Thigh (cm)
+                            </label>
+                            <input
+                              type="number"
+                              step="0.1"
+                              value={measurementsFormData.thigh_cm}
+                              onChange={(e) =>
+                                setMeasurementsFormData({ ...measurementsFormData, thigh_cm: e.target.value })
+                              }
+                              placeholder="e.g., 55"
+                              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                              Notes
+                            </label>
+                            <input
+                              type="text"
+                              value={measurementsFormData.notes}
+                              onChange={(e) =>
+                                setMeasurementsFormData({ ...measurementsFormData, notes: e.target.value })
+                              }
+                              placeholder="Optional notes"
+                              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                            />
+                          </div>
+                        </div>
+
+                        <button
+                          type="submit"
+                          disabled={submittingMeasurements}
+                          className="w-full px-6 py-3 bg-primary text-white font-semibold rounded-lg hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          {submittingMeasurements ? 'Saving...' : 'Save Measurements'}
+                        </button>
+                      </form>
+                    </div>
+                  )}
+                </>
+              )}
+
+              {/* 2. MEASUREMENT STATS CARDS - Chest, Waist, Hip, Thigh */}
+              {client?.measurements_logs && client.measurements_logs.length > 0 && (
+                <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-2">
+                  {[
+                    { label: 'Chest', key: 'chest_cm', icon: '💪' },
+                    { label: 'Waist', key: 'waist_cm', icon: '📏' },
+                    { label: 'Hip', key: 'hip_cm', icon: '🍑' },
+                    { label: 'Thigh', key: 'thigh_cm', icon: '🦵' },
+                  ].map(({ label, key, icon }) => {
+                    const firstLog = client.measurements_logs?.[0]
+                    const latestLog = client.measurements_logs?.[client.measurements_logs.length - 1]
+                    const initialValue = (firstLog ? (firstLog[key as keyof typeof firstLog] as number | null) : 0) || 0
+                    const latestValue = (latestLog ? (latestLog[key as keyof typeof latestLog] as number | null) : 0) || 0
+                    const reduction = (initialValue as number) && (latestValue as number) ? (initialValue as number) - (latestValue as number) : 0
+
+                    return (
+                      <div key={label} className="bg-white rounded-lg shadow-sm border border-gray-200 p-2">
+                        <p className="text-xs font-semibold text-gray-700 mb-2">{icon} {label}</p>
+
+                        {/* Before & After Display */}
+                        <div className="space-y-1.5">
+                          {/* Before */}
+                          <div>
+                            <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-0.5">Before</p>
+                            <p className="text-base font-bold text-gray-400">
+                              {initialValue ? `${initialValue} cm` : '−'}
+                            </p>
+                          </div>
+
+                          {/* Arrow & Reduction */}
+                          <div className="flex items-center justify-center py-0.5">
+                            <div className="text-center">
+                              <svg className="w-2.5 h-2.5 text-green-600 mx-auto mb-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                              </svg>
+                              <p className="text-xs font-bold text-green-600">
+                                {reduction > 0 ? `−${reduction.toFixed(1)}` : '−'} cm
+                              </p>
+                            </div>
+                          </div>
+
+                          {/* After */}
+                          <div>
+                            <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-0.5">After</p>
+                            <p className="text-base font-bold text-primary">
+                              {latestValue ? `${latestValue} cm` : '−'}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              )}
+
+              {/* 3. MEASUREMENT TRENDS CHART */}
+              {client?.measurements_logs && client.measurements_logs.length > 1 && (
                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                  <h3 className="text-xl font-bold text-gray-900 mb-4">Record Body Measurements</h3>
-                  <form onSubmit={handleAddMeasurements} className="space-y-4">
-                    {measurementsError && (
+                  <h2 className="text-2xl font-bold text-gray-900 mb-6">Measurement Trends</h2>
+                  <ResponsiveContainer width="100%" height={300}>
+                    {(() => {
+                      const chartData = (client.measurements_logs || []).map(log => ({
+                        date: new Date(log.logged_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+                        chest: log.chest_cm,
+                        waist: log.waist_cm,
+                        hip: log.hip_cm,
+                        thigh: log.thigh_cm,
+                        fullDate: log.logged_date,
+                      }))
+                      const dataKey = JSON.stringify(chartData.slice(-1))
+
+                      return (
+                        <LineChart
+                          key={`chart-${dataKey}`}
+                          data={chartData}
+                        >
+                          <CartesianGrid strokeDasharray="3 3" />
+                          <XAxis dataKey="date" />
+                          <YAxis />
+                          <Tooltip
+                            content={({ active, payload, label }: any) => {
+                              if (active && payload && payload.length) {
+                                return (
+                                  <div className="bg-white p-2 border border-gray-300 rounded shadow">
+                                    <p className="font-semibold text-gray-900">{label}</p>
+                                    {payload.map((entry: any, index: number) => (
+                                      <p key={index} style={{ color: entry.color }} className="text-sm">
+                                        {entry.name}: <span className="font-bold">{entry.value} cm</span>
+                                      </p>
+                                    ))}
+                                  </div>
+                                )
+                              }
+                              return null
+                            }}
+                          />
+                          <Line type="monotone" dataKey="chest" stroke="#3b82f6" name="Chest" strokeWidth={2} dot={{ r: 4 }} connectNulls={true} />
+                          <Line type="monotone" dataKey="waist" stroke="#ef4444" name="Waist" strokeWidth={2} dot={{ r: 4 }} connectNulls={true} />
+                          <Line type="monotone" dataKey="hip" stroke="#ec4899" name="Hip" strokeWidth={2} dot={{ r: 4 }} connectNulls={true} />
+                          <Line type="monotone" dataKey="thigh" stroke="#f59e0b" name="Thigh" strokeWidth={2} dot={{ r: 4 }} connectNulls={true} />
+                        </LineChart>
+                      )
+                    })()}
+                  </ResponsiveContainer>
+                </div>
+              )}
+
+              {/* 4. MEASUREMENTS HISTORY TABLE */}
+              {client?.measurements_logs && client.measurements_logs.length > 0 && (
+                <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                  <div className="p-6 border-b border-gray-200">
+                    <h3 className="text-xl font-bold text-gray-900">Measurements History</h3>
+                  </div>
+                  <div className="overflow-x-auto">
+                    <table className="w-full">
+                      <thead className="bg-gray-50 border-b border-gray-200">
+                        <tr>
+                          <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Date</th>
+                          <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Chest (cm)</th>
+                          <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Waist (cm)</th>
+                          <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Hip (cm)</th>
+                          <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Thigh (cm)</th>
+                          <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Notes</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {client.measurements_logs && [...client.measurements_logs].reverse().map((log) => (
+                          <tr key={log.id} className="border-b border-gray-200 hover:bg-gray-50">
+                            <td className="px-6 py-4 text-sm text-gray-900">
+                              {new Date(log.logged_date).toLocaleDateString()}
+                            </td>
+                            <td className="px-6 py-4 text-sm font-semibold text-gray-900">
+                              {log.chest_cm ? `${log.chest_cm} cm` : '−'}
+                            </td>
+                            <td className="px-6 py-4 text-sm font-semibold text-gray-900">
+                              {log.waist_cm ? `${log.waist_cm} cm` : '−'}
+                            </td>
+                            <td className="px-6 py-4 text-sm font-semibold text-gray-900">
+                              {log.hip_cm ? `${log.hip_cm} cm` : '−'}
+                            </td>
+                            <td className="px-6 py-4 text-sm font-semibold text-gray-900">
+                              {log.thigh_cm ? `${log.thigh_cm} cm` : '−'}
+                            </td>
+                            <td className="px-6 py-4 text-sm text-gray-600">
+                              {log.notes || '−'}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+
+              {/* 5. WEIGHT TRACKING */}
+              {client?.weight_logs && client.weight_logs.length > 0 && (
+                <>
+                  <div className="border-t-2 border-gray-200 pt-8 mt-8">
+                    <h2 className="text-2xl font-bold text-gray-900 mb-6">Weight Tracking</h2>
+                  </div>
+
+                  {/* Add Weight Button */}
+                  <button
+                    onClick={() => setShowAddWeight(!showAddWeight)}
+                    className="px-6 py-3 bg-primary text-white font-semibold rounded-lg hover:bg-primary-dark transition-colors mb-6"
+                  >
+                    + Add Weight
+                  </button>
+
+                  {/* Weight Stats Cards */}
+                  <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
+                    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+                      <p className="text-sm text-gray-600 mb-2">Start Weight</p>
+                      <p className="text-3xl font-bold text-gray-900">
+                        {profile?.weight_kg ? `${profile.weight_kg} kg` : '−'}
+                      </p>
+                    </div>
+                    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+                      <p className="text-sm text-gray-600 mb-2">Current Weight</p>
+                      <p className="text-3xl font-bold text-gray-900">
+                        {client?.weight_logs && client.weight_logs.length > 0
+                          ? `${client.weight_logs[client.weight_logs.length - 1].weight_kg} kg`
+                          : profile?.weight_kg
+                            ? `${profile.weight_kg} kg`
+                            : '−'}
+                      </p>
+                    </div>
+                    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+                      <p className="text-sm text-gray-600 mb-2">Goal Weight</p>
+                      <p className="text-3xl font-bold text-primary">
+                        {profile?.target_weight_kg ? `${profile.target_weight_kg} kg` : '−'}
+                      </p>
+                    </div>
+                    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+                      <p className="text-sm text-gray-600 mb-2">Total Loss/Gain</p>
+                      <p className={`text-3xl font-bold ${(() => {
+                          const startWeight = profile?.weight_kg || 0
+                          const currentWeight = client?.weight_logs && client.weight_logs.length > 0
+                            ? client.weight_logs[client.weight_logs.length - 1].weight_kg
+                            : startWeight
+                          return (startWeight - currentWeight) > 0 ? 'text-green-600' : 'text-red-600'
+                        })()
+                        }`}>
+                        {(() => {
+                          const startWeight = profile?.weight_kg || 0
+                          const currentWeight = client?.weight_logs && client.weight_logs.length > 0
+                            ? client.weight_logs[client.weight_logs.length - 1].weight_kg
+                            : startWeight
+                          const difference = Math.abs(startWeight - currentWeight)
+                          return difference > 0 ? `${difference.toFixed(1)} kg` : '−'
+                        })()}
+                      </p>
+                    </div>
+                    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+                      <p className="text-sm text-gray-600 mb-2">% to Goal</p>
+                      <p className="text-3xl font-bold text-indigo-600">
+                        {(() => {
+                          const startWeight = profile?.weight_kg
+                          const targetWeight = profile?.target_weight_kg
+                          const currentWeight = client?.weight_logs && client.weight_logs.length > 0
+                            ? client.weight_logs[client.weight_logs.length - 1].weight_kg
+                            : startWeight
+
+                          if (!startWeight || !targetWeight || !currentWeight) return '−'
+
+                          const totalToLose = startWeight - targetWeight
+                          const alreadyLost = startWeight - currentWeight
+                          const percentage = Math.round((alreadyLost / totalToLose) * 100)
+
+                          return `${percentage}%`
+                        })()}
+                      </p>
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {/* 7. ADD WEIGHT FORM - Conditional */}
+              {showAddWeight && (
+                <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
+                  <h3 className="text-xl font-bold text-gray-900 mb-4">Record Weight</h3>
+                  <form onSubmit={handleAddWeight} className="space-y-4">
+                    {weightError && (
                       <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
-                        <p className="text-red-700 text-sm">{measurementsError}</p>
+                        <p className="text-red-700 text-sm">{weightError}</p>
                       </div>
                     )}
 
-                    <div className="grid md:grid-cols-3 gap-4">
+                    <div className="grid md:grid-cols-2 gap-4">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
                           Date
                         </label>
                         <input
                           type="date"
-                          value={measurementsFormData.logged_date}
+                          value={weightFormData.logged_date}
                           onChange={(e) =>
-                            setMeasurementsFormData({ ...measurementsFormData, logged_date: e.target.value })
+                            setWeightFormData({ ...weightFormData, logged_date: e.target.value })
                           }
                           className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                         />
@@ -1756,79 +2100,16 @@ export default function ClientDetailPage() {
 
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Chest (cm)
+                          Weight (kg)
                         </label>
                         <input
                           type="number"
                           step="0.1"
-                          value={measurementsFormData.chest_cm}
+                          value={weightFormData.weight_kg}
                           onChange={(e) =>
-                            setMeasurementsFormData({ ...measurementsFormData, chest_cm: e.target.value })
+                            setWeightFormData({ ...weightFormData, weight_kg: e.target.value })
                           }
-                          placeholder="e.g., 95.5"
-                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Waist (cm)
-                        </label>
-                        <input
-                          type="number"
-                          step="0.1"
-                          value={measurementsFormData.waist_cm}
-                          onChange={(e) =>
-                            setMeasurementsFormData({ ...measurementsFormData, waist_cm: e.target.value })
-                          }
-                          placeholder="e.g., 80"
-                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Hip (cm)
-                        </label>
-                        <input
-                          type="number"
-                          step="0.1"
-                          value={measurementsFormData.hip_cm}
-                          onChange={(e) =>
-                            setMeasurementsFormData({ ...measurementsFormData, hip_cm: e.target.value })
-                          }
-                          placeholder="e.g., 100"
-                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Thigh (cm)
-                        </label>
-                        <input
-                          type="number"
-                          step="0.1"
-                          value={measurementsFormData.thigh_cm}
-                          onChange={(e) =>
-                            setMeasurementsFormData({ ...measurementsFormData, thigh_cm: e.target.value })
-                          }
-                          placeholder="e.g., 55"
-                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Notes
-                        </label>
-                        <input
-                          type="text"
-                          value={measurementsFormData.notes}
-                          onChange={(e) =>
-                            setMeasurementsFormData({ ...measurementsFormData, notes: e.target.value })
-                          }
-                          placeholder="Optional notes"
+                          placeholder="e.g., 72.5"
                           className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                         />
                       </div>
@@ -1836,391 +2117,97 @@ export default function ClientDetailPage() {
 
                     <button
                       type="submit"
-                      disabled={submittingMeasurements}
+                      disabled={submittingWeight}
                       className="w-full px-6 py-3 bg-primary text-white font-semibold rounded-lg hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      {submittingMeasurements ? 'Saving...' : 'Save Measurements'}
+                      {submittingWeight ? 'Saving...' : 'Save Weight'}
                     </button>
                   </form>
                 </div>
               )}
-            </>
-          )}
 
-          {/* 2. MEASUREMENT STATS CARDS - Chest, Waist, Hip, Thigh */}
-          {client?.measurements_logs && client.measurements_logs.length > 0 && (
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-2">
-              {[
-                { label: 'Chest', key: 'chest_cm', icon: '💪' },
-                { label: 'Waist', key: 'waist_cm', icon: '📏' },
-                { label: 'Hip', key: 'hip_cm', icon: '🍑' },
-                { label: 'Thigh', key: 'thigh_cm', icon: '🦵' },
-              ].map(({ label, key, icon }) => {
-                const firstLog = client.measurements_logs?.[0]
-                const latestLog = client.measurements_logs?.[client.measurements_logs.length - 1]
-                const initialValue = (firstLog ? (firstLog[key as keyof typeof firstLog] as number | null) : 0) || 0
-                const latestValue = (latestLog ? (latestLog[key as keyof typeof latestLog] as number | null) : 0) || 0
-                const reduction = (initialValue as number) && (latestValue as number) ? (initialValue as number) - (latestValue as number) : 0
+              {/* 8. WEIGHT PROGRESS CHART */}
+              {client?.weight_logs && client.weight_logs.length > 0 && (
+                <>
+                  <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                    <h2 className="text-2xl font-bold text-gray-900 mb-6">Weight Progress Chart</h2>
+                    <ResponsiveContainer width="100%" height={300}>
+                      <LineChart data={client.weight_logs.map(log => ({
+                        date: new Date(log.logged_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+                        weight: log.weight_kg,
+                        fullDate: log.logged_date,
+                      }))}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="date" />
+                        <YAxis />
+                        <Tooltip
+                          formatter={(value) => `${value} kg`}
+                          labelFormatter={(label) => `Weight`}
+                        />
+                        <Legend />
+                        <Line
+                          type="monotone"
+                          dataKey="weight"
+                          stroke="#4a7c59"
+                          dot={{ fill: '#4a7c59', r: 5 }}
+                          strokeWidth={2}
+                          name="Weight (kg)"
+                        />
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </div>
 
-                return (
-                  <div key={label} className="bg-white rounded-lg shadow-sm border border-gray-200 p-2">
-                    <p className="text-xs font-semibold text-gray-700 mb-2">{icon} {label}</p>
+                  {/* 9. WEIGHT HISTORY TABLE */}
+                  <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                    <div className="p-6 border-b border-gray-200">
+                      <h3 className="text-xl font-bold text-gray-900">Weight History</h3>
+                    </div>
+                    <div className="overflow-x-auto">
+                      <table className="w-full">
+                        <thead className="bg-gray-50 border-b border-gray-200">
+                          <tr>
+                            <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Date</th>
+                            <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Weight (kg)</th>
+                            <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Change</th>
+                            <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Notes</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {client.weight_logs && [...client.weight_logs].reverse().map((log, index) => {
+                            const previousWeight = index < (client.weight_logs?.length || 0) - 1
+                              ? [...(client.weight_logs || [])].reverse()[index + 1].weight_kg
+                              : null
+                            const change = previousWeight ? (previousWeight - log.weight_kg).toFixed(1) : '-'
 
-                    {/* Before & After Display */}
-                    <div className="space-y-1.5">
-                      {/* Before */}
-                      <div>
-                        <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-0.5">Before</p>
-                        <p className="text-base font-bold text-gray-400">
-                          {initialValue ? `${initialValue} cm` : '−'}
-                        </p>
-                      </div>
-
-                      {/* Arrow & Reduction */}
-                      <div className="flex items-center justify-center py-0.5">
-                        <div className="text-center">
-                          <svg className="w-2.5 h-2.5 text-green-600 mx-auto mb-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                          </svg>
-                          <p className="text-xs font-bold text-green-600">
-                            {reduction > 0 ? `−${reduction.toFixed(1)}` : '−'} cm
-                          </p>
-                        </div>
-                      </div>
-
-                      {/* After */}
-                      <div>
-                        <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-0.5">After</p>
-                        <p className="text-base font-bold text-primary">
-                          {latestValue ? `${latestValue} cm` : '−'}
-                        </p>
-                      </div>
+                            return (
+                              <tr key={log.id} className="border-b border-gray-200 hover:bg-gray-50">
+                                <td className="px-6 py-4 text-sm text-gray-900">
+                                  {new Date(log.logged_date).toLocaleDateString()}
+                                </td>
+                                <td className="px-6 py-4 text-sm font-semibold text-gray-900">
+                                  {log.weight_kg} kg
+                                </td>
+                                <td className="px-6 py-4 text-sm">
+                                  {change !== '-' ? (
+                                    <span className={parseFloat(change) > 0 ? 'text-green-600 font-semibold' : 'text-red-600 font-semibold'}>
+                                      {parseFloat(change) > 0 ? '−' : '+'}{Math.abs(parseFloat(change))} kg
+                                    </span>
+                                  ) : (
+                                    '−'
+                                  )}
+                                </td>
+                                <td className="px-6 py-4 text-sm text-gray-600">
+                                  {log.created_at ? '−' : '−'}
+                                </td>
+                              </tr>
+                            )
+                          })}
+                        </tbody>
+                      </table>
                     </div>
                   </div>
-                )
-              })}
-            </div>
-          )}
-
-          {/* 3. MEASUREMENT TRENDS CHART */}
-          {client?.measurements_logs && client.measurements_logs.length > 1 && (
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">Measurement Trends</h2>
-              <ResponsiveContainer width="100%" height={300}>
-                {(() => {
-                  const chartData = (client.measurements_logs || []).map(log => ({
-                    date: new Date(log.logged_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-                    chest: log.chest_cm,
-                    waist: log.waist_cm,
-                    hip: log.hip_cm,
-                    thigh: log.thigh_cm,
-                    fullDate: log.logged_date,
-                  }))
-                  const dataKey = JSON.stringify(chartData.slice(-1))
-
-                  return (
-                <LineChart
-                  key={`chart-${dataKey}`}
-                  data={chartData}
-                >
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="date" />
-                  <YAxis />
-                  <Tooltip
-                    content={({ active, payload, label }: any) => {
-                      if (active && payload && payload.length) {
-                        return (
-                          <div className="bg-white p-2 border border-gray-300 rounded shadow">
-                            <p className="font-semibold text-gray-900">{label}</p>
-                            {payload.map((entry: any, index: number) => (
-                              <p key={index} style={{ color: entry.color }} className="text-sm">
-                                {entry.name}: <span className="font-bold">{entry.value} cm</span>
-                              </p>
-                            ))}
-                          </div>
-                        )
-                      }
-                      return null
-                    }}
-                  />
-                  <Line type="monotone" dataKey="chest" stroke="#3b82f6" name="Chest" strokeWidth={2} dot={{ r: 4 }} connectNulls={true} />
-                  <Line type="monotone" dataKey="waist" stroke="#ef4444" name="Waist" strokeWidth={2} dot={{ r: 4 }} connectNulls={true} />
-                  <Line type="monotone" dataKey="hip" stroke="#ec4899" name="Hip" strokeWidth={2} dot={{ r: 4 }} connectNulls={true} />
-                  <Line type="monotone" dataKey="thigh" stroke="#f59e0b" name="Thigh" strokeWidth={2} dot={{ r: 4 }} connectNulls={true} />
-                </LineChart>
-                  )
-                })()}
-              </ResponsiveContainer>
-            </div>
-          )}
-
-          {/* 4. MEASUREMENTS HISTORY TABLE */}
-          {client?.measurements_logs && client.measurements_logs.length > 0 && (
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-              <div className="p-6 border-b border-gray-200">
-                <h3 className="text-xl font-bold text-gray-900">Measurements History</h3>
-              </div>
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead className="bg-gray-50 border-b border-gray-200">
-                    <tr>
-                      <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Date</th>
-                      <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Chest (cm)</th>
-                      <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Waist (cm)</th>
-                      <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Hip (cm)</th>
-                      <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Thigh (cm)</th>
-                      <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Notes</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {client.measurements_logs && [...client.measurements_logs].reverse().map((log) => (
-                      <tr key={log.id} className="border-b border-gray-200 hover:bg-gray-50">
-                        <td className="px-6 py-4 text-sm text-gray-900">
-                          {new Date(log.logged_date).toLocaleDateString()}
-                        </td>
-                        <td className="px-6 py-4 text-sm font-semibold text-gray-900">
-                          {log.chest_cm ? `${log.chest_cm} cm` : '−'}
-                        </td>
-                        <td className="px-6 py-4 text-sm font-semibold text-gray-900">
-                          {log.waist_cm ? `${log.waist_cm} cm` : '−'}
-                        </td>
-                        <td className="px-6 py-4 text-sm font-semibold text-gray-900">
-                          {log.hip_cm ? `${log.hip_cm} cm` : '−'}
-                        </td>
-                        <td className="px-6 py-4 text-sm font-semibold text-gray-900">
-                          {log.thigh_cm ? `${log.thigh_cm} cm` : '−'}
-                        </td>
-                        <td className="px-6 py-4 text-sm text-gray-600">
-                          {log.notes || '−'}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          )}
-
-          {/* 5. WEIGHT TRACKING */}
-          {client?.weight_logs && client.weight_logs.length > 0 && (
-            <>
-              <div className="border-t-2 border-gray-200 pt-8 mt-8">
-                <h2 className="text-2xl font-bold text-gray-900 mb-6">Weight Tracking</h2>
-              </div>
-
-              {/* Add Weight Button */}
-              <button
-                onClick={() => setShowAddWeight(!showAddWeight)}
-                className="px-6 py-3 bg-primary text-white font-semibold rounded-lg hover:bg-primary-dark transition-colors mb-6"
-              >
-                + Add Weight
-              </button>
-
-              {/* Weight Stats Cards */}
-              <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
-                <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-                  <p className="text-sm text-gray-600 mb-2">Start Weight</p>
-                  <p className="text-3xl font-bold text-gray-900">
-                    {profile?.weight_kg ? `${profile.weight_kg} kg` : '−'}
-                  </p>
-                </div>
-                <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-                  <p className="text-sm text-gray-600 mb-2">Current Weight</p>
-                  <p className="text-3xl font-bold text-gray-900">
-                    {client?.weight_logs && client.weight_logs.length > 0
-                      ? `${client.weight_logs[client.weight_logs.length - 1].weight_kg} kg`
-                      : profile?.weight_kg
-                      ? `${profile.weight_kg} kg`
-                      : '−'}
-                  </p>
-                </div>
-                <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-                  <p className="text-sm text-gray-600 mb-2">Goal Weight</p>
-                  <p className="text-3xl font-bold text-primary">
-                    {profile?.target_weight_kg ? `${profile.target_weight_kg} kg` : '−'}
-                  </p>
-                </div>
-                <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-                  <p className="text-sm text-gray-600 mb-2">Total Loss/Gain</p>
-                  <p className={`text-3xl font-bold ${
-                    (() => {
-                      const startWeight = profile?.weight_kg || 0
-                      const currentWeight = client?.weight_logs && client.weight_logs.length > 0
-                        ? client.weight_logs[client.weight_logs.length - 1].weight_kg
-                        : startWeight
-                      return (startWeight - currentWeight) > 0 ? 'text-green-600' : 'text-red-600'
-                    })()
-                  }`}>
-                    {(() => {
-                      const startWeight = profile?.weight_kg || 0
-                      const currentWeight = client?.weight_logs && client.weight_logs.length > 0
-                        ? client.weight_logs[client.weight_logs.length - 1].weight_kg
-                        : startWeight
-                      const difference = Math.abs(startWeight - currentWeight)
-                      return difference > 0 ? `${difference.toFixed(1)} kg` : '−'
-                    })()}
-                  </p>
-                </div>
-                <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-                  <p className="text-sm text-gray-600 mb-2">% to Goal</p>
-                  <p className="text-3xl font-bold text-indigo-600">
-                    {(() => {
-                      const startWeight = profile?.weight_kg
-                      const targetWeight = profile?.target_weight_kg
-                      const currentWeight = client?.weight_logs && client.weight_logs.length > 0
-                        ? client.weight_logs[client.weight_logs.length - 1].weight_kg
-                        : startWeight
-
-                      if (!startWeight || !targetWeight || !currentWeight) return '−'
-
-                      const totalToLose = startWeight - targetWeight
-                      const alreadyLost = startWeight - currentWeight
-                      const percentage = Math.round((alreadyLost / totalToLose) * 100)
-
-                      return `${percentage}%`
-                    })()}
-                  </p>
-                </div>
-              </div>
-            </>
-          )}
-
-          {/* 7. ADD WEIGHT FORM - Conditional */}
-          {showAddWeight && (
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
-              <h3 className="text-xl font-bold text-gray-900 mb-4">Record Weight</h3>
-              <form onSubmit={handleAddWeight} className="space-y-4">
-                {weightError && (
-                  <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
-                    <p className="text-red-700 text-sm">{weightError}</p>
-                  </div>
-                )}
-
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Date
-                    </label>
-                    <input
-                      type="date"
-                      value={weightFormData.logged_date}
-                      onChange={(e) =>
-                        setWeightFormData({ ...weightFormData, logged_date: e.target.value })
-                      }
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Weight (kg)
-                    </label>
-                    <input
-                      type="number"
-                      step="0.1"
-                      value={weightFormData.weight_kg}
-                      onChange={(e) =>
-                        setWeightFormData({ ...weightFormData, weight_kg: e.target.value })
-                      }
-                      placeholder="e.g., 72.5"
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                    />
-                  </div>
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={submittingWeight}
-                  className="w-full px-6 py-3 bg-primary text-white font-semibold rounded-lg hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {submittingWeight ? 'Saving...' : 'Save Weight'}
-                </button>
-              </form>
-            </div>
-          )}
-
-          {/* 8. WEIGHT PROGRESS CHART */}
-          {client?.weight_logs && client.weight_logs.length > 0 && (
-            <>
-              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                <h2 className="text-2xl font-bold text-gray-900 mb-6">Weight Progress Chart</h2>
-                <ResponsiveContainer width="100%" height={300}>
-                  <LineChart data={client.weight_logs.map(log => ({
-                    date: new Date(log.logged_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-                    weight: log.weight_kg,
-                    fullDate: log.logged_date,
-                  }))}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="date" />
-                    <YAxis />
-                    <Tooltip
-                      formatter={(value) => `${value} kg`}
-                      labelFormatter={(label) => `Weight`}
-                    />
-                    <Legend />
-                    <Line
-                      type="monotone"
-                      dataKey="weight"
-                      stroke="#4a7c59"
-                      dot={{ fill: '#4a7c59', r: 5 }}
-                      strokeWidth={2}
-                      name="Weight (kg)"
-                    />
-                  </LineChart>
-                </ResponsiveContainer>
-              </div>
-
-              {/* 9. WEIGHT HISTORY TABLE */}
-              <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                <div className="p-6 border-b border-gray-200">
-                  <h3 className="text-xl font-bold text-gray-900">Weight History</h3>
-                </div>
-                <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead className="bg-gray-50 border-b border-gray-200">
-                      <tr>
-                        <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Date</th>
-                        <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Weight (kg)</th>
-                        <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Change</th>
-                        <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Notes</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {client.weight_logs && [...client.weight_logs].reverse().map((log, index) => {
-                        const previousWeight = index < (client.weight_logs?.length || 0) - 1
-                          ? [...(client.weight_logs || [])].reverse()[index + 1].weight_kg
-                          : null
-                        const change = previousWeight ? (previousWeight - log.weight_kg).toFixed(1) : '-'
-
-                        return (
-                          <tr key={log.id} className="border-b border-gray-200 hover:bg-gray-50">
-                            <td className="px-6 py-4 text-sm text-gray-900">
-                              {new Date(log.logged_date).toLocaleDateString()}
-                            </td>
-                            <td className="px-6 py-4 text-sm font-semibold text-gray-900">
-                              {log.weight_kg} kg
-                            </td>
-                            <td className="px-6 py-4 text-sm">
-                              {change !== '-' ? (
-                                <span className={parseFloat(change) > 0 ? 'text-green-600 font-semibold' : 'text-red-600 font-semibold'}>
-                                  {parseFloat(change) > 0 ? '−' : '+'}{Math.abs(parseFloat(change))} kg
-                                </span>
-                              ) : (
-                                '−'
-                              )}
-                            </td>
-                            <td className="px-6 py-4 text-sm text-gray-600">
-                              {log.created_at ? '−' : '−'}
-                            </td>
-                          </tr>
-                        )
-                      })}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </>
-          )}
+                </>
+              )}
             </>
           )}
         </div>
@@ -2480,11 +2467,10 @@ export default function ClientDetailPage() {
                           {payment.method.replace('_', ' ')}
                         </td>
                         <td className="px-4 py-4 whitespace-nowrap">
-                          <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                            payment.status === 'paid' ? 'bg-green-100 text-green-800' :
-                            payment.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                            'bg-blue-100 text-blue-800'
-                          }`}>
+                          <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${payment.status === 'paid' ? 'bg-green-100 text-green-800' :
+                              payment.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                                'bg-blue-100 text-blue-800'
+                            }`}>
                             {payment.status}
                           </span>
                         </td>
@@ -2550,8 +2536,8 @@ export default function ClientDetailPage() {
                   <p className="text-3xl font-bold text-gray-900">
                     {dietLogs.length > 0
                       ? Math.round(
-                          dietLogs.reduce((sum, log) => sum + (log.adherence_percentage || 0), 0) / dietLogs.length
-                        )
+                        dietLogs.reduce((sum, log) => sum + (log.adherence_percentage || 0), 0) / dietLogs.length
+                      )
                       : 0
                     }%
                   </p>
@@ -2604,9 +2590,8 @@ export default function ClientDetailPage() {
                         })()}
                       </div>
                       <svg
-                        className={`w-5 h-5 text-gray-400 transition-transform ${
-                          expandedLogId === log.id ? 'rotate-180' : ''
-                        }`}
+                        className={`w-5 h-5 text-gray-400 transition-transform ${expandedLogId === log.id ? 'rotate-180' : ''
+                          }`}
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"

@@ -1,14 +1,30 @@
 import { createAdminClient } from '@/lib/supabase/admin'
 import { NextResponse } from 'next/server'
-import { hash } from 'bcryptjs'
+import { hash, compare } from 'bcryptjs'
+import { cookies } from 'next/headers'
+import { verifyJwt } from '@/lib/auth/jwt'
 
 export async function POST(req: Request) {
   try {
     const supabase = createAdminClient()
 
-    const { client_id, old_password, new_password } = await req.json()
+    // Verify JWT token
+    const cookieStore = await cookies()
+    const token = cookieStore.get('client_token')?.value
 
-    if (!client_id || !old_password || !new_password) {
+    if (!token) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const payload = await verifyJwt(token)
+    if (!payload?.clientId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const client_id = payload.clientId
+    const { old_password, new_password } = await req.json()
+
+    if (!old_password || !new_password) {
       return NextResponse.json(
         { error: 'Missing required fields' },
         { status: 400 }
@@ -33,9 +49,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Client not found' }, { status: 404 })
     }
 
-    // For password changes, we expect the client to provide the old password or be admin
-    // In this case, we'll validate the old password
-    const { compare } = await import('bcryptjs')
+    // For password changes, validate the old password
     const isOldPasswordValid = await compare(old_password, client.password_hash)
 
     if (!isOldPasswordValid) {

@@ -6,7 +6,6 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
     const { id } = await params
     const supabase = createAdminClient()
 
-
     const body = await req.json()
     const {
       email,
@@ -81,6 +80,75 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
     )
   } catch (error) {
     console.error('Error updating client:', error)
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    )
+  }
+}
+
+export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
+  try {
+    const { id: clientId } = await params
+    const supabase = createAdminClient()
+
+    // Get client details
+    const { data: client, error: clientError } = await supabase
+      .from('clients')
+      .select(`
+        id,
+        name,
+        email,
+        phone,
+        package,
+        duration_months,
+        nutritionist,
+        status,
+        start_date,
+        end_date,
+        next_appointment_date,
+        client_profiles(*)
+      `)
+      .eq('id', clientId)
+      .single()
+
+    if (clientError || !client) {
+      return NextResponse.json(
+        { error: 'Client not found' },
+        { status: 404 }
+      )
+    }
+
+    // Get weight logs for this client
+    const { data: weightLogs } = await supabase
+      .from('weight_logs')
+      .select('*')
+      .eq('client_id', clientId)
+      .order('logged_date', { ascending: true })
+
+    // Get measurements logs for this client
+    const { data: measurementsLogs } = await supabase
+      .from('measurements_logs')
+      .select('*')
+      .eq('client_id', clientId)
+      .order('logged_date', { ascending: true })
+
+    const profile = client.client_profiles && Array.isArray(client.client_profiles)
+      ? client.client_profiles[0]
+      : client.client_profiles
+
+    if (!profile) {
+      console.warn(`No profile found for client ${clientId}. Client_profiles data:`, client.client_profiles)
+    }
+
+    return NextResponse.json({
+      ...client,
+      client_profiles: profile || null,
+      weight_logs: weightLogs || [],
+      measurements_logs: measurementsLogs || [],
+    })
+  } catch (error) {
+    console.error('Error fetching client profile in admin list:', error)
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

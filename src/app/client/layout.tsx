@@ -19,8 +19,10 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
     setClientName(name)
   }, [])
 
-  const handleLogout = () => {
-    localStorage.removeItem('client_id')
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/client/auth/logout', { method: 'POST' })
+    } catch (e) { console.error(e) }
     localStorage.removeItem('client_name')
     localStorage.removeItem('client_email')
     router.push('/client/login')

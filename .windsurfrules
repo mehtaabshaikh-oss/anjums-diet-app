@@ -1,0 +1,2 @@
+# General Rules
+- Never deploy anything to production (e.g. committing and pushing to git) until after the user has tested in local and given specific approval to deploy.

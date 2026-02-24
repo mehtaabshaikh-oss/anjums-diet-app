@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 
 export default function ChangePasswordPage() {
-  const [clientId, setClientId] = useState<string | null>(null)
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [oldPassword, setOldPassword] = useState('')
   const [newPassword, setNewPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
@@ -14,12 +14,19 @@ export default function ChangePasswordPage() {
   const router = useRouter()
 
   useEffect(() => {
-    const id = localStorage.getItem('client_id')
-    if (!id) {
-      router.push('/client/login')
-    } else {
-      setClientId(id)
+    const checkAuth = async () => {
+      try {
+        const response = await fetch('/api/client/profile')
+        if (response.status === 401) {
+          router.push('/client/login')
+        } else {
+          setIsAuthenticated(true)
+        }
+      } catch (err) {
+        console.error('Failed to check auth', err)
+      }
     }
+    checkAuth()
   }, [router])
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -50,7 +57,6 @@ export default function ChangePasswordPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          client_id: clientId,
           old_password: oldPassword,
           new_password: newPassword,
         }),
@@ -75,7 +81,7 @@ export default function ChangePasswordPage() {
     }
   }
 
-  if (!clientId) {
+  if (!isAuthenticated) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="animate-spin">

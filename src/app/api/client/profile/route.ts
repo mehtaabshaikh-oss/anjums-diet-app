@@ -1,17 +1,26 @@
 import { createAdminClient } from '@/lib/supabase/admin'
 import { NextResponse } from 'next/server'
+import { cookies } from 'next/headers'
+import { verifyJwt } from '@/lib/auth/jwt'
 
 export async function GET(req: Request) {
   try {
     const supabase = createAdminClient()
 
-    // Get client_id from query params
-    const url = new URL(req.url)
-    const clientId = url.searchParams.get('client_id')
+    // Verify JWT token
+    const cookieStore = await cookies()
+    const token = cookieStore.get('client_token')?.value
 
-    if (!clientId) {
-      return NextResponse.json({ error: 'Client ID required' }, { status: 400 })
+    if (!token) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
+
+    const payload = await verifyJwt(token)
+    if (!payload?.clientId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const clientId = payload.clientId
 
     // Get client details
     const { data: client, error: clientError } = await supabase

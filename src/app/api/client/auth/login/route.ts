@@ -1,6 +1,7 @@
 import { createAdminClient } from '@/lib/supabase/admin'
 import { NextResponse } from 'next/server'
 import { compare } from 'bcryptjs'
+import { signJwt } from '@/lib/auth/jwt'
 
 export async function POST(req: Request) {
   try {
@@ -52,8 +53,11 @@ export async function POST(req: Request) {
       .update({ last_login: new Date().toISOString() })
       .eq('id', client.id)
 
+    // Sign JWT token
+    const token = await signJwt({ clientId: client.id })
+
     // Return client data (password_changed indicates if they need to change password)
-    return NextResponse.json({
+    const response = NextResponse.json({
       success: true,
       client: {
         id: client.id,
@@ -62,6 +66,16 @@ export async function POST(req: Request) {
         password_changed: client.password_changed,
       },
     })
+
+    response.cookies.set('client_token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 60 * 60 * 24 * 7, // 1 week
+      path: '/',
+    })
+
+    return response
   } catch (error) {
     console.error('Error in client login:', error)
     return NextResponse.json(

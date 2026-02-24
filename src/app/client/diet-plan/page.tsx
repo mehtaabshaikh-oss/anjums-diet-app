@@ -45,7 +45,6 @@ function formatTime(timeString: string | null | undefined): string {
 }
 
 export default function ClientDietPlanPage() {
-  const [clientId, setClientId] = useState<string | null>(null)
   const [dietPlan, setDietPlan] = useState<DietPlan | null>(null)
   const [logItems, setLogItems] = useState<Map<number, LogItem>>(new Map())
   const [isLoading, setIsLoading] = useState(true)
@@ -58,21 +57,19 @@ export default function ClientDietPlanPage() {
   const router = useRouter()
 
   useEffect(() => {
-    const id = localStorage.getItem('client_id')
-    if (!id) {
-      router.push('/client/login')
-      return
-    }
-    setClientId(id)
     // Set today's date as default
     const today = new Date().toISOString().split('T')[0]
     setSelectedDate(today)
-    fetchDietPlan(id)
+    fetchDietPlan()
   }, [router])
 
-  const fetchDietPlan = async (id: string) => {
+  const fetchDietPlan = async () => {
     try {
-      const response = await fetch(`/api/client/diet-plan?client_id=${id}`)
+      const response = await fetch(`/api/client/diet-plan`)
+      if (response.status === 401) {
+        router.push('/client/login')
+        return
+      }
       if (!response.ok) {
         throw new Error('Failed to fetch diet plan')
       }
@@ -124,9 +121,8 @@ export default function ClientDietPlanPage() {
   }
 
   const checkExistingLog = async (date: string) => {
-    if (!clientId) return
     try {
-      const response = await fetch(`/api/client/diet-logs/check?client_id=${clientId}&date=${date}`)
+      const response = await fetch(`/api/client/diet-logs/check?date=${date}`)
       const data = await response.json()
       setExistingLogDate(data.submitted ? date : null)
     } catch (err) {
@@ -141,7 +137,7 @@ export default function ClientDietPlanPage() {
   }
 
   const handleSubmit = async () => {
-    if (!clientId || !selectedDate) return
+    if (!selectedDate) return
 
     setIsSubmitting(true)
     setError('')
@@ -153,7 +149,6 @@ export default function ClientDietPlanPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          client_id: clientId,
           logged_date: selectedDate,
           items,
         }),
@@ -357,11 +352,10 @@ export default function ClientDietPlanPage() {
                       {/* Checkbox */}
                       <button
                         onClick={() => handleItemToggle(item.id)}
-                        className={`mt-1 w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all flex-shrink-0 ${
-                          logItem?.completed
+                        className={`mt-1 w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all flex-shrink-0 ${logItem?.completed
                             ? 'bg-primary border-primary'
                             : 'border-gray-300 hover:border-primary'
-                        }`}
+                          }`}
                       >
                         {logItem?.completed && (
                           <svg
@@ -385,11 +379,10 @@ export default function ClientDietPlanPage() {
                         <div className="flex items-center justify-between mb-2">
                           <div>
                             <h4
-                              className={`text-lg font-semibold transition-all ${
-                                logItem?.completed
+                              className={`text-lg font-semibold transition-all ${logItem?.completed
                                   ? 'text-gray-400 line-through'
                                   : 'text-gray-900'
-                              }`}
+                                }`}
                             >
                               {item.item_name}
                             </h4>
@@ -447,8 +440,8 @@ export default function ClientDietPlanPage() {
           {isSubmitting
             ? '⏳ Submitting...'
             : existingLogDate !== null
-            ? '❌ Already Submitted'
-            : `✅ Submit Log for ${selectedDateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`
+              ? '❌ Already Submitted'
+              : `✅ Submit Log for ${selectedDateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`
           }
         </button>
         <p className="text-xs text-gray-500 text-center mt-3">

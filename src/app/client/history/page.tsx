@@ -27,7 +27,6 @@ interface DietLog {
 }
 
 export default function ClientHistoryPage() {
-  const [clientId, setClientId] = useState<string | null>(null)
   const [logs, setLogs] = useState<DietLog[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState('')
@@ -35,18 +34,16 @@ export default function ClientHistoryPage() {
   const router = useRouter()
 
   useEffect(() => {
-    const id = localStorage.getItem('client_id')
-    if (!id) {
-      router.push('/client/login')
-      return
-    }
-    setClientId(id)
-    fetchLogs(id)
+    fetchLogs()
   }, [router])
 
-  const fetchLogs = async (id: string) => {
+  const fetchLogs = async () => {
     try {
-      const response = await fetch(`/api/client/diet-logs?client_id=${id}`)
+      const response = await fetch(`/api/client/diet-logs`)
+      if (response.status === 401) {
+        router.push('/client/login')
+        return
+      }
       if (!response.ok) {
         throw new Error('Failed to fetch logs')
       }
@@ -154,13 +151,13 @@ export default function ClientHistoryPage() {
           <p className="text-3xl font-bold text-primary">
             {logs.length > 0
               ? Math.round(
-                  logs.reduce((sum, log) => {
-                    const completed = log.diet_log_items?.filter((item) => item.completed)
-                      .length || 0
-                    const total = log.diet_log_items?.length || 0
-                    return sum + (total > 0 ? (completed / total) * 100 : 0)
-                  }, 0) / logs.length
-                )
+                logs.reduce((sum, log) => {
+                  const completed = log.diet_log_items?.filter((item) => item.completed)
+                    .length || 0
+                  const total = log.diet_log_items?.length || 0
+                  return sum + (total > 0 ? (completed / total) * 100 : 0)
+                }, 0) / logs.length
+              )
               : 0}
             %
           </p>
@@ -203,11 +200,10 @@ export default function ClientHistoryPage() {
                       </span>
                     )}
                     <span
-                      className={`px-3 py-1 text-xs font-semibold rounded-full ${
-                        log.status === 'submitted'
+                      className={`px-3 py-1 text-xs font-semibold rounded-full ${log.status === 'submitted'
                           ? 'bg-green-100 text-green-800'
                           : 'bg-gray-100 text-gray-800'
-                      }`}
+                        }`}
                     >
                       {log.status === 'submitted' ? '✅ Submitted' : '⏳ Pending'}
                     </span>
@@ -225,9 +221,8 @@ export default function ClientHistoryPage() {
 
                 {/* Chevron */}
                 <svg
-                  className={`w-6 h-6 text-gray-400 transition-transform ${
-                    selectedLog?.id === log.id ? 'rotate-180' : ''
-                  }`}
+                  className={`w-6 h-6 text-gray-400 transition-transform ${selectedLog?.id === log.id ? 'rotate-180' : ''
+                    }`}
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -278,11 +273,10 @@ export default function ClientHistoryPage() {
                             {/* Item Info */}
                             <div className="flex-1">
                               <p
-                                className={`font-semibold ${
-                                  item.completed
+                                className={`font-semibold ${item.completed
                                     ? 'text-gray-500 line-through'
                                     : 'text-gray-900'
-                                }`}
+                                  }`}
                               >
                                 {item.diet_plan_items?.item_name}
                               </p>
