@@ -1654,638 +1654,359 @@ export default function ClientDetailPage() {
       {/* Progress Tab */}
       {activeTab === 'progress' && (
         <div className="space-y-6">
-          {/* No Measurements Message */}
-          {!client?.measurements_logs || client.measurements_logs.length === 0 ? (
-            <div className="text-center py-12">
-              <p className="text-gray-600 text-lg mb-4">No measurements recorded yet</p>
-              <button
-                onClick={() => setShowAddMeasurements(true)}
-                className="px-6 py-3 bg-primary text-white font-semibold rounded-lg hover:bg-primary-dark transition-colors"
-              >
-                + Add First Measurement
-              </button>
-              {showAddMeasurements && (
-                <div className="mt-6 bg-white rounded-xl shadow-sm border border-gray-200 p-6 max-w-2xl mx-auto">
-                  <h3 className="text-xl font-bold text-gray-900 mb-4">Record Body Measurements</h3>
-                  <form onSubmit={handleAddMeasurements} className="space-y-4">
-                    {measurementsError && (
-                      <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
-                        <p className="text-red-700 text-sm">{measurementsError}</p>
-                      </div>
-                    )}
+          {/* 1. TOTAL PROGRESS - Hero Stat */}
+          <div className="bg-gradient-to-r from-primary/10 to-primary/5 rounded-xl border-2 border-primary p-8 text-center">
+            <p className="text-sm font-semibold text-primary uppercase tracking-wide mb-2">Total Progress</p>
+            <p className="text-5xl font-bold text-gray-900 mb-1">
+              {(() => {
+                const firstLog = client?.measurements_logs?.[0]
+                const latestLog = client?.measurements_logs?.[(client?.measurements_logs?.length || 1) - 1]
 
-                    <div className="grid md:grid-cols-3 gap-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Date</label>
-                        <input
-                          type="date"
-                          value={measurementsFormData.logged_date}
-                          onChange={(e) =>
-                            setMeasurementsFormData({ ...measurementsFormData, logged_date: e.target.value })
-                          }
-                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Chest (cm)</label>
-                        <input
-                          type="number"
-                          step="0.1"
-                          value={measurementsFormData.chest_cm}
-                          onChange={(e) =>
-                            setMeasurementsFormData({ ...measurementsFormData, chest_cm: e.target.value })
-                          }
-                          placeholder="e.g., 95.5"
-                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Waist (cm)</label>
-                        <input
-                          type="number"
-                          step="0.1"
-                          value={measurementsFormData.waist_cm}
-                          onChange={(e) =>
-                            setMeasurementsFormData({ ...measurementsFormData, waist_cm: e.target.value })
-                          }
-                          placeholder="e.g., 80"
-                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Hip (cm)</label>
-                        <input
-                          type="number"
-                          step="0.1"
-                          value={measurementsFormData.hip_cm}
-                          onChange={(e) =>
-                            setMeasurementsFormData({ ...measurementsFormData, hip_cm: e.target.value })
-                          }
-                          placeholder="e.g., 100"
-                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Thigh (cm)</label>
-                        <input
-                          type="number"
-                          step="0.1"
-                          value={measurementsFormData.thigh_cm}
-                          onChange={(e) =>
-                            setMeasurementsFormData({ ...measurementsFormData, thigh_cm: e.target.value })
-                          }
-                          placeholder="e.g., 55"
-                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Notes</label>
-                        <input
-                          type="text"
-                          value={measurementsFormData.notes}
-                          onChange={(e) =>
-                            setMeasurementsFormData({ ...measurementsFormData, notes: e.target.value })
-                          }
-                          placeholder="Optional notes"
-                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                        />
-                      </div>
-                    </div>
+                const initialTotal = firstLog ?
+                  ((firstLog.chest_cm || 0) + (firstLog.waist_cm || 0) + (firstLog.hip_cm || 0) + (firstLog.thigh_cm || 0)) :
+                  ((profile?.chest_cm || 0) + (profile?.waist_cm || 0) + (profile?.hip_cm || 0) + (profile?.thigh_cm || 0))
 
-                    <button
-                      type="submit"
-                      disabled={submittingMeasurements}
-                      className="w-full px-6 py-3 bg-primary text-white font-semibold rounded-lg hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      {submittingMeasurements ? 'Saving...' : 'Save Measurements'}
-                    </button>
-                  </form>
+                const latestTotal = latestLog ?
+                  ((latestLog.chest_cm || 0) + (latestLog.waist_cm || 0) + (latestLog.hip_cm || 0) + (latestLog.thigh_cm || 0)) :
+                  initialTotal
+
+                const totalReduction = initialTotal - latestTotal
+                return totalReduction > 0 ? `${totalReduction.toFixed(1)} cm` : '−'
+              })()}
+            </p>
+            <p className="text-lg text-primary font-semibold">cm Lost</p>
+          </div>
+
+          {/* Add Measurements Button */}
+          <button
+            onClick={() => setShowAddMeasurements(!showAddMeasurements)}
+            className="px-6 py-3 bg-primary text-white font-semibold rounded-lg hover:bg-primary-dark transition-colors"
+          >
+            + Add Measurements
+          </button>
+
+          {/* Add Measurements Form - Appears right after button */}
+          {showAddMeasurements && (
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+              <h3 className="text-xl font-bold text-gray-900 mb-4">Record Body Measurements</h3>
+              <form onSubmit={handleAddMeasurements} className="space-y-4">
+                {measurementsError && (
+                  <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+                    <p className="text-red-700 text-sm">{measurementsError}</p>
+                  </div>
+                )}
+
+                <div className="grid md:grid-cols-3 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Date</label>
+                    <input type="date" value={measurementsFormData.logged_date} onChange={(e) => setMeasurementsFormData({ ...measurementsFormData, logged_date: e.target.value })} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Chest (cm)</label>
+                    <input type="number" step="0.1" value={measurementsFormData.chest_cm} onChange={(e) => setMeasurementsFormData({ ...measurementsFormData, chest_cm: e.target.value })} placeholder="e.g., 95.5" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Waist (cm)</label>
+                    <input type="number" step="0.1" value={measurementsFormData.waist_cm} onChange={(e) => setMeasurementsFormData({ ...measurementsFormData, waist_cm: e.target.value })} placeholder="e.g., 80" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Hip (cm)</label>
+                    <input type="number" step="0.1" value={measurementsFormData.hip_cm} onChange={(e) => setMeasurementsFormData({ ...measurementsFormData, hip_cm: e.target.value })} placeholder="e.g., 100" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Thigh (cm)</label>
+                    <input type="number" step="0.1" value={measurementsFormData.thigh_cm} onChange={(e) => setMeasurementsFormData({ ...measurementsFormData, thigh_cm: e.target.value })} placeholder="e.g., 55" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Notes</label>
+                    <input type="text" value={measurementsFormData.notes} onChange={(e) => setMeasurementsFormData({ ...measurementsFormData, notes: e.target.value })} placeholder="Optional notes" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" />
+                  </div>
                 </div>
-              )}
+
+                <button type="submit" disabled={submittingMeasurements} className="w-full px-6 py-3 bg-primary text-white font-semibold rounded-lg hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                  {submittingMeasurements ? 'Saving...' : 'Save Measurements'}
+                </button>
+              </form>
             </div>
-          ) : (
-            <>
-              {/* 1. TOTAL PROGRESS - Hero Stat */}
-              {client?.measurements_logs && client.measurements_logs.length > 0 && (
-                <>
-                  <div className="bg-gradient-to-r from-primary/10 to-primary/5 rounded-xl border-2 border-primary p-8 text-center">
-                    <p className="text-sm font-semibold text-primary uppercase tracking-wide mb-2">Total Progress</p>
-                    <p className="text-5xl font-bold text-gray-900 mb-1">
-                      {(() => {
-                        const firstLog = client.measurements_logs[0]
-                        const latestLog = client.measurements_logs[client.measurements_logs.length - 1]
+          )}
 
-                        const initialTotal = (firstLog.chest_cm || 0) + (firstLog.waist_cm || 0) + (firstLog.hip_cm || 0) + (firstLog.thigh_cm || 0)
-                        const latestTotal = (latestLog.chest_cm || 0) + (latestLog.waist_cm || 0) + (latestLog.hip_cm || 0) + (latestLog.thigh_cm || 0)
+          {/* 2. MEASUREMENT STATS CARDS */}
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-2">
+            {[
+              { label: 'Chest', key: 'chest_cm', icon: '💪' },
+              { label: 'Waist', key: 'waist_cm', icon: '📏' },
+              { label: 'Hip', key: 'hip_cm', icon: '��' },
+              { label: 'Thigh', key: 'thigh_cm', icon: '🦵' },
+            ].map(({ label, key, icon }) => {
+              const firstLog = client?.measurements_logs?.[0]
+              const latestLog = client?.measurements_logs?.[(client.measurements_logs?.length || 1) - 1]
+              const profileVal = profile?.[key as keyof typeof profile] as number | null
+              const initialValue = firstLog ? (firstLog[key as keyof typeof firstLog] as number | null) || 0 : profileVal || 0
+              const latestValue = latestLog ? (latestLog[key as keyof typeof latestLog] as number | null) || 0 : initialValue
+              const reduction = (initialValue as number) && (latestValue as number) ? (initialValue as number) - (latestValue as number) : 0
 
-                        const totalReduction = initialTotal - latestTotal
-                        return totalReduction > 0 ? `${totalReduction.toFixed(1)} cm` : '−'
-                      })()}
-                    </p>
-                    <p className="text-lg text-primary font-semibold">cm Lost</p>
-                  </div>
-
-                  {/* Add Measurements Button */}
-                  <button
-                    onClick={() => setShowAddMeasurements(!showAddMeasurements)}
-                    className="px-6 py-3 bg-primary text-white font-semibold rounded-lg hover:bg-primary-dark transition-colors"
-                  >
-                    + Add Measurements
-                  </button>
-
-                  {/* Add Measurements Form - Appears right after button */}
-                  {showAddMeasurements && (
-                    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                      <h3 className="text-xl font-bold text-gray-900 mb-4">Record Body Measurements</h3>
-                      <form onSubmit={handleAddMeasurements} className="space-y-4">
-                        {measurementsError && (
-                          <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
-                            <p className="text-red-700 text-sm">{measurementsError}</p>
-                          </div>
-                        )}
-
-                        <div className="grid md:grid-cols-3 gap-4">
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                              Date
-                            </label>
-                            <input
-                              type="date"
-                              value={measurementsFormData.logged_date}
-                              onChange={(e) =>
-                                setMeasurementsFormData({ ...measurementsFormData, logged_date: e.target.value })
-                              }
-                              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                            />
-                          </div>
-
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                              Chest (cm)
-                            </label>
-                            <input
-                              type="number"
-                              step="0.1"
-                              value={measurementsFormData.chest_cm}
-                              onChange={(e) =>
-                                setMeasurementsFormData({ ...measurementsFormData, chest_cm: e.target.value })
-                              }
-                              placeholder="e.g., 95.5"
-                              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                            />
-                          </div>
-
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                              Waist (cm)
-                            </label>
-                            <input
-                              type="number"
-                              step="0.1"
-                              value={measurementsFormData.waist_cm}
-                              onChange={(e) =>
-                                setMeasurementsFormData({ ...measurementsFormData, waist_cm: e.target.value })
-                              }
-                              placeholder="e.g., 80"
-                              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                            />
-                          </div>
-
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                              Hip (cm)
-                            </label>
-                            <input
-                              type="number"
-                              step="0.1"
-                              value={measurementsFormData.hip_cm}
-                              onChange={(e) =>
-                                setMeasurementsFormData({ ...measurementsFormData, hip_cm: e.target.value })
-                              }
-                              placeholder="e.g., 100"
-                              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                            />
-                          </div>
-
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                              Thigh (cm)
-                            </label>
-                            <input
-                              type="number"
-                              step="0.1"
-                              value={measurementsFormData.thigh_cm}
-                              onChange={(e) =>
-                                setMeasurementsFormData({ ...measurementsFormData, thigh_cm: e.target.value })
-                              }
-                              placeholder="e.g., 55"
-                              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                            />
-                          </div>
-
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                              Notes
-                            </label>
-                            <input
-                              type="text"
-                              value={measurementsFormData.notes}
-                              onChange={(e) =>
-                                setMeasurementsFormData({ ...measurementsFormData, notes: e.target.value })
-                              }
-                              placeholder="Optional notes"
-                              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                            />
-                          </div>
-                        </div>
-
-                        <button
-                          type="submit"
-                          disabled={submittingMeasurements}
-                          className="w-full px-6 py-3 bg-primary text-white font-semibold rounded-lg hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                          {submittingMeasurements ? 'Saving...' : 'Save Measurements'}
-                        </button>
-                      </form>
+              return (
+                <div key={label} className="bg-white rounded-lg shadow-sm border border-gray-200 p-2">
+                  <p className="text-xs font-semibold text-gray-700 mb-2">{icon} {label}</p>
+                  <div className="space-y-1.5">
+                    <div>
+                      <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-0.5">Before</p>
+                      <p className="text-base font-bold text-gray-400">{initialValue ? `${initialValue} cm` : '−'}</p>
                     </div>
-                  )}
-                </>
-              )}
+                    <div className="flex items-center justify-center py-0.5">
+                      <div className="text-center">
+                        <svg className="w-2.5 h-2.5 text-green-600 mx-auto mb-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                        </svg>
+                        <p className="text-xs font-bold text-green-600">{reduction > 0 ? `−${reduction.toFixed(1)}` : '−'} cm</p>
+                      </div>
+                    </div>
+                    <div>
+                      <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-0.5">After</p>
+                      <p className="text-base font-bold text-primary">{latestValue ? `${latestValue} cm` : '−'}</p>
+                    </div>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
 
-              {/* 2. MEASUREMENT STATS CARDS - Chest, Waist, Hip, Thigh */}
-              {client?.measurements_logs && client.measurements_logs.length > 0 && (
-                <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-2">
-                  {[
-                    { label: 'Chest', key: 'chest_cm', icon: '💪' },
-                    { label: 'Waist', key: 'waist_cm', icon: '📏' },
-                    { label: 'Hip', key: 'hip_cm', icon: '🍑' },
-                    { label: 'Thigh', key: 'thigh_cm', icon: '🦵' },
-                  ].map(({ label, key, icon }) => {
-                    const firstLog = client.measurements_logs?.[0]
-                    const latestLog = client.measurements_logs?.[client.measurements_logs.length - 1]
-                    const initialValue = (firstLog ? (firstLog[key as keyof typeof firstLog] as number | null) : 0) || 0
-                    const latestValue = (latestLog ? (latestLog[key as keyof typeof latestLog] as number | null) : 0) || 0
-                    const reduction = (initialValue as number) && (latestValue as number) ? (initialValue as number) - (latestValue as number) : 0
+          {/* 3. MEASUREMENT TRENDS CHART */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <h2 className="text-2xl font-bold text-gray-900 mb-6">Measurement Trends</h2>
+            <ResponsiveContainer width="100%" height={300}>
+              {(() => {
+                const logs = client?.measurements_logs && client.measurements_logs.length > 0
+                  ? client.measurements_logs
+                  : [{ logged_date: client.start_date || new Date().toISOString(), chest_cm: profile?.chest_cm, waist_cm: profile?.waist_cm, hip_cm: profile?.hip_cm, thigh_cm: profile?.thigh_cm }]
 
-                    return (
-                      <div key={label} className="bg-white rounded-lg shadow-sm border border-gray-200 p-2">
-                        <p className="text-xs font-semibold text-gray-700 mb-2">{icon} {label}</p>
+                const chartData = logs.map(log => ({
+                  date: new Date(log.logged_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+                  chest: log.chest_cm,
+                  waist: log.waist_cm,
+                  hip: log.hip_cm,
+                  thigh: log.thigh_cm,
+                  fullDate: log.logged_date,
+                }))
+                const dataKey = JSON.stringify(chartData.slice(-1))
 
-                        {/* Before & After Display */}
-                        <div className="space-y-1.5">
-                          {/* Before */}
-                          <div>
-                            <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-0.5">Before</p>
-                            <p className="text-base font-bold text-gray-400">
-                              {initialValue ? `${initialValue} cm` : '−'}
-                            </p>
-                          </div>
-
-                          {/* Arrow & Reduction */}
-                          <div className="flex items-center justify-center py-0.5">
-                            <div className="text-center">
-                              <svg className="w-2.5 h-2.5 text-green-600 mx-auto mb-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                              </svg>
-                              <p className="text-xs font-bold text-green-600">
-                                {reduction > 0 ? `−${reduction.toFixed(1)}` : '−'} cm
-                              </p>
+                return (
+                  <LineChart key={`chart-${dataKey}`} data={chartData}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="date" padding={{ left: 30, right: 30 }} />
+                    <YAxis domain={['auto', 'auto']} />
+                    <Tooltip
+                      content={({ active, payload, label }: any) => {
+                        if (active && payload && payload.length) {
+                          return (
+                            <div className="bg-white p-2 border border-gray-300 rounded shadow">
+                              <p className="font-semibold text-gray-900">{label}</p>
+                              {payload.map((entry: any, index: number) => (
+                                <p key={index} style={{ color: entry.color }} className="text-sm">
+                                  {entry.name}: <span className="font-bold">{entry.value} cm</span>
+                                </p>
+                              ))}
                             </div>
-                          </div>
+                          )
+                        }
+                        return null
+                      }}
+                    />
+                    <Line type="monotone" dataKey="chest" stroke="#3b82f6" name="Chest" strokeWidth={2} dot={{ r: 4 }} connectNulls={true} />
+                    <Line type="monotone" dataKey="waist" stroke="#ef4444" name="Waist" strokeWidth={2} dot={{ r: 4 }} connectNulls={true} />
+                    <Line type="monotone" dataKey="hip" stroke="#ec4899" name="Hip" strokeWidth={2} dot={{ r: 4 }} connectNulls={true} />
+                    <Line type="monotone" dataKey="thigh" stroke="#f59e0b" name="Thigh" strokeWidth={2} dot={{ r: 4 }} connectNulls={true} />
+                  </LineChart>
+                )
+              })()}
+            </ResponsiveContainer>
+          </div>
 
-                          {/* After */}
-                          <div>
-                            <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-0.5">After</p>
-                            <p className="text-base font-bold text-primary">
-                              {latestValue ? `${latestValue} cm` : '−'}
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    )
-                  })}
+          {/* 4. MEASUREMENTS HISTORY TABLE */}
+          {client?.measurements_logs && client.measurements_logs.length > 0 && (
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+              <div className="p-6 border-b border-gray-200">
+                <h3 className="text-xl font-bold text-gray-900">Measurements History</h3>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead className="bg-gray-50 border-b border-gray-200">
+                    <tr>
+                      <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Date</th>
+                      <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Chest (cm)</th>
+                      <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Waist (cm)</th>
+                      <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Hip (cm)</th>
+                      <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Thigh (cm)</th>
+                      <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Notes</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {[...client.measurements_logs].reverse().map((log) => (
+                      <tr key={log.id} className="border-b border-gray-200 hover:bg-gray-50">
+                        <td className="px-6 py-4 text-sm text-gray-900">{new Date(log.logged_date).toLocaleDateString()}</td>
+                        <td className="px-6 py-4 text-sm font-semibold text-gray-900">{log.chest_cm ? `${log.chest_cm} cm` : '−'}</td>
+                        <td className="px-6 py-4 text-sm font-semibold text-gray-900">{log.waist_cm ? `${log.waist_cm} cm` : '−'}</td>
+                        <td className="px-6 py-4 text-sm font-semibold text-gray-900">{log.hip_cm ? `${log.hip_cm} cm` : '−'}</td>
+                        <td className="px-6 py-4 text-sm font-semibold text-gray-900">{log.thigh_cm ? `${log.thigh_cm} cm` : '−'}</td>
+                        <td className="px-6 py-4 text-sm text-gray-600">{log.notes || '−'}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {/* 5. WEIGHT TRACKING */}
+          <div className="border-t-2 border-gray-200 pt-8 mt-8">
+            <h2 className="text-2xl font-bold text-gray-900 mb-6">Weight Tracking</h2>
+          </div>
+
+          <button onClick={() => setShowAddWeight(!showAddWeight)} className="px-6 py-3 bg-primary text-white font-semibold rounded-lg hover:bg-primary-dark transition-colors mb-6">
+            + Add Weight
+          </button>
+
+          {/* Weight Stats Cards */}
+          <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+              <p className="text-sm text-gray-600 mb-2">Start Weight</p>
+              <p className="text-3xl font-bold text-gray-900">{profile?.weight_kg ? `${profile.weight_kg} kg` : '−'}</p>
+            </div>
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+              <p className="text-sm text-gray-600 mb-2">Current Weight</p>
+              <p className="text-3xl font-bold text-gray-900">
+                {client?.weight_logs && client.weight_logs.length > 0 ? `${client.weight_logs[client.weight_logs.length - 1].weight_kg} kg` : profile?.weight_kg ? `${profile.weight_kg} kg` : '−'}
+              </p>
+            </div>
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+              <p className="text-sm text-gray-600 mb-2">Goal Weight</p>
+              <p className="text-3xl font-bold text-primary">{profile?.target_weight_kg ? `${profile.target_weight_kg} kg` : '−'}</p>
+            </div>
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+              <p className="text-sm text-gray-600 mb-2">Total Loss/Gain</p>
+              <p className={`text-3xl font-bold ${(() => {
+                const startWeight = profile?.weight_kg || 0
+                const currentWeight = client?.weight_logs && client.weight_logs.length > 0 ? client.weight_logs[client.weight_logs.length - 1].weight_kg : startWeight
+                return (startWeight - currentWeight) > 0 ? 'text-green-600' : 'text-red-600'
+              })()}`}>
+                {(() => {
+                  const startWeight = profile?.weight_kg || 0
+                  const currentWeight = client?.weight_logs && client.weight_logs.length > 0 ? client.weight_logs[client.weight_logs.length - 1].weight_kg : startWeight
+                  const difference = Math.abs(startWeight - currentWeight)
+                  return difference > 0 ? `${difference.toFixed(1)} kg` : '−'
+                })()}
+              </p>
+            </div>
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+              <p className="text-sm text-gray-600 mb-2">% to Goal</p>
+              <p className="text-3xl font-bold text-indigo-600">
+                {(() => {
+                  const startWeight = profile?.weight_kg
+                  const targetWeight = profile?.target_weight_kg
+                  const currentWeight = client?.weight_logs && client.weight_logs.length > 0 ? client.weight_logs[client.weight_logs.length - 1].weight_kg : startWeight
+                  if (!startWeight || !targetWeight || !currentWeight) return '−'
+                  const totalToLose = startWeight - targetWeight
+                  const alreadyLost = startWeight - currentWeight
+                  const percentage = Math.round((alreadyLost / totalToLose) * 100)
+                  return `${percentage}%`
+                })()}
+              </p>
+            </div>
+          </div>
+
+          {/* ADD WEIGHT FORM */}
+          {showAddWeight && (
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
+              <h3 className="text-xl font-bold text-gray-900 mb-4">Record Weight</h3>
+              <form onSubmit={handleAddWeight} className="space-y-4">
+                {weightError && (
+                  <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+                    <p className="text-red-700 text-sm">{weightError}</p>
+                  </div>
+                )}
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Date</label>
+                    <input type="date" value={weightFormData.logged_date} onChange={(e) => setWeightFormData({ ...weightFormData, logged_date: e.target.value })} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Weight (kg)</label>
+                    <input type="number" step="0.1" value={weightFormData.weight_kg} onChange={(e) => setWeightFormData({ ...weightFormData, weight_kg: e.target.value })} placeholder="e.g., 72.5" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" />
+                  </div>
                 </div>
-              )}
+                <button type="submit" disabled={submittingWeight} className="w-full px-6 py-3 bg-primary text-white font-semibold rounded-lg hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                  {submittingWeight ? 'Saving...' : 'Save Weight'}
+                </button>
+              </form>
+            </div>
+          )}
 
-              {/* 3. MEASUREMENT TRENDS CHART */}
-              {client?.measurements_logs && client.measurements_logs.length > 1 && (
-                <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                  <h2 className="text-2xl font-bold text-gray-900 mb-6">Measurement Trends</h2>
-                  <ResponsiveContainer width="100%" height={300}>
-                    {(() => {
-                      const chartData = (client.measurements_logs || []).map(log => ({
-                        date: new Date(log.logged_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-                        chest: log.chest_cm,
-                        waist: log.waist_cm,
-                        hip: log.hip_cm,
-                        thigh: log.thigh_cm,
-                        fullDate: log.logged_date,
-                      }))
-                      const dataKey = JSON.stringify(chartData.slice(-1))
+          {/* 8. WEIGHT PROGRESS CHART */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <h2 className="text-2xl font-bold text-gray-900 mb-6">Weight Progress Chart</h2>
+            <ResponsiveContainer width="100%" height={300}>
+              {(() => {
+                const logs = client?.weight_logs && client.weight_logs.length > 0
+                  ? client.weight_logs
+                  : [{ logged_date: client.start_date || new Date().toISOString(), weight_kg: profile?.weight_kg }]
 
+                const chartData = logs.map(log => ({
+                  date: new Date(log.logged_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+                  weight: log.weight_kg,
+                  fullDate: log.logged_date,
+                }))
+
+                return (
+                  <LineChart data={chartData}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="date" padding={{ left: 30, right: 30 }} />
+                    <YAxis domain={['auto', 'auto']} />
+                    <Tooltip formatter={(value) => `${value} kg`} labelFormatter={(label) => 'Weight'} />
+                    <Legend />
+                    <Line type="monotone" dataKey="weight" stroke="#4a7c59" dot={{ fill: '#4a7c59', r: 5 }} strokeWidth={2} name="Weight (kg)" />
+                  </LineChart>
+                )
+              })()}
+            </ResponsiveContainer>
+          </div>
+
+          {/* 9. WEIGHT HISTORY TABLE */}
+          {client?.weight_logs && client.weight_logs.length > 0 && (
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mt-6">
+              <div className="p-6 border-b border-gray-200">
+                <h3 className="text-xl font-bold text-gray-900">Weight History</h3>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead className="bg-gray-50 border-b border-gray-200">
+                    <tr>
+                      <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Date</th>
+                      <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Weight (kg)</th>
+                      <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Change</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {[...client.weight_logs].reverse().map((log, index) => {
+                      const previousWeight = index < (client.weight_logs?.length || 0) - 1 ? [...(client.weight_logs || [])].reverse()[index + 1].weight_kg : null
+                      const change = previousWeight ? (previousWeight - log.weight_kg).toFixed(1) : '-'
                       return (
-                        <LineChart
-                          key={`chart-${dataKey}`}
-                          data={chartData}
-                        >
-                          <CartesianGrid strokeDasharray="3 3" />
-                          <XAxis dataKey="date" />
-                          <YAxis />
-                          <Tooltip
-                            content={({ active, payload, label }: any) => {
-                              if (active && payload && payload.length) {
-                                return (
-                                  <div className="bg-white p-2 border border-gray-300 rounded shadow">
-                                    <p className="font-semibold text-gray-900">{label}</p>
-                                    {payload.map((entry: any, index: number) => (
-                                      <p key={index} style={{ color: entry.color }} className="text-sm">
-                                        {entry.name}: <span className="font-bold">{entry.value} cm</span>
-                                      </p>
-                                    ))}
-                                  </div>
-                                )
-                              }
-                              return null
-                            }}
-                          />
-                          <Line type="monotone" dataKey="chest" stroke="#3b82f6" name="Chest" strokeWidth={2} dot={{ r: 4 }} connectNulls={true} />
-                          <Line type="monotone" dataKey="waist" stroke="#ef4444" name="Waist" strokeWidth={2} dot={{ r: 4 }} connectNulls={true} />
-                          <Line type="monotone" dataKey="hip" stroke="#ec4899" name="Hip" strokeWidth={2} dot={{ r: 4 }} connectNulls={true} />
-                          <Line type="monotone" dataKey="thigh" stroke="#f59e0b" name="Thigh" strokeWidth={2} dot={{ r: 4 }} connectNulls={true} />
-                        </LineChart>
-                      )
-                    })()}
-                  </ResponsiveContainer>
-                </div>
-              )}
-
-              {/* 4. MEASUREMENTS HISTORY TABLE */}
-              {client?.measurements_logs && client.measurements_logs.length > 0 && (
-                <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                  <div className="p-6 border-b border-gray-200">
-                    <h3 className="text-xl font-bold text-gray-900">Measurements History</h3>
-                  </div>
-                  <div className="overflow-x-auto">
-                    <table className="w-full">
-                      <thead className="bg-gray-50 border-b border-gray-200">
-                        <tr>
-                          <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Date</th>
-                          <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Chest (cm)</th>
-                          <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Waist (cm)</th>
-                          <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Hip (cm)</th>
-                          <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Thigh (cm)</th>
-                          <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Notes</th>
+                        <tr key={log.id} className="border-b border-gray-200 hover:bg-gray-50">
+                          <td className="px-6 py-4 text-sm text-gray-900">{new Date(log.logged_date).toLocaleDateString()}</td>
+                          <td className="px-6 py-4 text-sm font-semibold text-gray-900">{log.weight_kg} kg</td>
+                          <td className="px-6 py-4 text-sm">
+                            {change !== '-' ? (
+                              <span className={parseFloat(change) > 0 ? 'text-green-600 font-semibold' : 'text-red-600 font-semibold'}>
+                                {parseFloat(change) > 0 ? '−' : '+'}{Math.abs(parseFloat(change))} kg
+                              </span>
+                            ) : '−'}
+                          </td>
                         </tr>
-                      </thead>
-                      <tbody>
-                        {client.measurements_logs && [...client.measurements_logs].reverse().map((log) => (
-                          <tr key={log.id} className="border-b border-gray-200 hover:bg-gray-50">
-                            <td className="px-6 py-4 text-sm text-gray-900">
-                              {new Date(log.logged_date).toLocaleDateString()}
-                            </td>
-                            <td className="px-6 py-4 text-sm font-semibold text-gray-900">
-                              {log.chest_cm ? `${log.chest_cm} cm` : '−'}
-                            </td>
-                            <td className="px-6 py-4 text-sm font-semibold text-gray-900">
-                              {log.waist_cm ? `${log.waist_cm} cm` : '−'}
-                            </td>
-                            <td className="px-6 py-4 text-sm font-semibold text-gray-900">
-                              {log.hip_cm ? `${log.hip_cm} cm` : '−'}
-                            </td>
-                            <td className="px-6 py-4 text-sm font-semibold text-gray-900">
-                              {log.thigh_cm ? `${log.thigh_cm} cm` : '−'}
-                            </td>
-                            <td className="px-6 py-4 text-sm text-gray-600">
-                              {log.notes || '−'}
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              )}
-
-              {/* 5. WEIGHT TRACKING */}
-              {client?.weight_logs && client.weight_logs.length > 0 && (
-                <>
-                  <div className="border-t-2 border-gray-200 pt-8 mt-8">
-                    <h2 className="text-2xl font-bold text-gray-900 mb-6">Weight Tracking</h2>
-                  </div>
-
-                  {/* Add Weight Button */}
-                  <button
-                    onClick={() => setShowAddWeight(!showAddWeight)}
-                    className="px-6 py-3 bg-primary text-white font-semibold rounded-lg hover:bg-primary-dark transition-colors mb-6"
-                  >
-                    + Add Weight
-                  </button>
-
-                  {/* Weight Stats Cards */}
-                  <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
-                    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-                      <p className="text-sm text-gray-600 mb-2">Start Weight</p>
-                      <p className="text-3xl font-bold text-gray-900">
-                        {profile?.weight_kg ? `${profile.weight_kg} kg` : '−'}
-                      </p>
-                    </div>
-                    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-                      <p className="text-sm text-gray-600 mb-2">Current Weight</p>
-                      <p className="text-3xl font-bold text-gray-900">
-                        {client?.weight_logs && client.weight_logs.length > 0
-                          ? `${client.weight_logs[client.weight_logs.length - 1].weight_kg} kg`
-                          : profile?.weight_kg
-                            ? `${profile.weight_kg} kg`
-                            : '−'}
-                      </p>
-                    </div>
-                    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-                      <p className="text-sm text-gray-600 mb-2">Goal Weight</p>
-                      <p className="text-3xl font-bold text-primary">
-                        {profile?.target_weight_kg ? `${profile.target_weight_kg} kg` : '−'}
-                      </p>
-                    </div>
-                    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-                      <p className="text-sm text-gray-600 mb-2">Total Loss/Gain</p>
-                      <p className={`text-3xl font-bold ${(() => {
-                        const startWeight = profile?.weight_kg || 0
-                        const currentWeight = client?.weight_logs && client.weight_logs.length > 0
-                          ? client.weight_logs[client.weight_logs.length - 1].weight_kg
-                          : startWeight
-                        return (startWeight - currentWeight) > 0 ? 'text-green-600' : 'text-red-600'
-                      })()
-                        }`}>
-                        {(() => {
-                          const startWeight = profile?.weight_kg || 0
-                          const currentWeight = client?.weight_logs && client.weight_logs.length > 0
-                            ? client.weight_logs[client.weight_logs.length - 1].weight_kg
-                            : startWeight
-                          const difference = Math.abs(startWeight - currentWeight)
-                          return difference > 0 ? `${difference.toFixed(1)} kg` : '−'
-                        })()}
-                      </p>
-                    </div>
-                    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-                      <p className="text-sm text-gray-600 mb-2">% to Goal</p>
-                      <p className="text-3xl font-bold text-indigo-600">
-                        {(() => {
-                          const startWeight = profile?.weight_kg
-                          const targetWeight = profile?.target_weight_kg
-                          const currentWeight = client?.weight_logs && client.weight_logs.length > 0
-                            ? client.weight_logs[client.weight_logs.length - 1].weight_kg
-                            : startWeight
-
-                          if (!startWeight || !targetWeight || !currentWeight) return '−'
-
-                          const totalToLose = startWeight - targetWeight
-                          const alreadyLost = startWeight - currentWeight
-                          const percentage = Math.round((alreadyLost / totalToLose) * 100)
-
-                          return `${percentage}%`
-                        })()}
-                      </p>
-                    </div>
-                  </div>
-                </>
-              )}
-
-              {/* 7. ADD WEIGHT FORM - Conditional */}
-              {showAddWeight && (
-                <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
-                  <h3 className="text-xl font-bold text-gray-900 mb-4">Record Weight</h3>
-                  <form onSubmit={handleAddWeight} className="space-y-4">
-                    {weightError && (
-                      <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
-                        <p className="text-red-700 text-sm">{weightError}</p>
-                      </div>
-                    )}
-
-                    <div className="grid md:grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Date
-                        </label>
-                        <input
-                          type="date"
-                          value={weightFormData.logged_date}
-                          onChange={(e) =>
-                            setWeightFormData({ ...weightFormData, logged_date: e.target.value })
-                          }
-                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Weight (kg)
-                        </label>
-                        <input
-                          type="number"
-                          step="0.1"
-                          value={weightFormData.weight_kg}
-                          onChange={(e) =>
-                            setWeightFormData({ ...weightFormData, weight_kg: e.target.value })
-                          }
-                          placeholder="e.g., 72.5"
-                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                        />
-                      </div>
-                    </div>
-
-                    <button
-                      type="submit"
-                      disabled={submittingWeight}
-                      className="w-full px-6 py-3 bg-primary text-white font-semibold rounded-lg hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      {submittingWeight ? 'Saving...' : 'Save Weight'}
-                    </button>
-                  </form>
-                </div>
-              )}
-
-              {/* 8. WEIGHT PROGRESS CHART */}
-              {client?.weight_logs && client.weight_logs.length > 0 && (
-                <>
-                  <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                    <h2 className="text-2xl font-bold text-gray-900 mb-6">Weight Progress Chart</h2>
-                    <ResponsiveContainer width="100%" height={300}>
-                      <LineChart data={client.weight_logs.map(log => ({
-                        date: new Date(log.logged_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-                        weight: log.weight_kg,
-                        fullDate: log.logged_date,
-                      }))}>
-                        <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis dataKey="date" />
-                        <YAxis />
-                        <Tooltip
-                          formatter={(value) => `${value} kg`}
-                          labelFormatter={(label) => `Weight`}
-                        />
-                        <Legend />
-                        <Line
-                          type="monotone"
-                          dataKey="weight"
-                          stroke="#4a7c59"
-                          dot={{ fill: '#4a7c59', r: 5 }}
-                          strokeWidth={2}
-                          name="Weight (kg)"
-                        />
-                      </LineChart>
-                    </ResponsiveContainer>
-                  </div>
-
-                  {/* 9. WEIGHT HISTORY TABLE */}
-                  <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                    <div className="p-6 border-b border-gray-200">
-                      <h3 className="text-xl font-bold text-gray-900">Weight History</h3>
-                    </div>
-                    <div className="overflow-x-auto">
-                      <table className="w-full">
-                        <thead className="bg-gray-50 border-b border-gray-200">
-                          <tr>
-                            <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Date</th>
-                            <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Weight (kg)</th>
-                            <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Change</th>
-                            <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Notes</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {client.weight_logs && [...client.weight_logs].reverse().map((log, index) => {
-                            const previousWeight = index < (client.weight_logs?.length || 0) - 1
-                              ? [...(client.weight_logs || [])].reverse()[index + 1].weight_kg
-                              : null
-                            const change = previousWeight ? (previousWeight - log.weight_kg).toFixed(1) : '-'
-
-                            return (
-                              <tr key={log.id} className="border-b border-gray-200 hover:bg-gray-50">
-                                <td className="px-6 py-4 text-sm text-gray-900">
-                                  {new Date(log.logged_date).toLocaleDateString()}
-                                </td>
-                                <td className="px-6 py-4 text-sm font-semibold text-gray-900">
-                                  {log.weight_kg} kg
-                                </td>
-                                <td className="px-6 py-4 text-sm">
-                                  {change !== '-' ? (
-                                    <span className={parseFloat(change) > 0 ? 'text-green-600 font-semibold' : 'text-red-600 font-semibold'}>
-                                      {parseFloat(change) > 0 ? '−' : '+'}{Math.abs(parseFloat(change))} kg
-                                    </span>
-                                  ) : (
-                                    '−'
-                                  )}
-                                </td>
-                                <td className="px-6 py-4 text-sm text-gray-600">
-                                  {log.created_at ? '−' : '−'}
-                                </td>
-                              </tr>
-                            )
-                          })}
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                </>
-              )}
-            </>
+                      )
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
           )}
         </div>
       )}
