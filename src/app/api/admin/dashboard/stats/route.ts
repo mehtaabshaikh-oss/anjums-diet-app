@@ -24,6 +24,8 @@ export async function GET(req: Request) {
     const today = new Date().toISOString().split('T')[0]
     const now = new Date()
     const sevenDaysLater = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000)
+    const todayStr = now.toISOString().split('T')[0]
+    const sevenDaysLaterStr = sevenDaysLater.toISOString().split('T')[0]
 
     if (enableLogs) console.time('[STATS] DB Queries')
     // Run all Q1-Q4 queries in parallel
@@ -37,8 +39,8 @@ export async function GET(req: Request) {
       supabase.from('clients').select('*', { count: 'exact', head: true }).eq('status', 'active'),
       supabase.from('diet_logs').select('*', { count: 'exact', head: true }).eq('logged_date', today).eq('status', 'submitted'),
       supabase.from('clients').select('id, name, nutritionist, next_appointment_date', { count: 'exact' })
-        .gte('next_appointment_date', now.toISOString())
-        .lte('next_appointment_date', sevenDaysLater.toISOString())
+        .gte('next_appointment_date', todayStr)
+        .lte('next_appointment_date', sevenDaysLaterStr)
         .order('next_appointment_date', { ascending: true })
     ])
     if (enableLogs) console.timeEnd('[STATS] DB Queries')
