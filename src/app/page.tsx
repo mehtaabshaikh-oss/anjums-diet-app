@@ -114,42 +114,34 @@ export default function Home() {
 
               <motion.p
                 variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] } } }}
-                className="text-lg md:text-2xl text-gray-600 mb-10 leading-relaxed max-w-lg"
+                className="text-lg md:text-2xl text-gray-600 mb-6 leading-relaxed max-w-lg"
               >
-                Designed for weight loss, PCOS, and long-term health without giving up home food.
+                For weight loss, PCOS, and long-term health without giving up home food
               </motion.p>
+
+              <motion.ul
+                variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] } } }}
+                className="space-y-3 mb-10 text-gray-700 font-medium text-lg"
+              >
+                <li className="flex items-center gap-3"><span className="text-emerald-500 text-xl font-bold">✓</span> No calorie counting</li>
+                <li className="flex items-center gap-3"><span className="text-emerald-500 text-xl font-bold">✓</span> No crash diets</li>
+                <li className="flex items-center gap-3"><span className="text-emerald-500 text-xl font-bold">✓</span> Built for Indian lifestyle</li>
+              </motion.ul>
 
               <motion.div
                 variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] } } }}
-                className="flex flex-wrap gap-4 mb-16"
+                className="flex flex-col items-start gap-4 mb-16"
               >
                 <a href="#contact" className="group relative inline-flex items-center justify-center px-8 py-4 font-bold text-white bg-gray-900 rounded-full overflow-hidden hover:scale-105 transition-transform duration-300 shadow-[0_8px_30px_rgba(0,0,0,0.12)]">
                   <div className="absolute inset-0 bg-gradient-to-r from-primary to-emerald-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                   <span className="relative z-10 flex items-center gap-2">Get Your Custom Diet Plan <span className="group-hover:translate-x-1 transition-transform">→</span></span>
                 </a>
-                <a href="#testimonials" className="inline-flex items-center justify-center px-8 py-4 font-bold text-gray-900 bg-white border border-gray-200 rounded-full hover:bg-gray-50 hover:border-gray-300 transition-all duration-300">
-                  View Transformations
+                <a href="#testimonials" className="text-gray-500 font-medium hover:text-gray-900 transition-colors ml-4 border-b border-transparent hover:border-gray-900 pb-0.5">
+                  See real results
                 </a>
               </motion.div>
 
-              {/* Glassmorphic Stats Counter */}
-              <motion.div
-                variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] } } }}
-                className="grid grid-cols-3 gap-6 p-6 bg-white/70 backdrop-blur-xl rounded-3xl border border-white shadow-[0_8px_30px_rgba(0,0,0,0.04)] w-max"
-              >
-                <div className="text-center px-4">
-                  <div className="text-3xl md:text-4xl font-black text-gray-900">22+</div>
-                  <div className="text-xs font-bold text-gray-500 uppercase tracking-widest mt-1">Years Exp</div>
-                </div>
-                <div className="text-center px-4 border-l border-r border-gray-200/50">
-                  <div className="text-3xl md:text-4xl font-black text-gray-900">500+</div>
-                  <div className="text-xs font-bold text-gray-500 uppercase tracking-widest mt-1">Clients</div>
-                </div>
-                <div className="text-center px-4">
-                  <div className="text-3xl md:text-4xl font-black text-gray-900">98%</div>
-                  <div className="text-xs font-bold text-gray-500 uppercase tracking-widest mt-1">Success Rate</div>
-                </div>
-              </motion.div>
+
             </motion.div>
 
             <motion.div
@@ -164,18 +156,9 @@ export default function Home() {
                   alt="Anjum Shaikh - Founder and Clinical Nutritionist"
                   className="w-full object-cover aspect-[4/5] rounded-[2rem]"
                 />
-                <div className="absolute bottom-8 left-8 right-8 bg-white/90 backdrop-blur-md p-4 rounded-2xl shadow-xl border border-white/80 flex flex-wrap items-center justify-between gap-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center text-xl shadow-inner">🩺</div>
-                    <div>
-                      <div className="font-black text-gray-900 text-lg leading-tight">Anjum Shaikh</div>
-                      <div className="text-xs font-bold text-primary uppercase tracking-widest mt-0.5">Clinical Nutritionist</div>
-                    </div>
-                  </div>
-                  <div className="text-right border-l md:border-l-0 pl-4 md:pl-0 border-gray-200">
-                    <div className="font-black text-gray-900 text-lg leading-tight">22+</div>
-                    <div className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mt-0.5">Years Exp</div>
-                  </div>
+                <div className="absolute bottom-8 left-8 right-8 bg-white/95 backdrop-blur-md py-4 px-6 rounded-2xl shadow-xl border border-white/80 text-center">
+                  <div className="font-bold text-gray-900 text-xl leading-tight mb-1">22+ years experience</div>
+                  <div className="text-sm font-semibold text-emerald-600">500+ clients helped</div>
                 </div>
               </div>
 
@@ -228,49 +211,45 @@ export default function Home() {
                 hidden: { opacity: 0 },
                 visible: { opacity: 1, transition: { staggerChildren: 0.15 } }
               }}
+              className="lg:pl-8"
             >
-              <motion.div variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }} className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-50 text-emerald-700 rounded-full text-xs font-bold uppercase tracking-widest mb-6 border border-emerald-100">
-                The Methodology
-              </motion.div>
               <motion.h2 variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }} className="text-4xl md:text-5xl font-bold text-gray-900 mb-6 leading-tight">
-                Stop Chasing Symptoms.<br/>
-                <span className="font-serif italic text-primary">Fix the Root Cause.</span>
+                Why clients trust Anjum
               </motion.h2>
-              <motion.p variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }} className="text-lg text-gray-600 mb-6 leading-relaxed">
-                Most diets fail because they depend entirely on starvation. At Anjum's Diet and Wellness, we utilize 22+ years of clinical insight to orchestrate metabolic resets and hormonal harmony. 
-              </motion.p>
-              <motion.p variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }} className="text-lg text-gray-600 mb-10 leading-relaxed">
-                Whether you're battling lifelong PCOS, reversing insulin resistance, or breaking an endless weight plateau, our methodology fits into your actual life—using the Indian foods you grew up with.
+              <motion.p variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }} className="text-lg text-gray-600 mb-8 leading-relaxed">
+                With over 22 years of experience, Anjum has helped hundreds of clients transform their health using practical, Indian diet plans that are easy to follow and sustainable long term.
               </motion.p>
               
-              <div className="grid grid-cols-2 gap-4">
-                {[
-                  { icon: '🧬', title: 'Root-Cause Analysis', desc: 'Diagnostics over guesswork' },
-                  { icon: '⚖️', title: 'Hormonal Balance', desc: 'PCOS & Thyroid protocols' },
-                  { icon: '🍽️', title: 'No Starvation', desc: 'Eat the Indian food you love' },
-                  { icon: '📈', title: 'Lasting Results', desc: '22+ years of success stories' },
-                ].map((feature, i) => (
-                  <motion.div
-                    variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }}
-                    key={i}
-                    className="p-5 bg-white rounded-2xl shadow-[0_4px_20px_rgba(0,0,0,0.02)] hover:shadow-[0_8px_30px_rgba(0,0,0,0.06)] border border-gray-100 transition-all duration-300 group"
-                  >
-                    <div className="flex items-center gap-3 mb-2">
-                      <span className="text-2xl group-hover:scale-110 transition-transform">{feature.icon}</span>
-                      <div className="font-bold text-gray-900 text-sm">{feature.title}</div>
-                    </div>
-                    <div className="text-xs text-gray-500 font-medium">{feature.desc}</div>
-                  </motion.div>
-                ))}
-              </div>
+              <motion.ul variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }} className="space-y-4 mb-10">
+                <li className="flex items-start gap-4">
+                  <span className="w-8 h-8 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center font-bold shrink-0 mt-0.5">✓</span>
+                  <span className="text-gray-700 font-medium text-lg">Specialized in PCOS, weight loss, and lifestyle conditions</span>
+                </li>
+                <li className="flex items-start gap-4">
+                  <span className="w-8 h-8 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center font-bold shrink-0 mt-0.5">✓</span>
+                  <span className="text-gray-700 font-medium text-lg">Focus on real food, not restrictive diets</span>
+                </li>
+                <li className="flex items-start gap-4">
+                  <span className="w-8 h-8 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center font-bold shrink-0 mt-0.5">✓</span>
+                  <span className="text-gray-700 font-medium text-lg">Continuous guidance and plan adjustments</span>
+                </li>
+              </motion.ul>
+
+              <motion.a 
+                variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }}
+                href="#contact" 
+                className="inline-block px-8 py-4 font-bold text-white bg-gray-900 rounded-full hover:bg-primary transition-colors shadow-lg"
+              >
+                Apply for Consultation
+              </motion.a>
             </motion.div>
           </div>
         </div>
       </section>
 
-      {/* Services Section */}
-      <section id="services" className="bg-gray-50 py-24 overflow-hidden relative">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      {/* Differentiation Section */}
+      <section id="differentiation" className="bg-gray-50 py-24 overflow-hidden relative">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -278,41 +257,30 @@ export default function Home() {
             transition={{ duration: 0.6 }}
             className="text-center mb-16"
           >
-            <div className="inline-flex items-center gap-2 px-3 py-1 bg-white shadow-sm rounded-full text-xs font-bold uppercase tracking-widest text-primary mb-6">Expert + AI Combo</div>
             <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
-              Clinical Expertise Meets <span className="font-serif italic text-primary">AI Precision</span>
+              Why this is different
             </h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto leading-relaxed">
-              We combine 22+ years of human clinical insight with advanced AI tracking to build the ultimate, highly-personalized Indian diet frameworks for metabolic repair and permanent weight management.
-            </p>
           </motion.div>
 
-          <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          <div className="grid sm:grid-cols-2 gap-8">
             {[
-              { icon: '⚖️', title: 'Weight Management', desc: 'Sustainable fat loss protocols overriding metabolic adaptations.' },
-              { icon: '🧬', title: 'Diabetes Reversal', desc: 'Insulin resistance repair and blood sugar stabilization therapy.' },
-              { icon: '🦋', title: 'Thyroid & PCOS', desc: 'Hormonal harmony protocols bridging the gap in women\'s health.' },
-              { icon: '🦠', title: 'Gut Microbiome', desc: 'Advanced functional foods for digestive restoration and immunity.' },
-              { icon: '❤️', title: 'Heart & BP', desc: 'Clinically proven nutritional interventions for cardiovascular longevity.' },
-              { icon: '💪', title: 'Performance Nutrition', desc: 'Lean muscle synthesis and athletic recovery optimization.' },
-              { icon: '🌱', title: 'Plant-Based Dieting', desc: 'Anti-inflammatory, sustainable vegan and vegetarian frameworks.' },
-              { icon: '🫀', title: 'Organ Health', desc: 'Targeted support for CKD, high creatinine, and fatty liver disease.' },
-            ].map((service, i) => (
+              { icon: '🥗', title: 'Designed specifically for Indian diets' },
+              { icon: '🚫', title: 'No calorie counting required' },
+              { icon: '🤖', title: 'Combines expert guidance with AI' },
+              { icon: '🎯', title: 'Focus on long-term results, not quick fixes' }
+            ].map((diff, i) => (
               <motion.div
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-50px" }}
-                transition={{ duration: 0.5, delay: i * 0.05 }}
-                whileHover={{ y: -8, scale: 1.02 }}
+                transition={{ duration: 0.5, delay: i * 0.1 }}
                 key={i}
-                className="relative bg-white p-8 rounded-3xl shadow-[0_4px_20px_rgba(0,0,0,0.02)] hover:shadow-[0_10px_40px_rgba(16,185,129,0.1)] hover:border-primary/20 transition-all duration-300 cursor-pointer overflow-hidden group border border-transparent z-10"
+                className="bg-white p-8 rounded-3xl shadow-sm border border-gray-100 flex items-center gap-6"
               >
-                <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-primary/5 to-transparent rounded-bl-full -z-10 group-hover:scale-[2] transition-transform duration-700 ease-out"></div>
-                <div className="w-14 h-14 bg-gray-50/80 rounded-2xl flex items-center justify-center text-3xl mb-6 group-hover:bg-primary/10 group-hover:shadow-inner transition-colors duration-300">
-                  {service.icon}
+                <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center text-3xl shrink-0">
+                  {diff.icon}
                 </div>
-                <h4 className="font-bold text-gray-900 text-lg mb-3 leading-tight group-hover:text-primary transition-colors duration-300">{service.title}</h4>
-                <p className="text-sm text-gray-500 font-medium leading-relaxed group-hover:text-gray-700 transition-colors duration-300">{service.desc}</p>
+                <h4 className="font-bold text-gray-900 text-xl leading-tight">{diff.title}</h4>
               </motion.div>
             ))}
           </div>
@@ -321,8 +289,6 @@ export default function Home() {
 
       {/* Packages Section */}
       <section id="packages" className="bg-white py-24 relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-full h-1/2 bg-gradient-to-b from-gray-50 to-white -z-10"></div>
-
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -331,11 +297,7 @@ export default function Home() {
             transition={{ duration: 0.6 }}
             className="text-center mb-16"
           >
-            <div className="text-primary font-semibold mb-2 uppercase tracking-wide text-sm">Pricing</div>
-            <h2 className="text-4xl md:text-5xl font-bold font-serif text-gray-900 mb-6">Invest in Your Health</h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Not another diet plan. A complete health transformation system for individuals serious about long-term root-cause resolution.
-            </p>
+            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">Personalized Nutrition Programs</h2>
           </motion.div>
 
           <div className="max-w-4xl mx-auto">
@@ -346,65 +308,35 @@ export default function Home() {
               transition={{ duration: 0.8 }}
               className="relative rounded-[2.5rem] bg-[#0E1525] overflow-hidden shadow-2xl"
             >
-              {/* Premium Glow Effect */}
-              <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-primary/20 to-transparent rounded-full blur-3xl -z-10 translate-x-1/3 -translate-y-1/3"></div>
-
               <div className="p-10 md:p-14 md:flex gap-12 items-center">
                 <div className="md:w-3/5 text-left text-white mb-10 md:mb-0">
-                  <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/5 text-white rounded-full text-xs font-bold uppercase tracking-widest mb-6 border border-white/10">
-                    Not a quick fix
-                  </div>
-                  <h3 className="text-3xl md:text-4xl font-bold mb-4 font-serif italic text-white/90">
-                    Personalized Transformation System
-                  </h3>
-                  <p className="text-lg text-white/60 mb-8 leading-relaxed">
-                    Designed for individuals who are serious about long-term results to address PCOS, thyroid, and lifestyle-related issues. We fix the root cause, not just symptoms.
-                  </p>
-                  
-                  <ul className="space-y-4 mb-8">
+                  <ul className="space-y-6 mb-8">
                     {[
-                      'Fully customized clinical nutrition plan',
-                      'Regular tracking and expert adjustments',
-                      'Indian food-based approach (no starvation)',
-                      'Direct support throughout your journey'
+                      'Custom plans based on your body, lifestyle, and goals',
+                      'Ongoing support and accountability',
+                      'Regular tracking and adjustments'
                     ].map((item, i) => (
-                      <li key={i} className="flex items-center gap-3">
-                        <span className="w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-sm border border-emerald-500/30">✓</span>
-                        <span className="text-white/80 font-medium">{item}</span>
+                      <li key={i} className="flex items-center gap-4">
+                        <span className="w-8 h-8 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold border border-emerald-500/30 shrink-0">✓</span>
+                        <span className="text-white/90 font-medium text-lg">{item}</span>
                       </li>
                     ))}
                   </ul>
-                  
-                  <div className="text-sm font-semibold text-amber-500 uppercase tracking-widest bg-amber-500/10 inline-block px-4 py-2 rounded-full border border-amber-500/20">
-                    ⚠️ Limited clients taking now
-                  </div>
                 </div>
 
                 <div className="md:w-2/5 md:border-l border-white/10 md:pl-12 text-left">
-                  <div className="mb-2">
-                    <p className="text-white/40 text-sm font-bold uppercase tracking-wider mb-2">Required Investment</p>
-                    <div className="flex items-end gap-2 text-white">
-                      <span className="text-4xl lg:text-5xl font-black tracking-tighter">Starts at<br/>₹45k</span>
+                  <div className="mb-8">
+                    <div className="text-white font-black text-4xl mb-4">
+                      Programs start from ₹45,000
                     </div>
-                    <p className="text-white/40 text-xs mt-3 leading-relaxed">
-                      Less than ₹700/day to completely transform your health.
-                    </p>
-                    <p className="text-white/30 text-xs mt-2 italic">
-                      Most clients invest between ₹45,000 – ₹1,20,000 based on goals.
+                    <p className="text-white/60 text-sm leading-relaxed">
+                      Final pricing depends on your goals and level of support required
                     </p>
                   </div>
-
-                  <div className="mt-8">
-                    <p className="text-white/80 font-bold mb-4 text-sm">Who is this for?</p>
-                    <p className="text-white/40 text-sm leading-relaxed mb-6">
-                      For those who have tried everything and are ready for real change.
-                    </p>
-                    
-                    <a href="#contact" className="group relative block w-full text-center py-4 rounded-full font-bold bg-white text-gray-900 hover:bg-gray-200 transition-all shadow-[0_0_40px_rgba(255,255,255,0.1)]">
-                      Apply for Consultation
-                      <span className="ml-2 inline-block group-hover:translate-x-1 transition-transform">→</span>
-                    </a>
-                  </div>
+                  
+                  <a href="#contact" className="group relative block w-full text-center py-4 rounded-full font-bold bg-white text-gray-900 hover:bg-primary hover:text-white transition-colors shadow-[0_0_40px_rgba(255,255,255,0.1)]">
+                    Apply for Consultation
+                  </a>
                 </div>
               </div>
             </motion.div>
@@ -470,19 +402,23 @@ export default function Home() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.6 }}
-            className="text-center"
+            className="text-center bg-gray-900 px-6 py-20 rounded-[3rem] mt-16 shadow-2xl relative overflow-hidden"
           >
-            <p className="text-xl text-gray-800 font-bold mb-8">
-              We have the best nutritionists in Mumbai to help you lose weight naturally.
-            </p>
-            <motion.a
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              href="#contact"
-              className="inline-block px-10 py-4 bg-gray-900 text-white rounded-xl font-bold hover:bg-primary shadow-lg hover:shadow-primary/30 transition-all duration-300"
-            >
-              Start Your Transformation
-            </motion.a>
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-transparent opacity-50"></div>
+            <div className="relative z-10">
+              <h2 className="text-3xl md:text-5xl text-white font-bold mb-8 leading-tight">
+                Ready to transform your health?
+              </h2>
+              <motion.a
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                href="#contact"
+                className="inline-block px-10 py-5 bg-white text-gray-900 rounded-full font-bold hover:bg-gray-100 shadow-xl transition-all duration-300 mb-6 text-lg"
+              >
+                Start Your Transformation
+              </motion.a>
+              <p className="text-gray-400 font-medium tracking-wide">Limited clients accepted each month</p>
+            </div>
           </motion.div>
         </div>
       </section>
@@ -506,21 +442,40 @@ export default function Home() {
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="bg-white p-6 rounded-3xl border border-gray-100 shadow-[0_4px_20px_rgba(0,0,0,0.03)] text-center flex flex-col items-center justify-center min-h-[160px] hover:-translate-y-1 transition-transform">
-              <span className="text-4xl mb-3 block">📉</span>
-              <h4 className="font-bold text-gray-900 text-lg leading-tight w-full">Lost 12 kg in 4 months</h4>
+              <h4 className="font-bold text-gray-900 text-xl leading-tight mb-2">Lost 12 kg in 4 months</h4>
+              <p className="text-sm text-gray-600 font-medium">No gym, no crash diet</p>
             </motion.div>
             <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.1 }} className="bg-white p-6 rounded-3xl border border-gray-100 shadow-[0_4px_20px_rgba(0,0,0,0.03)] text-center flex flex-col items-center justify-center min-h-[160px] hover:-translate-y-1 transition-transform">
-              <span className="text-4xl mb-3 block">🌸</span>
-              <h4 className="font-bold text-gray-900 text-lg leading-tight w-full">Improved PCOS symptoms</h4>
+              <h4 className="font-bold text-gray-900 text-xl leading-tight mb-2">Improved PCOS symptoms</h4>
+              <p className="text-sm text-gray-600 font-medium">Regular cycles in 3 months</p>
             </motion.div>
             <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.2 }} className="bg-white p-6 rounded-3xl border border-gray-100 shadow-[0_4px_20px_rgba(0,0,0,0.03)] text-center flex flex-col items-center justify-center min-h-[160px] hover:-translate-y-1 transition-transform">
-              <span className="text-4xl mb-3 block">🩺</span>
-              <h4 className="font-bold text-gray-900 text-lg leading-tight w-full">Reduced sugar levels</h4>
+              <h4 className="font-bold text-gray-900 text-xl leading-tight mb-2">Reduced sugar levels</h4>
+              <p className="text-sm text-gray-600 font-medium">Better energy and control</p>
             </motion.div>
             <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.3 }} className="bg-emerald-50 border border-emerald-100 p-6 rounded-3xl text-center flex flex-col items-center justify-center min-h-[160px] hover:-translate-y-1 transition-transform">
-              <span className="text-4xl mb-3 block">🥗</span>
-              <h4 className="font-bold text-emerald-900 text-lg leading-tight w-full">No crash diet</h4>
+              <h4 className="font-bold text-emerald-900 text-xl leading-tight mb-2">Lost weight eating home food</h4>
+              <p className="text-sm text-emerald-700 font-medium">No restrictions</p>
             </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* Trust Stats Strip */}
+      <section className="bg-gray-900 py-16 border-t border-gray-800">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 divide-y md:divide-y-0 md:divide-x divide-gray-800 text-center">
+            <div className="pt-6 md:pt-0 px-4">
+              <div className="text-3xl md:text-4xl font-black text-white mb-2">22+</div>
+              <div className="text-sm font-medium text-gray-400 uppercase tracking-widest">years experience</div>
+            </div>
+            <div className="pt-6 md:pt-0 px-4">
+              <div className="text-3xl md:text-4xl font-black text-white mb-2">500+</div>
+              <div className="text-sm font-medium text-gray-400 uppercase tracking-widest">clients</div>
+            </div>
+            <div className="pt-6 md:pt-0 px-4 flex flex-col justify-center items-center">
+              <div className="text-sm font-medium text-emerald-400 uppercase tracking-widest leading-relaxed max-w-[200px]">Personalized plans for every body</div>
+            </div>
           </div>
         </div>
       </section>
@@ -684,7 +639,7 @@ export default function Home() {
                 <div>
                   <h4 className="font-bold text-gray-900 mb-2 text-xs uppercase tracking-widest flex items-center gap-2"><span className="text-green-500 text-lg">●</span> Instant Connect</h4>
                   <p className="text-gray-600 mb-5 text-sm leading-relaxed font-medium">Skip the line and message our clinic directly via WhatsApp for quicker responses regarding schedule availability.</p>
-                  <a href="https://wa.me/919326230557?text=Hi%20Anjum%27s%20Diet%20Clinic,%20I%20would%20like%20to%20apply%20for%20the%20transformation%20program." target="_blank" rel="noopener" className="inline-flex items-center gap-3 bg-[#25D366] text-white px-8 py-4 rounded-2xl font-bold hover:bg-[#128C7E] transition-all shadow-[0_8px_30px_rgba(37,211,102,0.3)] hover:-translate-y-1 active:translate-y-0 w-full sm:w-auto justify-center">
+                  <a href="https://wa.me/919326230557?text=I%20want%20to%20apply%20for%20the%20diet%20program" target="_blank" rel="noopener" className="inline-flex items-center gap-3 bg-[#25D366] text-white px-8 py-4 rounded-2xl font-bold hover:bg-[#128C7E] transition-all shadow-[0_8px_30px_rgba(37,211,102,0.3)] hover:-translate-y-1 active:translate-y-0 w-full sm:w-auto justify-center">
                     <span className="text-2xl">💬</span> Message on WhatsApp
                   </a>
                 </div>

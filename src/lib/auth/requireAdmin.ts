@@ -26,7 +26,7 @@ export async function requireAdmin() {
         .eq('id', user.id)
         .single()
 
-    if (roleError || !userData || userData.role !== 'admin') {
+    if (roleError || !userData || !['admin', 'staff'].includes(userData.role)) {
         return {
             authorized: false,
             response: NextResponse.json({ error: 'Forbidden' }, { status: 403 }),
