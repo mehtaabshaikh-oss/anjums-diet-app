@@ -125,10 +125,10 @@ export default function Home() {
               >
                 <a href="#contact" className="group relative inline-flex items-center justify-center px-8 py-4 font-bold text-white bg-gray-900 rounded-full overflow-hidden hover:scale-105 transition-transform duration-300 shadow-[0_8px_30px_rgba(0,0,0,0.12)]">
                   <div className="absolute inset-0 bg-gradient-to-r from-primary to-emerald-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                  <span className="relative z-10 flex items-center gap-2">Start Your Transformation <span className="group-hover:translate-x-1 transition-transform">→</span></span>
+                  <span className="relative z-10 flex items-center gap-2">Get Your Custom Diet Plan <span className="group-hover:translate-x-1 transition-transform">→</span></span>
                 </a>
                 <a href="#testimonials" className="inline-flex items-center justify-center px-8 py-4 font-bold text-gray-900 bg-white border border-gray-200 rounded-full hover:bg-gray-50 hover:border-gray-300 transition-all duration-300">
-                  See Real Results
+                  View Transformations
                 </a>
               </motion.div>
 
@@ -166,10 +166,23 @@ export default function Home() {
             >
               <div className="relative z-10 rounded-[2.5rem] overflow-hidden shadow-[0_20px_60px_rgba(0,0,0,0.08)] bg-white/50 backdrop-blur-sm p-3 border border-white/50">
                 <img
-                  src="https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=800&q=80&auto=format"
-                  alt="Healthy customized Indian meals"
+                  src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=800&q=80&auto=format"
+                  alt="Anjum Shaikh - Founder and Clinical Nutritionist"
                   className="w-full object-cover aspect-[4/5] rounded-[2rem]"
                 />
+                <div className="absolute bottom-8 left-8 right-8 bg-white/90 backdrop-blur-md p-4 rounded-2xl shadow-xl border border-white/80 flex flex-wrap items-center justify-between gap-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center text-xl shadow-inner">🩺</div>
+                    <div>
+                      <div className="font-black text-gray-900 text-lg leading-tight">Anjum Shaikh</div>
+                      <div className="text-xs font-bold text-primary uppercase tracking-widest mt-0.5">Clinical Nutritionist</div>
+                    </div>
+                  </div>
+                  <div className="text-right border-l md:border-l-0 pl-4 md:pl-0 border-gray-200">
+                    <div className="font-black text-gray-900 text-lg leading-tight">22+</div>
+                    <div className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mt-0.5">Years Exp</div>
+                  </div>
+                </div>
               </div>
 
               {/* Decorative Blur Orbs */}
