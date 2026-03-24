@@ -116,7 +116,7 @@ export default function Home() {
                 variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] } } }}
                 className="text-lg md:text-2xl text-gray-600 mb-10 leading-relaxed max-w-lg"
               >
-                Designed for weight loss, PCOS, and long-term health using an expert-led AI approach.
+                Designed for weight loss, PCOS, and long-term health without giving up home food.
               </motion.p>
 
               <motion.div
