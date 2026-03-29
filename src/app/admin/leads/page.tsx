@@ -460,18 +460,18 @@ export default function LeadsPage() {
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* Leads Table */}
         <div className="lg:col-span-3">
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200">
             {filteredLeads.length === 0 ? (
               <div className="p-8 text-center text-gray-600">
                 <p>No leads found matching your filters.</p>
               </div>
             ) : (
-              <div className="overflow-x-auto -mx-4 sm:mx-0">
-                <table className="w-full min-w-max">
+              <div className="overflow-x-auto">
+                <table className="min-w-full table-auto">
                   <thead className="bg-gray-50 border-b border-gray-200 sticky top-0">
                     <tr>
                       <th
-                        className="px-6 py-4 text-left text-sm font-semibold text-gray-900 cursor-pointer hover:bg-gray-100 transition-colors select-none whitespace-nowrap min-w-[160px]"
+                        className="px-4 py-4 text-left text-sm font-semibold text-gray-900 cursor-pointer hover:bg-gray-100 transition-colors select-none whitespace-nowrap min-w-[140px]"
                         onClick={() => handleSort('name')}
                       >
                         <div className="flex items-center gap-2">
@@ -483,10 +483,10 @@ export default function LeadsPage() {
                           )}
                         </div>
                       </th>
-                      <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900 whitespace-nowrap min-w-[200px]">Email</th>
-                      <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900 whitespace-nowrap min-w-[160px]">Phone</th>
+                      <th className="px-4 py-4 text-left text-sm font-semibold text-gray-900 whitespace-nowrap min-w-[180px]">Email</th>
+                      <th className="px-4 py-4 text-left text-sm font-semibold text-gray-900 whitespace-nowrap min-w-[140px]">Phone</th>
                       <th
-                        className="px-6 py-4 text-left text-sm font-semibold text-gray-900 cursor-pointer hover:bg-gray-100 transition-colors select-none whitespace-nowrap min-w-[140px]"
+                        className="px-4 py-4 text-left text-sm font-semibold text-gray-900 cursor-pointer hover:bg-gray-100 transition-colors select-none whitespace-nowrap min-w-[120px]"
                         onClick={() => handleSort('source')}
                       >
                         <div className="flex items-center gap-2">
@@ -499,7 +499,7 @@ export default function LeadsPage() {
                         </div>
                       </th>
                       <th
-                        className="px-6 py-4 text-left text-sm font-semibold text-gray-900 cursor-pointer hover:bg-gray-100 transition-colors select-none whitespace-nowrap min-w-[140px]"
+                        className="px-4 py-4 text-left text-sm font-semibold text-gray-900 cursor-pointer hover:bg-gray-100 transition-colors select-none whitespace-nowrap min-w-[120px]"
                         onClick={() => handleSort('status')}
                       >
                         <div className="flex items-center gap-2">
@@ -512,7 +512,7 @@ export default function LeadsPage() {
                         </div>
                       </th>
                       <th
-                        className="px-6 py-4 text-left text-sm font-semibold text-gray-900 cursor-pointer hover:bg-gray-100 transition-colors select-none whitespace-nowrap min-w-[140px]"
+                        className="px-4 py-4 text-left text-sm font-semibold text-gray-900 cursor-pointer hover:bg-gray-100 transition-colors select-none whitespace-nowrap min-w-[120px]"
                         onClick={() => handleSort('created_at')}
                       >
                         <div className="flex items-center gap-2">
@@ -534,14 +534,12 @@ export default function LeadsPage() {
                         className={`border-b border-gray-200 cursor-pointer transition-colors hover:bg-gray-50 ${selectedLead?.id === lead.id ? 'bg-primary/5' : ''
                           }`}
                       >
-                        <td className="px-3 sm:px-6 py-3 sm:py-4">
-                          <p className="font-semibold text-gray-900 whitespace-nowrap">{lead.name}</p>
-                        </td>
-                        <td className="px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-gray-600 whitespace-nowrap">{lead.email}</td>
-                        <td className="px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-gray-600 whitespace-nowrap">{lead.phone}</td>
-                        <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
+                        <td className="px-4 py-4 text-sm text-gray-900 font-medium whitespace-nowrap">{lead.name}</td>
+                        <td className="px-4 py-4 text-sm text-gray-600 whitespace-nowrap">{lead.email}</td>
+                        <td className="px-4 py-4 text-sm text-gray-600 whitespace-nowrap">{lead.phone}</td>
+                        <td className="px-4 py-4 whitespace-nowrap">
                           <span
-                            className={`px-2 sm:px-3 py-1 rounded-full text-xs font-medium capitalize ${lead.source === 'contact_form'
+                            className={`px-2 py-1 rounded-full text-xs font-medium capitalize ${lead.source === 'contact_form'
                                 ? 'bg-blue-100 text-blue-800'
                                 : lead.source === 'email'
                                   ? 'bg-purple-100 text-purple-800'
@@ -559,9 +557,9 @@ export default function LeadsPage() {
                             {lead.source.replace('_', ' ')}
                           </span>
                         </td>
-                        <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
+                        <td className="px-4 py-4 whitespace-nowrap">
                           <span
-                            className={`px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-medium ${lead.status === 'new'
+                            className={`px-2 py-1 rounded-full text-xs font-medium ${lead.status === 'new'
                                 ? 'bg-blue-100 text-blue-800'
                                 : lead.status === 'contacted'
                                   ? 'bg-yellow-100 text-yellow-800'
@@ -573,7 +571,7 @@ export default function LeadsPage() {
                             {lead.status.charAt(0).toUpperCase() + lead.status.slice(1)}
                           </span>
                         </td>
-                        <td className="px-6 py-4 text-sm text-gray-600 whitespace-nowrap min-w-[140px]">
+                        <td className="px-4 py-4 text-sm text-gray-600 whitespace-nowrap min-w-[120px]">
                           {new Date(lead.created_at).toLocaleDateString()}
                         </td>
                       </tr>
