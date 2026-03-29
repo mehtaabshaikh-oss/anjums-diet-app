@@ -56,18 +56,12 @@ export default function Home() {
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center">
-            <div className="flex items-center gap-2 group">
-              <motion.span
-                whileHover={{ rotate: 180 }}
-                transition={{ duration: 0.5 }}
-                className="text-3xl cursor-pointer"
-              >
-                🌿
-              </motion.span>
-              <div>
-                <h1 className="text-xl font-bold text-gray-900 group-hover:text-primary transition-colors">Anjum's</h1>
-                <p className="text-xs text-gray-600 font-medium tracking-wide uppercase">Diet & Wellness</p>
-              </div>
+            <div className="flex items-center gap-2 group cursor-pointer" onClick={() => window.scrollTo(0, 0)}>
+              <img 
+                src="/Anjumsdietlogo.avif" 
+                alt="Anjum's Diet Logo" 
+                className="h-10 md:h-12 w-auto object-contain rounded-xl"
+              />
             </div>
             <div className="hidden md:flex items-center gap-6">
               <a href="#about" className="text-gray-700 hover:text-primary font-medium transition-colors">About</a>
@@ -157,7 +151,7 @@ export default function Home() {
             >
               <div className="relative z-10 rounded-[2.5rem] overflow-hidden shadow-[0_20px_60px_rgba(0,0,0,0.08)] bg-white/50 backdrop-blur-sm p-3 border border-white/50">
                 <img
-                  src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=800&q=80&auto=format"
+                  src="/Dietitian-Nutritionist-AnjumShaikh-Mumbai.jpg"
                   alt="Anjum Shaikh - Founder and Clinical Nutritionist"
                   className="w-full object-cover aspect-[4/5] rounded-[2rem]"
                 />
@@ -204,7 +198,7 @@ export default function Home() {
             >
               <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[110%] h-[110%] bg-gradient-to-br from-emerald-100/50 to-primary/20 rounded-full blur-[60px] -z-10"></div>
               <img
-                src="https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=600&q=80&auto=format"
+                src="/anjum-shaikh-1.jpg"
                 alt="Meet Anjum - Clinical Nutritionist"
                 className="rounded-[2.5rem] shadow-[0_20px_60px_rgba(0,0,0,0.08)] relative z-0 border border-white"
               />
@@ -288,7 +282,7 @@ export default function Home() {
             {[
               { icon: '🥗', title: 'Built for Indian food and lifestyle' },
               { icon: '🚫', title: 'No calorie counting or starvation' },
-              { icon: '🤖', title: 'Combines expert guidance with AI' },
+              { icon: '👩‍⚕️', title: 'Personalized 1-on-1 human coaching' },
               { icon: '🎯', title: 'Focus on long-term results' }
             ].map((diff, i) => (
               <motion.div
@@ -564,52 +558,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Lead Magnet Section */}
-      <section className="bg-primary/5 py-24 relative overflow-hidden">
-        <div className="absolute -left-32 -bottom-24 w-96 h-96 bg-primary/10 rounded-full blur-3xl -z-10"></div>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="bg-white rounded-[2.5rem] p-10 md:p-16 shadow-[0_20px_60px_rgba(0,0,0,0.05)] border border-gray-100 flex flex-col md:flex-row items-center justify-between gap-16 relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-bl from-green-400/10 to-transparent rounded-bl-full -z-10"></div>
-            <div className="md:w-1/2">
-              <div className="inline-flex items-center gap-2 px-3 py-1 bg-amber-50 text-amber-700 rounded-full text-xs font-bold uppercase tracking-widest mb-6 border border-amber-100">Free Resource</div>
-              <h2 className="text-4xl md:text-5xl font-bold font-serif text-gray-900 mb-6 leading-tight">
-                Want a taste of the <span className="italic text-primary">Transformation?</span>
-              </h2>
-              <p className="text-lg text-gray-600 mb-8 leading-relaxed">
-                Download our exclusive <strong>7-Day Indian Fat Loss Diet Guide</strong>. Get science-backed clinical meals using ingredients already in your kitchen, completely free.
-              </p>
-              <form className="flex flex-col gap-4">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <input type="text" placeholder="First Name" required className="px-6 py-4 bg-gray-50 border border-gray-200 rounded-2xl w-full focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary focus:bg-white transition-all text-gray-900 font-medium" />
-                  <input type="tel" placeholder="Phone Number" required className="px-6 py-4 bg-gray-50 border border-gray-200 rounded-2xl w-full focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary focus:bg-white transition-all text-gray-900 font-medium" />
-                </div>
-                <div className="flex flex-col sm:flex-row gap-4">
-                  <input type="email" placeholder="Email Address" required className="px-6 py-4 bg-gray-50 border border-gray-200 rounded-2xl w-full focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary focus:bg-white transition-all text-gray-900 font-medium" />
-                  <button type="button" className="px-8 py-4 bg-gray-900 text-white font-bold rounded-2xl hover:bg-black transition-all shadow-[0_8px_30px_rgba(0,0,0,0.12)] hover:-translate-y-1 block shrink-0 text-center relative overflow-hidden group">
-                    <div className="absolute inset-0 bg-gradient-to-r from-primary to-emerald-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                    <span className="relative z-10">Download Now</span>
-                  </button>
-                </div>
-              </form>
-              <p className="text-xs text-gray-400 mt-4 font-medium">*We respect your privacy. No spam ever.</p>
-            </div>
-            <div className="md:w-2/5 w-full flex justify-center">
-              <motion.div
-                whileHover={{ scale: 1.05, rotate: 2 }}
-                transition={{ type: "spring", stiffness: 300 }}
-                className="w-full max-w-sm aspect-[4/5] bg-gradient-to-br from-primary to-green-500 rounded-[2.5rem] p-1.5 flex flex-col items-center justify-center text-white shadow-[0_20px_60px_rgba(16,185,129,0.3)] relative group cursor-pointer"
-              >
-                <div className="absolute inset-1.5 border border-white/30 rounded-[2.3rem] flex flex-col items-center justify-center p-8 text-center bg-black/10 backdrop-blur-sm group-hover:bg-black/0 transition-colors duration-500 overflow-hidden">
-                  <div className="absolute -top-10 -right-10 w-32 h-32 bg-white/20 rounded-full blur-2xl"></div>
-                  <span className="text-7xl mb-8 filter drop-shadow-lg group-hover:scale-110 transition-transform duration-500">🥗</span>
-                  <h4 className="font-bold font-serif text-3xl mb-3 tracking-wide">7-Day Guide</h4>
-                  <p className="text-sm text-white font-semibold tracking-widest uppercase opacity-80 border-t border-white/20 pt-4 w-full">Metabolic Reset Edition</p>
-                </div>
-              </motion.div>
-            </div>
-          </div>
-        </div>
-      </section>
 
       {/* Application Form Section */}
       <section id="contact" className="bg-white py-24 relative overflow-hidden">
@@ -662,12 +610,8 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-4 gap-8 mb-8">
             <div>
-              <div className="flex items-center gap-2 mb-4">
-                <span className="text-2xl">🌿</span>
-                <div>
-                  <h3 className="font-bold text-white">Anjum's</h3>
-                  <p className="text-xs text-gray-400">Diet & Wellness</p>
-                </div>
+              <div className="flex items-center gap-2 mb-4 bg-white/95 rounded-2xl px-3 py-2 w-fit">
+                <img src="/Anjumsdietlogo.avif" alt="Anjum's Diet Logo" className="h-10 w-auto object-contain rounded-lg" />
               </div>
               <p className="text-sm text-gray-400 mb-4">
                 Mumbai's most trusted nutritionist offering personalized diet programs for lasting health transformations.

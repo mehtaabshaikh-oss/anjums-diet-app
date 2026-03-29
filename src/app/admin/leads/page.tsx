@@ -25,6 +25,8 @@ export default function LeadsPage() {
   const [filterStatus, setFilterStatus] = useState<'all' | 'new' | 'contacted' | 'converted' | 'rejected'>('all')
   const [filterSource, setFilterSource] = useState<'all' | 'contact_form' | 'walkin' | 'whatsapp' | 'email' | 'referral' | 'social_media' | 'other'>('all')
   const [searchTerm, setSearchTerm] = useState('')
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('')
+  const [isInitialLoad, setIsInitialLoad] = useState(true)
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null)
   const [showNoteForm, setShowNoteForm] = useState(false)
   const [noteText, setNoteText] = useState('')
@@ -44,12 +46,17 @@ export default function LeadsPage() {
   const [totalItems, setTotalItems] = useState(0)
 
   useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSearchTerm(searchTerm), 500)
+    return () => clearTimeout(timer)
+  }, [searchTerm])
+
+  useEffect(() => {
     fetchLeads()
-  }, [currentPage, searchTerm, filterStatus, filterSource])
+  }, [currentPage, debouncedSearchTerm, filterStatus, filterSource])
 
   useEffect(() => {
     setCurrentPage(1)
-  }, [searchTerm, filterStatus, filterSource])
+  }, [debouncedSearchTerm, filterStatus, filterSource])
 
   const fetchLeads = async () => {
     try {
@@ -57,7 +64,7 @@ export default function LeadsPage() {
       const params = new URLSearchParams()
       params.append('page', currentPage.toString())
       params.append('limit', '50')
-      if (searchTerm) params.append('q', searchTerm)
+      if (debouncedSearchTerm) params.append('q', debouncedSearchTerm)
       if (filterStatus !== 'all') params.append('status', filterStatus)
       if (filterSource !== 'all') params.append('source', filterSource)
 
@@ -79,6 +86,7 @@ export default function LeadsPage() {
       console.error(err)
     } finally {
       setIsLoading(false)
+      setIsInitialLoad(false)
     }
   }
 
@@ -202,7 +210,7 @@ export default function LeadsPage() {
       return 0
     })
 
-  if (isLoading) {
+  if (isLoading && isInitialLoad) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
@@ -230,9 +238,14 @@ export default function LeadsPage() {
   return (
     <div className="space-y-8">
       {/* Header */}
-      <div>
-        <h1 className="text-4xl font-bold text-gray-900">Leads</h1>
-        <p className="text-gray-600 mt-1">Manage and track potential client inquiries</p>
+      <div className="flex items-center gap-4">
+        <div>
+          <h1 className="text-4xl font-bold text-gray-900">Leads</h1>
+          <p className="text-gray-600 mt-1">Manage and track potential client inquiries</p>
+        </div>
+        {isLoading && !isInitialLoad && (
+          <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
+        )}
       </div>
 
       {/* Error Message */}

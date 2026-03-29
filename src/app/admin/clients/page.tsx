@@ -24,7 +24,9 @@ function ClientsPageContent() {
   const searchParams = useSearchParams()
   const [clients, setClients] = useState<Client[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [isInitialLoad, setIsInitialLoad] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
   const [error, setError] = useState('')
   const [sortBy, setSortBy] = useState<SortField>('name')
@@ -41,15 +43,21 @@ function ClientsPageContent() {
     }
   }, [searchParams])
 
+  // Debounce search
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSearchTerm(searchTerm), 500)
+    return () => clearTimeout(timer)
+  }, [searchTerm])
+
   // Remove initial fetch hook to combine with dependencies
   useEffect(() => {
     fetchClients()
-  }, [currentPage, searchTerm, statusFilter])
+  }, [currentPage, debouncedSearchTerm, statusFilter])
 
   // Reset page to 1 when search or filter changes
   useEffect(() => {
     setCurrentPage(1)
-  }, [searchTerm, statusFilter])
+  }, [debouncedSearchTerm, statusFilter])
 
   const fetchClients = async () => {
     try {
@@ -57,7 +65,7 @@ function ClientsPageContent() {
       const params = new URLSearchParams()
       params.append('page', currentPage.toString())
       params.append('limit', '50')
-      if (searchTerm) params.append('q', searchTerm)
+      if (debouncedSearchTerm) params.append('q', debouncedSearchTerm)
       if (statusFilter !== 'all') params.append('status', statusFilter)
 
       const response = await fetch(`/api/admin/clients?${params.toString()}`)
@@ -82,6 +90,7 @@ function ClientsPageContent() {
       console.error(err)
     } finally {
       setIsLoading(false)
+      setIsInitialLoad(false)
     }
   }
 
@@ -145,7 +154,7 @@ function ClientsPageContent() {
     platinum: 'text-purple-600',
   }
 
-  if (isLoading) {
+  if (isInitialLoad && isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center">
@@ -174,9 +183,14 @@ function ClientsPageContent() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Manage Clients</h1>
-          <p className="text-sm sm:text-base text-gray-600">Total: {totalItems} clients</p>
+        <div className="flex items-center gap-4">
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Manage Clients</h1>
+            <p className="text-sm sm:text-base text-gray-600">Total: {totalItems} clients</p>
+          </div>
+          {isLoading && !isInitialLoad && (
+            <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
+          )}
         </div>
         <Link
           href="/admin/clients/new"
