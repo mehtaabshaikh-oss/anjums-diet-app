@@ -288,7 +288,6 @@ export default function Home() {
               { icon: '🥗', title: 'Built for Indian food and lifestyle' },
               { icon: '🚫', title: 'No calorie counting required' },
               { icon: '❌', title: 'No starvation or crash diets' },
-              { icon: '🤖', title: 'Combines expert guidance with AI' },
               { icon: '🎯', title: 'Focus on long-term results' }
             ].map((diff, i) => (
               <motion.div
