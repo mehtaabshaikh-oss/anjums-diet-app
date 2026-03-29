@@ -97,48 +97,47 @@ export default function Home() {
                 <span className="text-amber-700 tracking-wide">If you’ve tried multiple diets and nothing worked long-term, this is for you</span>
               </motion.div>
 
-              <motion.h2
+              <motion.h1
                 variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] } } }}
-                className="text-5xl md:text-[4.2rem] font-bold text-gray-900 mb-6 leading-[1.1] tracking-tight"
+                className="text-5xl md:text-[4.8rem] font-extrabold text-gray-900 mb-6 leading-[1.05] tracking-tight"
               >
                 Get a personalized Indian diet plan <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-emerald-600 italic font-serif pr-4">that actually works.</span>
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-emerald-600 italic font-serif">that actually works.</span>
+              </motion.h1>
+
+              <motion.h2
+                variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] } } }}
+                className="text-2xl md:text-3xl font-bold text-gray-700 mb-6 leading-relaxed max-w-2xl"
+              >
+                For weight loss, PCOS, and long-term health without giving up home food
               </motion.h2>
 
-              <motion.div
+              <motion.p
                 variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] } } }}
-                className="mb-8"
+                className="text-xl md:text-2xl font-black text-gray-900 mb-6 italic border-l-4 border-primary pl-6 py-1"
               >
-                <p className="text-lg md:text-2xl text-gray-600 mb-2 leading-relaxed max-w-lg">
-                  For weight loss, PCOS, and long-term health without giving up home food
-                </p>
-                <p className="text-xl md:text-2xl font-black text-gray-900 mb-6 italic">
-                  Finally lose weight without giving up the food you love.
-                </p>
-                <p className="text-sm font-bold text-gray-700 bg-gray-100/80 inline-block px-4 py-2 rounded-lg border border-gray-200">
-                  22+ years experience helping 500+ clients
-                </p>
-              </motion.div>
+                Finally lose weight without giving up the food you love.
+              </motion.p>
 
-              <motion.ul
+              <motion.p
                 variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] } } }}
-                className="space-y-3 mb-10 text-gray-700 font-medium text-lg"
+                className="text-lg font-extrabold text-gray-600 mb-10 inline-block px-5 py-2.5 bg-gray-100/80 rounded-xl border border-gray-200"
               >
-                <li className="flex items-center gap-3"><span className="text-emerald-500 text-xl font-bold">✓</span> No calorie counting</li>
-                <li className="flex items-center gap-3"><span className="text-emerald-500 text-xl font-bold">✓</span> No crash diets</li>
-                <li className="flex items-center gap-3"><span className="text-emerald-500 text-xl font-bold">✓</span> Built for Indian lifestyle</li>
-              </motion.ul>
+                22+ years experience helping 500+ clients
+              </motion.p>
 
               <motion.div
                 variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] } } }}
-                className="flex flex-col items-start gap-3 mb-16"
+                className="flex flex-col items-start gap-4 mb-16"
               >
-                <a href="#contact" className="group relative inline-flex items-center justify-center px-10 py-5 font-bold text-white bg-primary rounded-full overflow-hidden hover:scale-105 transition-transform duration-300 shadow-[0_8px_30px_rgba(16,185,129,0.3)] text-xl tracking-wide w-full md:w-auto text-center">
+                <a href="#contact" className="group relative inline-flex items-center justify-center px-14 py-6 font-bold text-white bg-primary rounded-full overflow-hidden hover:scale-[1.03] transition-all duration-300 shadow-[0_12px_45px_rgba(16,185,129,0.35)] text-2xl tracking-wide w-full md:w-auto text-center border-b-4 border-emerald-700">
                   <div className="absolute inset-0 bg-gradient-to-r from-primary to-emerald-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                   <span className="relative z-10 flex items-center justify-center gap-2">Get Your Custom Diet Plan <span className="group-hover:translate-x-1 transition-transform">→</span></span>
                 </a>
-                <p className="text-sm font-bold text-gray-500 ml-4 flex items-center gap-1.5"><span className="text-amber-500">⚡</span> Takes less than 2 minutes</p>
-                <p className="text-sm font-medium text-gray-500 ml-4 mt-2">Answer a few quick questions and get your personalized plan</p>
+                <div className="space-y-1.5 ml-4">
+                  <p className="text-base font-black text-gray-500 flex items-center gap-2"><span className="text-amber-500 text-xl">⚡</span> Takes less than 2 minutes</p>
+                  <p className="text-sm font-bold text-gray-400 italic">Answer a few quick questions and get your personalized plan</p>
+                </div>
               </motion.div>
 
 
@@ -171,21 +170,21 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-center font-bold text-gray-400 uppercase tracking-widest text-sm mb-8">Real results from real clients</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 relative">
-            <div className="bg-white py-10 px-6 rounded-3xl border border-gray-100 shadow-[0_8px_30px_rgba(0,0,0,0.06)] text-center flex flex-col justify-center min-h-[160px] transform hover:-translate-y-1 transition-transform">
-              <div className="font-black text-4xl tracking-tight text-gray-900 mb-2">12 kg lost</div>
-              <h4 className="font-medium text-gray-500 text-sm tracking-wide">in 4 months</h4>
+            <div className="bg-white py-12 px-6 rounded-[2.5rem] border border-gray-200 shadow-[0_12px_40px_rgba(0,0,0,0.06)] text-center flex flex-col justify-center min-h-[180px] hover:shadow-[0_20px_50px_rgba(0,0,0,0.12)] hover:scale-[1.02] transition-all duration-500">
+              <div className="font-black text-4xl md:text-5xl tracking-tight text-gray-900 mb-3 leading-tight">12 kg lost</div>
+              <p className="font-bold text-gray-400 text-sm uppercase tracking-widest">in 4 months</p>
             </div>
-            <div className="bg-white py-10 px-6 rounded-3xl border border-gray-100 shadow-[0_8px_30px_rgba(0,0,0,0.06)] text-center flex flex-col justify-center min-h-[160px] transform hover:-translate-y-1 transition-transform">
-              <div className="font-black text-3xl tracking-tight text-gray-900 mb-2 leading-tight">PCOS symptoms improved</div>
-              <h4 className="font-medium text-gray-500 text-sm tracking-wide">regular cycles in 3 months</h4>
+            <div className="bg-white py-12 px-6 rounded-[2.5rem] border border-gray-200 shadow-[0_12px_40px_rgba(0,0,0,0.06)] text-center flex flex-col justify-center min-h-[180px] hover:shadow-[0_20px_50px_rgba(0,0,0,0.12)] hover:scale-[1.02] transition-all duration-500">
+              <div className="font-black text-3xl md:text-4xl tracking-tight text-gray-900 mb-3 leading-tight">PCOS improved</div>
+              <p className="font-bold text-gray-400 text-sm uppercase tracking-widest">regular cycles in 3 months</p>
             </div>
-            <div className="bg-white py-10 px-6 rounded-3xl border border-gray-100 shadow-[0_8px_30px_rgba(0,0,0,0.06)] text-center flex flex-col justify-center min-h-[160px] transform hover:-translate-y-1 transition-transform">
-              <div className="font-black text-3xl tracking-tight text-gray-900 mb-2 leading-tight">Reduced sugar levels</div>
-              <h4 className="font-medium text-gray-500 text-sm tracking-wide">better energy and control</h4>
+            <div className="bg-white py-12 px-6 rounded-[2.5rem] border border-gray-200 shadow-[0_12px_40px_rgba(0,0,0,0.06)] text-center flex flex-col justify-center min-h-[180px] hover:shadow-[0_20px_50px_rgba(0,0,0,0.12)] hover:scale-[1.02] transition-all duration-500">
+              <div className="font-black text-3xl md:text-4xl tracking-tight text-gray-900 mb-3 leading-tight">Reduced sugar levels</div>
+              <p className="font-bold text-gray-400 text-sm uppercase tracking-widest">better energy and control</p>
             </div>
-            <div className="bg-emerald-50 py-10 px-6 rounded-3xl border border-emerald-100 shadow-[0_8px_30px_rgba(16,185,129,0.15)] text-center flex flex-col justify-center min-h-[160px] transform hover:-translate-y-1 transition-transform">
-              <div className="font-black text-3xl tracking-tight text-emerald-900 mb-2 leading-tight">Lost weight eating home food</div>
-              <h4 className="font-medium text-emerald-700 text-sm tracking-wide">no crash diets</h4>
+            <div className="bg-emerald-50 py-12 px-6 rounded-[2.5rem] border border-emerald-100 shadow-[0_12px_40px_rgba(16,185,129,0.1)] text-center flex flex-col justify-center min-h-[180px] hover:shadow-[0_20px_50px_rgba(16,185,129,0.2)] hover:scale-[1.02] transition-all duration-500">
+              <div className="font-black text-3xl md:text-4xl tracking-tight text-emerald-900 mb-3 leading-tight">Eating home food</div>
+              <p className="font-bold text-emerald-700/60 text-sm uppercase tracking-widest">no crash diets</p>
             </div>
           </div>
         </div>
@@ -347,26 +346,26 @@ export default function Home() {
                   </ul>
                 </div>
 
-                <div className="md:w-2/5 md:border-l border-white/10 md:pl-12 text-left">
-                  <div className="mb-8">
-                    <div className="text-white font-black text-4xl mb-4">
-                      Programs start from ₹45,000
+                  <div className="md:w-2/5 md:border-l border-white/10 md:pl-12 text-left">
+                    <div className="mb-10 space-y-4">
+                      <p className="text-white font-black text-4xl md:text-5xl leading-tight">
+                        Programs start from ₹45,000
+                      </p>
+                      <p className="text-amber-400 font-extrabold text-xl leading-relaxed">
+                        Less than ₹700 per day for a complete health transformation
+                      </p>
+                      <p className="text-white/40 text-sm font-medium italic">
+                        Personalized based on your goals and level of support
+                      </p>
                     </div>
-                    <p className="text-amber-400 font-bold text-lg mb-2">
-                      Less than ₹700 per day for a complete health transformation
-                    </p>
-                    <p className="text-white/50 text-xs italic">
-                      Personalized based on your goals and level of support
+                    
+                    <a href="#contact" className="group relative block w-full text-center py-6 rounded-full font-black bg-primary text-white hover:bg-emerald-600 hover:scale-[1.03] transition-all duration-300 shadow-[0_12px_40px_rgba(16,185,129,0.4)] text-xl mb-6">
+                      Get Your Custom Diet Plan
+                    </a>
+                    <p className="text-center text-sm font-bold text-white/50 leading-relaxed max-w-xs mx-auto">
+                      Answer a few quick questions and get your personalized plan
                     </p>
                   </div>
-                  
-                  <a href="#contact" className="group relative block w-full text-center py-5 rounded-full font-bold bg-primary text-white hover:bg-emerald-600 transition-colors shadow-[0_8px_30px_rgba(16,185,129,0.3)] text-lg mb-4">
-                    Get Your Custom Diet Plan
-                  </a>
-                  <p className="text-center text-sm font-medium text-white/70 leading-relaxed max-w-xs mx-auto">
-                    Answer a few quick questions and get your personalized plan
-                  </p>
-                </div>
               </div>
             </motion.div>
           </div>
@@ -434,22 +433,22 @@ export default function Home() {
             className="text-center bg-gray-900 px-6 py-20 rounded-[3rem] mt-16 shadow-2xl relative overflow-hidden"
           >
             <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-transparent opacity-50"></div>
-            <div className="relative z-10">
-              <h2 className="text-3xl md:text-5xl text-white font-bold mb-8 leading-tight">
+            <div className="relative z-10 py-16">
+              <h2 className="text-4xl md:text-6xl text-white font-black mb-10 leading-tight">
                 Ready to transform your health?
               </h2>
               <motion.a
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.97 }}
                 href="#contact"
-                className="inline-block px-12 py-6 bg-primary text-white rounded-full font-black hover:bg-emerald-600 shadow-[0_8px_30px_rgba(16,185,129,0.3)] transition-all duration-300 mb-6 text-xl tracking-wide"
+                className="inline-block px-14 py-7 bg-primary text-white rounded-full font-black hover:bg-emerald-600 shadow-[0_15px_50px_rgba(16,185,129,0.4)] transition-all duration-300 mb-10 text-2xl tracking-wide border-b-4 border-emerald-700"
               >
                 Get Your Custom Diet Plan
               </motion.a>
-              <div className="flex flex-col items-center gap-2">
-                <p className="text-gray-300 font-bold text-sm tracking-wide bg-white/10 inline-block px-4 py-1.5 rounded-full"><span className="text-amber-400">⚡</span> Takes less than 2 minutes</p>
-                <p className="text-white/80 font-medium text-sm">Answer a few quick questions and get your personalized plan</p>
-                <p className="text-gray-500 font-medium text-xs mt-2">Limited clients accepted each month</p>
+              <div className="flex flex-col items-center gap-4">
+                <p className="text-white/90 font-black text-xl tracking-wide uppercase">Limited clients accepted each month</p>
+                <div className="h-px w-24 bg-primary/30"></div>
+                <p className="text-white/60 font-medium text-lg italic">Answer a few quick questions and get your personalized plan</p>
               </div>
             </div>
           </motion.div>
