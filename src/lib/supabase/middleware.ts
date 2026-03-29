@@ -35,7 +35,8 @@ export async function updateSession(request: NextRequest) {
 
   // Protect admin API routes - return 401 if not authenticated
   if (request.nextUrl.pathname.startsWith('/api/admin')) {
-    if (!user) {
+    const isPublicLeadSubmission = request.nextUrl.pathname === '/api/admin/leads' && request.method === 'POST'
+    if (!user && !isPublicLeadSubmission) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
   }
