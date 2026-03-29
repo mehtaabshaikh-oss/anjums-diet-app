@@ -471,7 +471,7 @@ export default function LeadsPage() {
                   <thead className="bg-gray-50 border-b border-gray-200 sticky top-0">
                     <tr>
                       <th
-                        className="px-3 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-semibold text-gray-900 cursor-pointer hover:bg-gray-100 transition-colors select-none whitespace-nowrap"
+                        className="px-6 py-4 text-left text-sm font-semibold text-gray-900 cursor-pointer hover:bg-gray-100 transition-colors select-none whitespace-nowrap min-w-[160px]"
                         onClick={() => handleSort('name')}
                       >
                         <div className="flex items-center gap-2">
@@ -483,10 +483,10 @@ export default function LeadsPage() {
                           )}
                         </div>
                       </th>
-                      <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-semibold text-gray-900 whitespace-nowrap">Email</th>
-                      <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-semibold text-gray-900 whitespace-nowrap">Phone</th>
+                      <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900 whitespace-nowrap min-w-[200px]">Email</th>
+                      <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900 whitespace-nowrap min-w-[160px]">Phone</th>
                       <th
-                        className="px-3 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-semibold text-gray-900 cursor-pointer hover:bg-gray-100 transition-colors select-none whitespace-nowrap"
+                        className="px-6 py-4 text-left text-sm font-semibold text-gray-900 cursor-pointer hover:bg-gray-100 transition-colors select-none whitespace-nowrap min-w-[140px]"
                         onClick={() => handleSort('source')}
                       >
                         <div className="flex items-center gap-2">
@@ -499,7 +499,7 @@ export default function LeadsPage() {
                         </div>
                       </th>
                       <th
-                        className="px-3 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-semibold text-gray-900 cursor-pointer hover:bg-gray-100 transition-colors select-none whitespace-nowrap"
+                        className="px-6 py-4 text-left text-sm font-semibold text-gray-900 cursor-pointer hover:bg-gray-100 transition-colors select-none whitespace-nowrap min-w-[140px]"
                         onClick={() => handleSort('status')}
                       >
                         <div className="flex items-center gap-2">
@@ -512,7 +512,7 @@ export default function LeadsPage() {
                         </div>
                       </th>
                       <th
-                        className="px-3 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-semibold text-gray-900 cursor-pointer hover:bg-gray-100 transition-colors select-none whitespace-nowrap min-w-[120px] w-32"
+                        className="px-6 py-4 text-left text-sm font-semibold text-gray-900 cursor-pointer hover:bg-gray-100 transition-colors select-none whitespace-nowrap min-w-[140px]"
                         onClick={() => handleSort('created_at')}
                       >
                         <div className="flex items-center gap-2">
@@ -573,7 +573,7 @@ export default function LeadsPage() {
                             {lead.status.charAt(0).toUpperCase() + lead.status.slice(1)}
                           </span>
                         </td>
-                        <td className="px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-gray-600 whitespace-nowrap min-w-[120px] w-32">
+                        <td className="px-6 py-4 text-sm text-gray-600 whitespace-nowrap min-w-[140px]">
                           {new Date(lead.created_at).toLocaleDateString()}
                         </td>
                       </tr>
