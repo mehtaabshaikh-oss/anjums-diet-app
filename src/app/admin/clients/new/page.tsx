@@ -73,6 +73,21 @@ function NewClientPageContent() {
     }))
   }
 
+  const isFormValid = () => {
+    // Check all required fields
+    return (
+      formData.name.trim() !== '' &&
+      formData.email.trim() !== '' &&
+      formData.phone.trim() !== '' &&
+      formData.package !== '' &&
+      formData.nutritionist !== '' &&
+      formData.duration_months !== '' &&
+      formData.start_date.trim() !== '' &&
+      formData.end_date.trim() !== '' &&
+      generatedPassword !== ''
+    )
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
@@ -566,7 +581,7 @@ function NewClientPageContent() {
         <div className="flex gap-4">
           <button
             type="submit"
-            disabled={isLoading || !generatedPassword}
+            disabled={isLoading || !isFormValid()}
             className="flex-1 px-6 py-3 bg-primary hover:bg-primary-dark text-white font-semibold rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isLoading ? 'Creating Client...' : 'Create Client'}
