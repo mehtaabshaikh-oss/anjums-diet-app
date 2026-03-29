@@ -80,7 +80,7 @@ export default function Home() {
       <section className="relative bg-gradient-to-b from-green-50/50 to-white overflow-hidden pt-16 pb-24 md:pt-28 md:pb-32">
         <div className="absolute inset-0 opacity-[0.03] mix-blend-overlay pointer-events-none" style={{ backgroundImage: "url('data:image/svg+xml,%3Csvg viewBox=\"0 0 200 200\" xmlns=\"http://www.w3.org/2000/svg\"%3E%3Cfilter id=\"noiseFilter\"%3E%3CfeTurbulence type=\"fractalNoise\" baseFrequency=\"0.65\" numOctaves=\"3\" stitchTiles=\"stitch\"/%3E%3C/filter%3E%3Crect width=\"100%25\" height=\"100%25\" filter=\"url(%23noiseFilter)\"/%3E%3C/svg%3E')" }}></div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="grid md:grid-cols-2 gap-16 items-center">
+          <div className="grid md:grid-cols-[1.1fr_0.9fr] gap-12 lg:gap-20 items-center">
             <motion.div
               initial="hidden"
               animate="visible"
@@ -100,7 +100,7 @@ export default function Home() {
               <div className="max-w-[600px] flex flex-col space-y-3 md:space-y-0 text-left">
                 <motion.h1
                   variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] } } }}
-                  className="text-5xl md:text-[4rem] font-black text-gray-900 mb-4 leading-tight tracking-tight"
+                  className="text-5xl md:text-[4rem] font-black text-gray-900 mb-6 leading-[1.1] tracking-tight"
                 >
                   Get a personalized Indian diet plan <br />
                   <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-emerald-600 italic font-serif">that actually works.</span>
@@ -108,21 +108,21 @@ export default function Home() {
 
                 <motion.h2
                   variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] } } }}
-                  className="text-xl md:text-2xl font-bold text-gray-700 mb-4 leading-relaxed"
+                  className="text-xl md:text-2xl font-bold text-gray-700 mb-6 leading-relaxed"
                 >
                   For weight loss, PCOS, and long-term health without giving up home food
                 </motion.h2>
 
                 <motion.p
                   variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] } } }}
-                  className="text-lg md:text-xl font-bold text-gray-900 mb-4 italic border-l-4 border-primary pl-6 py-0.5"
+                  className="text-lg md:text-xl font-bold text-gray-900 mb-6 italic border-l-4 border-primary pl-6 py-0.5"
                 >
                   Finally lose weight without giving up the food you love.
                 </motion.p>
 
                 <motion.p
                   variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] } } }}
-                  className="text-base font-extrabold text-gray-600 mb-4 inline-block px-4 py-2 bg-gray-50 rounded-lg border border-gray-200 w-fit"
+                  className="text-base font-extrabold text-gray-600 mb-0 inline-block px-4 py-2 bg-gray-50 rounded-lg border border-gray-200 w-fit"
                 >
                   22+ years experience helping 500+ clients
                 </motion.p>
@@ -132,9 +132,9 @@ export default function Home() {
                 variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] } } }}
                 className="flex flex-col items-start gap-2 mt-2 mb-16"
               >
-                <a href="#contact" className="group relative inline-flex items-center justify-center px-14 py-6 font-black text-white bg-[#10b981] rounded-full overflow-hidden hover:scale-[1.03] transition-all duration-300 shadow-[0_12px_45px_rgba(16,185,129,0.35)] text-2xl tracking-wide w-full md:w-auto text-center border-b-4 border-emerald-700">
-                  <div className="absolute inset-0 bg-gradient-to-r from-[#10b981] to-emerald-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                  <span className="relative z-10 flex items-center justify-center gap-2">Get Your Custom Diet Plan <span className="group-hover:translate-x-1 transition-transform">→</span></span>
+                <a href="#contact" className="group relative inline-flex items-center justify-center px-14 py-6 font-black text-white bg-[#10b981] rounded-full overflow-hidden hover:scale-[1.03] hover:shadow-[0_20px_50px_rgba(16,185,129,0.45)] transition-all duration-300 shadow-[0_12px_45px_rgba(16,185,129,0.35)] text-2xl tracking-wide w-full md:w-auto text-center border-b-4 border-emerald-700">
+                  <div className="absolute inset-0 bg-gradient-to-r from-[#10b981] via-emerald-500 to-[#10b981] opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  <span className="relative z-10 flex items-center justify-center gap-2">Get Your Custom Diet Plan <span className="group-hover:translate-x-1.5 transition-transform">→</span></span>
                 </a>
                 <div className="space-y-0.5 ml-4 py-1">
                   <p className="text-sm font-black text-gray-500 flex items-center gap-2"><span className="text-amber-500 text-lg">⚡</span> Takes less than 2 minutes</p>
@@ -171,22 +171,22 @@ export default function Home() {
       <section className="bg-white py-12 border-b border-gray-100 relative z-20 -mt-10 lg:-mt-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-center font-bold text-gray-400 uppercase tracking-widest text-sm mb-8">Real results from real clients</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 relative">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 relative">
             <div className="bg-white p-8 rounded-[2rem] border border-gray-200 shadow-[0_12px_40px_rgba(0,0,0,0.06)] text-left flex flex-col justify-center min-h-[180px] hover:shadow-[0_20px_50px_rgba(0,0,0,0.12)] hover:scale-[1.02] transition-all duration-500">
-              <div className="font-bold text-[26px] tracking-tight text-gray-900 mb-1 leading-tight">12 kg lost</div>
-              <p className="font-medium text-gray-400 text-sm">in 4 months</p>
+              <div className="font-black text-[29px] tracking-tight text-black mb-1 leading-tight">12 kg lost</div>
+              <p className="font-semibold text-gray-500 text-sm">in 4 months</p>
             </div>
             <div className="bg-white p-8 rounded-[2rem] border border-gray-200 shadow-[0_12px_40px_rgba(0,0,0,0.06)] text-left flex flex-col justify-center min-h-[180px] hover:shadow-[0_20px_50px_rgba(0,0,0,0.12)] hover:scale-[1.02] transition-all duration-500">
-              <div className="font-bold text-[26px] tracking-tight text-gray-900 mb-1 leading-tight">PCOS improved</div>
-              <p className="font-medium text-gray-400 text-sm">regular cycles in 3 months</p>
+              <div className="font-black text-[29px] tracking-tight text-black mb-1 leading-tight">PCOS improved</div>
+              <p className="font-semibold text-gray-500 text-sm">regular cycles in 3 months</p>
             </div>
             <div className="bg-white p-8 rounded-[2rem] border border-gray-200 shadow-[0_12px_40px_rgba(0,0,0,0.06)] text-left flex flex-col justify-center min-h-[180px] hover:shadow-[0_20px_50px_rgba(0,0,0,0.12)] hover:scale-[1.02] transition-all duration-500">
-              <div className="font-bold text-[26px] tracking-tight text-gray-900 mb-1 leading-tight">Reduced sugar</div>
-              <p className="font-medium text-gray-400 text-sm">better energy and control</p>
+              <div className="font-black text-[29px] tracking-tight text-black mb-1 leading-tight">Reduced sugar</div>
+              <p className="font-semibold text-gray-500 text-sm">better energy and control</p>
             </div>
             <div className="bg-emerald-50 p-8 rounded-[2rem] border border-emerald-100 shadow-[0_12px_40px_rgba(16,185,129,0.1)] text-left flex flex-col justify-center min-h-[180px] hover:shadow-[0_20px_50px_rgba(16,185,129,0.2)] hover:scale-[1.02] transition-all duration-500">
-              <div className="font-bold text-[26px] tracking-tight text-emerald-900 mb-1 leading-tight">Eating home food</div>
-              <p className="font-medium text-emerald-700/60 text-sm uppercase">no crash diets</p>
+              <div className="font-black text-[29px] tracking-tight text-emerald-950 mb-1 leading-tight">Eating home food</div>
+              <p className="font-bold text-emerald-700/70 text-sm uppercase tracking-wide">no crash diets</p>
             </div>
           </div>
         </div>
@@ -431,25 +431,25 @@ export default function Home() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.6 }}
-            className="text-center bg-gray-900 px-6 py-32 rounded-[3.5rem] mt-16 shadow-2xl relative overflow-hidden"
+            className="text-center bg-[#0a0f1a] px-6 py-40 rounded-[3.5rem] mt-24 shadow-2xl relative overflow-hidden border border-white/5"
           >
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-transparent opacity-50 font-black"></div>
-            <div className="relative z-10 py-16 max-w-5xl mx-auto">
-              <h2 className="text-4xl md:text-7xl text-white font-black mb-12 leading-tight">
-                Ready to transform your health?
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/25 via-transparent to-emerald-950/30 opacity-60"></div>
+            <div className="relative z-10 max-w-5xl mx-auto">
+              <h2 className="text-4xl md:text-7xl text-white font-black mb-12 leading-[1.05] tracking-tight">
+                Ready to transform <br /> your health?
               </h2>
               <motion.a
-                whileHover={{ scale: 1.03 }}
+                whileHover={{ scale: 1.03, boxShadow: "0 20px 50px rgba(16,185,129,0.5)" }}
                 whileTap={{ scale: 0.97 }}
                 href="#contact"
-                className="inline-block px-14 py-7 bg-[#10b981] text-white rounded-full font-black hover:bg-emerald-600 shadow-[0_15px_50px_rgba(16,185,129,0.4)] transition-all duration-300 mb-12 text-2xl tracking-wide border-b-4 border-emerald-700"
+                className="inline-block px-14 py-7 bg-[#10b981] text-white rounded-full font-black hover:bg-emerald-500 shadow-[0_15px_50px_rgba(16,185,129,0.4)] transition-all duration-300 mb-12 text-2xl tracking-wide border-b-4 border-emerald-700"
               >
                 Get Your Custom Diet Plan
               </motion.a>
               <div className="flex flex-col items-center gap-6">
-                <p className="text-white font-black text-2xl tracking-widest uppercase mb-2">Limited clients accepted each month</p>
-                <div className="h-0.5 w-32 bg-primary/40 mb-2"></div>
-                <p className="text-white/60 font-medium text-xl italic">Answer a few quick questions and get your personalized plan</p>
+                <p className="text-white font-black text-2xl tracking-widest uppercase mb-2 opacity-90">Limited clients accepted each month</p>
+                <div className="h-1 w-32 bg-primary/60 mb-2 rounded-full"></div>
+                <p className="text-white/70 font-bold text-xl italic max-w-2xl">Answer a few quick questions and get your personalized plan</p>
               </div>
             </div>
           </motion.div>
