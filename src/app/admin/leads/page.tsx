@@ -767,7 +767,7 @@ export default function LeadsPage() {
 
             {/* Convert to Client Button */}
             {selectedLead.status === 'contacted' || selectedLead.status === 'converted' ? (
-              <Link href={`/admin/clients/new?name=${encodeURIComponent(selectedLead.name)}&email=${encodeURIComponent(selectedLead.email || '')}&phone=${encodeURIComponent(selectedLead.phone || '')}`}>
+              <Link href={`/admin/clients/new?name=${encodeURIComponent(selectedLead.name)}&email=${encodeURIComponent(selectedLead.email || '')}&phone=${encodeURIComponent(selectedLead.phone || '')}&lead_id=${selectedLead.id}`}>
                 <button className="w-full px-4 py-3 bg-gradient-to-r from-primary to-primary-dark text-white font-semibold rounded-lg hover:shadow-lg transition-all mb-4">
                   ✨ Convert to Client
                 </button>

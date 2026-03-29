@@ -55,7 +55,7 @@ export async function GET(
       // Notes from lead (if converted from lead)
       supabase
         .from('clients')
-        .select('lead_id, leads(notes, created_at)')
+        .select('lead_id, leads(id, notes, message, created_at)')
         .eq('id', id)
         .single(),
     ])
@@ -118,19 +118,34 @@ export async function GET(
       })
     }
 
-    // Add lead notes
-    if (leadNotes.data?.leads) {
-      leadNotes.data.leads.forEach((lead: any) => {
-        if (lead.notes) {
-          allNotes.push({
-            id: `lead-${lead.id}`,
-            type: 'lead',
-            content: lead.notes,
-            created_at: lead.created_at,
-            metadata: {},
-          })
-        }
-      })
+    // Add lead notes and original message
+    const lead = leadNotes.data?.leads as any
+    if (lead) {
+      // Add initial message from the lead inquiry
+      if (lead.message) {
+        allNotes.push({
+          id: `lead-msg-${lead.id}`,
+          type: 'lead_message',
+          content: lead.message,
+          created_at: lead.created_at,
+          metadata: {
+            label: 'Initial Inquiry'
+          },
+        })
+      }
+      
+      // Add internal notes captured during the lead stage
+      if (lead.notes) {
+        allNotes.push({
+          id: `lead-note-${lead.id}`,
+          type: 'lead',
+          content: lead.notes,
+          created_at: lead.created_at,
+          metadata: {
+            label: 'Lead Note'
+          },
+        })
+      }
     }
 
     // Sort by created_at, nulls last

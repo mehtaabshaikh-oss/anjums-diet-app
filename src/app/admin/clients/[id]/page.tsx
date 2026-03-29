@@ -2029,8 +2029,9 @@ export default function ClientDetailPage() {
                     weight: { label: 'Weight Log', color: 'bg-green-100 text-green-800' },
                     measurement: { label: 'Measurement Log', color: 'bg-orange-100 text-orange-800' },
                     lead: { label: 'Lead Note', color: 'bg-gray-100 text-gray-800' },
+                    lead_message: { label: 'Initial Inquiry', color: 'bg-indigo-100 text-indigo-800' },
                   }
-                  const typeInfo = typeLabels[note.type] || { label: note.type, color: 'bg-gray-100 text-gray-800' }
+                  const typeInfo = typeLabels[note.type] || { label: note.metadata?.label || note.type, color: 'bg-gray-100 text-gray-800' }
 
                   return (
                     <div key={note.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">

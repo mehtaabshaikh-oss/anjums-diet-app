@@ -9,8 +9,9 @@ function NewClientPageContent() {
     name: '',
     email: '',
     phone: '',
+    lead_id: null as string | null,
     package: 'gold',
-    duration_months: 3,
+    duration_months: '3',
     nutritionist: 'anjum',
     start_date: new Date().toISOString().split('T')[0],
     end_date: '',
@@ -33,13 +34,15 @@ function NewClientPageContent() {
     const name = searchParams.get('name')
     const email = searchParams.get('email')
     const phone = searchParams.get('phone')
+    const leadId = searchParams.get('lead_id')
 
-    if (name || email || phone) {
+    if (name || email || phone || leadId) {
       setFormData((prev) => ({
         ...prev,
         name: name || '',
         email: email || '',
         phone: phone || '',
+        lead_id: leadId || null,
       }))
     }
   }, [searchParams])
@@ -107,7 +110,7 @@ function NewClientPageContent() {
         body: JSON.stringify({
           ...formData,
           password: generatedPassword,
-          duration_months: formData.duration_months ? formData.duration_months : null,
+          duration_months: formData.duration_months ? parseInt(formData.duration_months) : null,
           age: formData.age ? parseInt(formData.age) : null,
           height_cm: formData.height_cm ? parseFloat(formData.height_cm) : null,
           weight_kg: formData.weight_kg ? parseFloat(formData.weight_kg) : null,

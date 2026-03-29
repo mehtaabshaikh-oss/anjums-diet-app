@@ -86,6 +86,7 @@ export async function POST(req: Request) {
       waist_cm,
       hip_cm,
       thigh_cm,
+      lead_id,
     } = body
 
     // Validate required fields
@@ -117,6 +118,7 @@ export async function POST(req: Request) {
         status: 'active',
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
+        lead_id: lead_id || null,
       })
       .select()
       .single()
@@ -127,12 +129,12 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Bad request' }, { status: 400 })
     }
 
-    // Debug: Check if password_hash was actually stored
-    if (!client.password_hash) {
-      console.error('WARNING: password_hash was not stored in database for client', client.id)
-      return NextResponse.json({
-        error: 'Password storage failed. Please try again.'
-      }, { status: 500 })
+    // If converted from a lead, mark the lead as converted
+    if (lead_id) {
+      await supabase
+        .from('leads')
+        .update({ status: 'converted' })
+        .eq('id', lead_id)
     }
 
     // Always create client profile (even if empty, so data can be populated later)
