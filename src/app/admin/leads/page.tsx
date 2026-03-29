@@ -512,7 +512,7 @@ export default function LeadsPage() {
                         </div>
                       </th>
                       <th
-                        className="px-3 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-semibold text-gray-900 cursor-pointer hover:bg-gray-100 transition-colors select-none whitespace-nowrap"
+                        className="px-3 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-semibold text-gray-900 cursor-pointer hover:bg-gray-100 transition-colors select-none whitespace-nowrap min-w-[100px]"
                         onClick={() => handleSort('created_at')}
                       >
                         <div className="flex items-center gap-2">
@@ -573,7 +573,7 @@ export default function LeadsPage() {
                             {lead.status.charAt(0).toUpperCase() + lead.status.slice(1)}
                           </span>
                         </td>
-                        <td className="px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-gray-600 whitespace-nowrap">
+                        <td className="px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-gray-600 whitespace-nowrap min-w-[100px]">
                           {new Date(lead.created_at).toLocaleDateString()}
                         </td>
                       </tr>
