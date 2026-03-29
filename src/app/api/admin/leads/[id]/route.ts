@@ -51,11 +51,17 @@ export async function DELETE(
   const adminAuth = await requireAdmin()
   if (!adminAuth.authorized) return adminAuth.response
 
+  // 2. Strict Role Check: Only 'admin' role can delete leads
+  if (adminAuth.role !== 'admin') {
+    return NextResponse.json(
+      { error: 'Forbidden: Only administrators can delete leads' },
+      { status: 403 }
+    )
+  }
+
   try {
     const { id } = await context.params
     const supabase = createAdminClient()
-
-    // Check if user is authenticated
 
     // Delete lead
     const { error } = await supabase

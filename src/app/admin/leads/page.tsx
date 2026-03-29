@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { createClient } from '@/lib/supabase/client'
 
 interface Lead {
   id: string
@@ -44,6 +45,29 @@ export default function LeadsPage() {
   const [currentPage, setCurrentPage] = useState(1)
   const [totalPages, setTotalPages] = useState(0)
   const [totalItems, setTotalItems] = useState(0)
+  const [userRole, setUserRole] = useState<string | null>(null)
+  const [isDeleting, setIsDeleting] = useState(false)
+
+  useEffect(() => {
+    fetchUserRole()
+  }, [])
+
+  const fetchUserRole = async () => {
+    try {
+      const supabase = createClient()
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) {
+        const { data: profile } = await supabase
+          .from('users')
+          .select('role')
+          .eq('id', user.id)
+          .single()
+        if (profile) setUserRole(profile.role)
+      }
+    } catch (err) {
+      console.error('Error fetching user role:', err)
+    }
+  }
 
   useEffect(() => {
     const timer = setTimeout(() => setDebouncedSearchTerm(searchTerm), 500)
@@ -174,6 +198,32 @@ export default function LeadsPage() {
     } catch (err) {
       setError('Failed to add note')
       console.error(err)
+    }
+  }
+
+  const handleDeleteLead = async () => {
+    if (!selectedLead) return
+    if (!window.confirm(`Are you sure you want to delete lead "${selectedLead.name}"? This action cannot be undone.`)) return
+
+    setIsDeleting(true)
+    try {
+      const response = await fetch(`/api/admin/leads/${selectedLead.id}`, {
+        method: 'DELETE',
+      })
+
+      if (!response.ok) {
+        const data = await response.json()
+        throw new Error(data.error || 'Failed to delete lead')
+      }
+
+      setLeads(leads.filter(l => l.id !== selectedLead.id))
+      setTotalItems(prev => prev - 1)
+      setSelectedLead(null)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to delete lead')
+      console.error(err)
+    } finally {
+      setIsDeleting(false)
     }
   }
 
@@ -718,11 +768,22 @@ export default function LeadsPage() {
             {/* Convert to Client Button */}
             {selectedLead.status === 'contacted' || selectedLead.status === 'converted' ? (
               <Link href={`/admin/clients/new?name=${encodeURIComponent(selectedLead.name)}&email=${encodeURIComponent(selectedLead.email || '')}&phone=${encodeURIComponent(selectedLead.phone || '')}`}>
-                <button className="w-full px-4 py-3 bg-gradient-to-r from-primary to-primary-dark text-white font-semibold rounded-lg hover:shadow-lg transition-all mb-6">
+                <button className="w-full px-4 py-3 bg-gradient-to-r from-primary to-primary-dark text-white font-semibold rounded-lg hover:shadow-lg transition-all mb-4">
                   ✨ Convert to Client
                 </button>
               </Link>
             ) : null}
+
+            {/* Delete Lead Button (Admins only) */}
+            {userRole === 'admin' && (
+              <button
+                onClick={handleDeleteLead}
+                disabled={isDeleting}
+                className="w-full px-4 py-3 bg-white border-2 border-red-200 text-red-600 font-semibold rounded-lg hover:bg-red-50 hover:border-red-300 transition-all mb-6 disabled:opacity-50"
+              >
+                {isDeleting ? 'Deleting...' : '🗑️ Delete Lead'}
+              </button>
+            )}
 
             {/* Notes */}
             <div className="border-t border-gray-200 pt-6">
