@@ -39,7 +39,7 @@ export async function POST(req: Request) {
           quantity: item.quantity,
           unit: item.unit,
           time: item.time || null,
-          notes: item.notes || null,
+          notes: item.notes ? item.notes.substring(0, 5000) : null,
         })
       )
 

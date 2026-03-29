@@ -285,133 +285,97 @@ export default function ClientDetailPage() {
 
   const generateDietPlanPDF = async (plan: any, items: any[], clientName: string) => {
     try {
-      // Create a temporary container for HTML to PDF conversion
-      const element = document.createElement('div')
-      element.style.padding = '40px'
-      element.style.fontFamily = '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif'
-      element.style.backgroundColor = 'white'
-      element.style.width = '800px'
-      element.style.lineHeight = '1.6'
+      const { pdf, Document, Page, Text, View, StyleSheet } = await import('@react-pdf/renderer');
+      
+      const styles = StyleSheet.create({
+        page: { padding: 40, fontFamily: 'Helvetica' },
+        header: { textAlign: 'center', marginBottom: 30, borderBottom: '3px solid #1b6940', paddingBottom: 20 },
+        title: { color: '#1b6940', fontSize: 24, fontWeight: 'bold', marginBottom: 4 },
+        subtitle: { color: '#666666', fontSize: 12 },
+        infoBox: { backgroundColor: '#f9fafb', padding: 15, borderRadius: 8, marginBottom: 20 },
+        infoRow: { flexDirection: 'row', marginBottom: 6 },
+        infoLabel: { width: '30%', fontWeight: 'bold', fontSize: 11, color: '#333333' },
+        infoValue: { width: '70%', fontSize: 11, color: '#444444' },
+        activeStatus: { color: '#16a34a', fontWeight: 'bold' },
+        inactiveStatus: { color: '#6b7280', fontWeight: 'bold' },
+        sectionTitle: { color: '#1b6940', fontSize: 18, fontWeight: 'bold', borderBottom: '2px solid #1b6940', paddingBottom: 8, marginBottom: 15 },
+        mealGroup: { marginBottom: 15 },
+        mealTitle: { fontSize: 14, fontWeight: 'bold', color: '#333333', borderLeft: '4px solid #1b6940', paddingLeft: 8, marginBottom: 10, textTransform: 'capitalize' },
+        tableHeader: { flexDirection: 'row', backgroundColor: '#1b6940', padding: 8 },
+        tableHeaderCell1: { width: '40%', color: 'white', fontSize: 10, fontWeight: 'bold' },
+        tableHeaderCell2: { width: '25%', color: 'white', fontSize: 10, fontWeight: 'bold', textAlign: 'center' },
+        tableHeaderCell3: { width: '35%', color: 'white', fontSize: 10, fontWeight: 'bold' },
+        tableRow: { flexDirection: 'row', borderBottom: '1px solid #e5e7eb', padding: 8, backgroundColor: '#ffffff' },
+        tableRowAlt: { flexDirection: 'row', borderBottom: '1px solid #e5e7eb', padding: 8, backgroundColor: '#f9fafb' },
+        cell1: { width: '40%', fontSize: 10, fontWeight: 'bold', color: '#111111' },
+        cell2: { width: '25%', fontSize: 10, textAlign: 'center', color: '#333333' },
+        cell3: { width: '35%', fontSize: 9, color: '#666666' },
+        footer: { marginTop: 40, paddingTop: 15, borderTop: '2px solid #dddddd', textAlign: 'center' },
+        footerBold: { fontSize: 10, fontWeight: 'bold', color: '#444444', marginBottom: 6 },
+        footerText: { fontSize: 9, color: '#666666', marginBottom: 4 }
+      });
 
-      // Build HTML content
-      let html = `
-        <div style="text-align: center; margin-bottom: 40px; border-bottom: 3px solid #1b6940; padding-bottom: 30px;">
-          <h1 style="color: #1b6940; margin: 0 0 5px 0; font-size: 32px; font-weight: bold;">Anjum's Diet & Wellness</h1>
-          <p style="color: #666; margin: 0; font-size: 14px;">Diet & Wellness Solutions</p>
-        </div>
-
-        <div style="margin-bottom: 30px; background-color: #f9fafb; padding: 20px; border-radius: 8px;">
-          <table style="width: 100%; border-collapse: collapse;">
-            <tr>
-              <td style="padding: 8px 0; width: 30%;"><strong>Client Name:</strong></td>
-              <td style="padding: 8px 0;">${clientName}</td>
-            </tr>
-            <tr>
-              <td style="padding: 8px 0;"><strong>Plan Name:</strong></td>
-              <td style="padding: 8px 0;">${plan.name}</td>
-            </tr>
-            <tr>
-              <td style="padding: 8px 0;"><strong>Description:</strong></td>
-              <td style="padding: 8px 0;">${plan.description || 'N/A'}</td>
-            </tr>
-            <tr>
-              <td style="padding: 8px 0;"><strong>Status:</strong></td>
-              <td style="padding: 8px 0;"><span style="color: ${plan.active ? '#16a34a' : '#6b7280'}; font-weight: bold;">${plan.active ? '✓ Active' : '○ Inactive'}</span></td>
-            </tr>
-            <tr>
-              <td style="padding: 8px 0;"><strong>Generated on:</strong></td>
-              <td style="padding: 8px 0;">${new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</td>
-            </tr>
-          </table>
-        </div>
-
-        <div style="margin-top: 30px;">
-          <h2 style="color: #1b6940; font-size: 20px; margin-bottom: 20px; border-bottom: 2px solid #1b6940; padding-bottom: 10px; font-weight: bold;">Diet Plan Items</h2>
-      `
-
-      // Group items by meal type
-      const mealGroups: { [key: string]: any[] } = {}
+      const mealGroups: { [key: string]: any[] } = {};
       items.forEach(item => {
-        if (!mealGroups[item.meal_type]) {
-          mealGroups[item.meal_type] = []
-        }
-        mealGroups[item.meal_type].push(item)
-      })
+        if (!mealGroups[item.meal_type]) mealGroups[item.meal_type] = [];
+        mealGroups[item.meal_type].push(item);
+      });
 
-      // Add meals to HTML with improved formatting
-      Object.keys(mealGroups).forEach(mealType => {
-        html += `<h3 style="color: #333; font-size: 16px; margin-top: 25px; margin-bottom: 12px; text-transform: capitalize; font-weight: bold; border-left: 4px solid #1b6940; padding-left: 10px;">${mealType}</h3><table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">`
-        html += '<tr style="background-color: #1b6940; color: white;"><th style="padding: 12px; text-align: left; font-weight: bold;">Item</th><th style="padding: 12px; text-align: center; font-weight: bold;">Quantity</th><th style="padding: 12px; text-align: left; font-weight: bold;">Notes</th></tr>'
+      const MyDocument = () => (
+        <Document>
+          <Page size="A4" style={styles.page}>
+            <View style={styles.header}>
+              <Text style={styles.title}>Anjum's Diet & Wellness</Text>
+              <Text style={styles.subtitle}>Diet & Wellness Solutions</Text>
+            </View>
 
-        mealGroups[mealType].forEach((item, idx) => {
-          const bgColor = idx % 2 === 0 ? '#ffffff' : '#f9fafb'
-          html += `<tr style="background-color: ${bgColor}; border-bottom: 1px solid #e5e7eb;">
-            <td style="padding: 12px; border-bottom: 1px solid #e5e7eb; font-weight: 500;">${item.item_name}</td>
-            <td style="padding: 12px; text-align: center; border-bottom: 1px solid #e5e7eb;">${item.quantity} ${item.unit}</td>
-            <td style="padding: 12px; border-bottom: 1px solid #e5e7eb; color: #666; font-size: 13px;">${item.notes || '—'}</td>
-          </tr>`
-        })
+            <View style={styles.infoBox}>
+              <View style={styles.infoRow}><Text style={styles.infoLabel}>Client Name:</Text><Text style={styles.infoValue}>{clientName}</Text></View>
+              <View style={styles.infoRow}><Text style={styles.infoLabel}>Plan Name:</Text><Text style={styles.infoValue}>{plan.name}</Text></View>
+              <View style={styles.infoRow}><Text style={styles.infoLabel}>Description:</Text><Text style={styles.infoValue}>{plan.description || 'N/A'}</Text></View>
+              <View style={styles.infoRow}><Text style={styles.infoLabel}>Status:</Text><Text style={plan.active ? styles.activeStatus : styles.inactiveStatus}>{plan.active ? '✓ Active' : '○ Inactive'}</Text></View>
+              <View style={styles.infoRow}><Text style={styles.infoLabel}>Generated on:</Text><Text style={styles.infoValue}>{new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</Text></View>
+            </View>
 
-        html += '</table>'
-      })
+            <Text style={styles.sectionTitle}>Diet Plan Items</Text>
 
-      html += `
-        </div>
-        <div style="margin-top: 50px; padding-top: 20px; border-top: 2px solid #ddd; color: #666; font-size: 13px; text-align: center; line-height: 1.8;">
-          <p style="margin: 0;"><strong>Important Guidelines:</strong></p>
-          <p style="margin: 5px 0;">This diet plan is personalized for ${clientName}. Please follow the plan as recommended by your nutritionist.</p>
-          <p style="margin: 10px 0; font-size: 12px;">Contact: anjumsdiet@gmail.com | Phone: +91 93262 30557</p>
-        </div>
-      `
+            {Object.keys(mealGroups).map((mealType, idx) => (
+              <View key={idx} style={styles.mealGroup}>
+                <Text style={styles.mealTitle}>{mealType}</Text>
+                <View style={styles.tableHeader}>
+                  <Text style={styles.tableHeaderCell1}>Item</Text>
+                  <Text style={styles.tableHeaderCell2}>Quantity</Text>
+                  <Text style={styles.tableHeaderCell3}>Notes</Text>
+                </View>
+                {mealGroups[mealType].map((item, itemIdx) => (
+                  <View key={itemIdx} style={itemIdx % 2 === 0 ? styles.tableRow : styles.tableRowAlt}>
+                    <Text style={styles.cell1}>{item.item_name}</Text>
+                    <Text style={styles.cell2}>{item.quantity} {item.unit}</Text>
+                    <Text style={styles.cell3}>{item.notes || '—'}</Text>
+                  </View>
+                ))}
+              </View>
+            ))}
 
-      element.innerHTML = html
-      document.body.appendChild(element)
+            <View style={styles.footer}>
+              <Text style={styles.footerBold}>Important Guidelines:</Text>
+              <Text style={styles.footerText}>This diet plan is personalized for {clientName}. Please follow the plan as recommended by your nutritionist.</Text>
+              <Text style={styles.footerText}>Contact: anjumsdiet@gmail.com | Phone: +91 93262 30557</Text>
+            </View>
+          </Page>
+        </Document>
+      );
 
-      // Dynamically load PDF libraries
-      const [html2canvasModule, jsPDFModule] = await Promise.all([
-        import('html2canvas'),
-        import('jspdf'),
-      ])
-      const html2canvas = html2canvasModule.default
-      const jsPDF = jsPDFModule.default
-
-      // Convert HTML to canvas, then to PDF
-      const canvas = await html2canvas(element, {
-        scale: 2,
-        backgroundColor: '#ffffff',
-      })
-
-      const imgData = canvas.toDataURL('image/png')
-      const pdf = new jsPDF({
-        orientation: 'portrait',
-        unit: 'mm',
-        format: 'a4',
-      })
-
-      const imgWidth = 210 - 20 // A4 width minus margins
-      const imgHeight = (canvas.height * imgWidth) / canvas.width
-      let heightLeft = imgHeight
-      let position = 10 // Top margin
-
-      // Add image to PDF, handling multiple pages if needed
-      pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight)
-      heightLeft -= 297 - 20 // A4 height minus margins
-
-      while (heightLeft > 0) {
-        position = heightLeft - imgHeight
-        pdf.addPage()
-        pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight)
-        heightLeft -= 297 - 20
-      }
-
-      // Download the PDF
-      pdf.save(`${clientName}_${plan.name.replace(/\s+/g, '_')}.pdf`)
-
-      // Clean up
-      document.body.removeChild(element)
+      const blob = await pdf(<MyDocument />).toBlob();
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `${clientName}_${plan.name.replace(/\s+/g, '_')}.pdf`;
+      link.click();
+      URL.revokeObjectURL(url);
     } catch (err) {
-      console.error('Error generating PDF:', err)
-      alert('Failed to generate PDF')
+      console.error('Error generating PDF:', err);
+      alert('Failed to generate PDF. Make sure you are using a supported browser.');
     }
   }
 

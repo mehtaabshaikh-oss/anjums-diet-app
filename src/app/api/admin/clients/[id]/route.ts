@@ -34,6 +34,28 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
       thigh_cm,
     } = body
 
+    const validPackages = ['Gold', 'Platinum', 'Hybrid']
+    if (clientPackage && !validPackages.includes(clientPackage)) {
+      return NextResponse.json(
+        { error: 'Invalid package type' },
+        { status: 400 }
+      )
+    }
+
+    if (weight_kg !== undefined && weight_kg !== null && (weight_kg <= 0 || weight_kg >= 300)) {
+      return NextResponse.json(
+        { error: 'Invalid weight value' },
+        { status: 400 }
+      )
+    }
+
+    if (start_date && isNaN(Date.parse(start_date))) {
+      return NextResponse.json({ error: 'Invalid start date format' }, { status: 400 })
+    }
+    if (end_date && isNaN(Date.parse(end_date))) {
+      return NextResponse.json({ error: 'Invalid end date format' }, { status: 400 })
+    }
+
     // Update clients table
     const { error: clientError } = await supabase
       .from('clients')

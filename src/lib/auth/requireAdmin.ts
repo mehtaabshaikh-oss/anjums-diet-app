@@ -37,6 +37,7 @@ export async function requireAdmin() {
     return {
         authorized: true,
         user,
+        role: userData.role,
         adminClient,
     }
 }

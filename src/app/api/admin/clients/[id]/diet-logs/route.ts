@@ -36,7 +36,7 @@ export async function GET(
     if (error) {
       console.error('Error fetching diet logs:', error)
       return NextResponse.json(
-        { error: 'Failed to fetch diet logs', details: error.message },
+        { error: 'Failed to fetch diet logs' },
         { status: 500 }
       )
     }

@@ -16,6 +16,13 @@ export async function PUT(
 
     const { name, description, active, items } = await req.json()
 
+    if (description && description.length > 5000) {
+      return NextResponse.json(
+        { error: 'Description exceeds maximum allowed length of 5000 characters' },
+        { status: 400 }
+      )
+    }
+
     // Update diet plan
     const { data: dietPlan, error: updateError } = await supabase
       .from('diet_plans')
@@ -52,7 +59,7 @@ export async function PUT(
           quantity: item.quantity,
           unit: item.unit,
           time: item.time || null,
-          notes: item.notes || null,
+          notes: item.notes ? item.notes.substring(0, 5000) : null,
         })
       )
 
@@ -62,7 +69,7 @@ export async function PUT(
 
       if (itemsError) {
         return NextResponse.json(
-          { error: `Failed to update items: ${itemsError.message}` },
+          { error: 'Failed to update items in the database' },
           { status: 400 }
         )
       }
