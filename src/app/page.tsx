@@ -3,11 +3,21 @@
 import Link from 'next/link'
 import ContactForm from '@/components/ContactForm'
 import { useState, useEffect } from 'react'
-import { motion } from 'framer-motion'
+import { AnimatePresence, motion } from 'framer-motion'
 
 export default function Home() {
   const [activeQuestion, setActiveQuestion] = useState<number | null>(null)
   const [scrolled, setScrolled] = useState(false)
+  const [menuOpen, setMenuOpen] = useState(false)
+
+  const navLinks = [
+    { href: '#about', label: 'About' },
+    { href: '#results', label: 'Results' },
+    { href: '#differentiation', label: 'Why It Works' },
+    { href: '#packages', label: 'Packages' },
+    { href: '#why-us', label: 'Why Us' },
+    { href: '#faq', label: 'FAQ' },
+  ]
 
   useEffect(() => {
     const handleScroll = () => {
@@ -15,27 +25,6 @@ export default function Home() {
     }
     window.addEventListener('scroll', handleScroll)
     return () => window.removeEventListener('scroll', handleScroll)
-  }, [])
-
-  // Counter animation
-  useEffect(() => {
-    const counters = document.querySelectorAll('.stat-number')
-    counters.forEach((counter) => {
-      const target = parseInt((counter as HTMLElement).getAttribute('data-count') || '0')
-      const duration = 2000
-      const increment = target / (duration / 16)
-      let current = 0
-
-      const timer = setInterval(() => {
-        current += increment
-        if (current >= target) {
-          counter.textContent = target.toString()
-          clearInterval(timer)
-        } else {
-          counter.textContent = Math.floor(current).toString()
-        }
-      }, 16)
-    })
   }, [])
 
   const toggleQuestion = (index: number) => {
@@ -64,15 +53,60 @@ export default function Home() {
               />
             </div>
             <div className="hidden md:flex items-center gap-6">
-              <a href="#about" className="text-gray-700 hover:text-primary font-medium transition-colors">About</a>
-              <a href="#services" className="text-gray-700 hover:text-primary font-medium transition-colors">Services</a>
-              <a href="#packages" className="text-gray-700 hover:text-primary font-medium transition-colors">Packages</a>
-              <a href="#why-us" className="text-gray-700 hover:text-primary font-medium transition-colors">Why Us</a>
-              <a href="#testimonials" className="text-gray-700 hover:text-primary font-medium transition-colors">Testimonials</a>
-              <a href="#faq" className="text-gray-700 hover:text-primary font-medium transition-colors">FAQ</a>
-
+              {navLinks.map((link) => (
+                <a key={link.href} href={link.href} className="text-gray-700 hover:text-primary font-medium transition-colors">{link.label}</a>
+              ))}
             </div>
+
+            <button
+              type="button"
+              onClick={() => setMenuOpen(!menuOpen)}
+              aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+              aria-expanded={menuOpen}
+              aria-controls="mobile-menu"
+              className="md:hidden w-11 h-11 -mr-2 flex items-center justify-center text-gray-700 hover:text-primary transition-colors"
+            >
+              <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                {menuOpen
+                  ? <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                  : <path strokeLinecap="round" strokeLinejoin="round" d="M4 7h16M4 12h16M4 17h16" />}
+              </svg>
+            </button>
           </div>
+
+          {/* Mobile Menu */}
+          <AnimatePresence>
+            {menuOpen && (
+              <motion.div
+                id="mobile-menu"
+                initial={{ opacity: 0, y: -8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                transition={{ duration: 0.2, ease: 'easeOut' }}
+                className="md:hidden absolute top-full left-0 right-0 bg-white border-t border-gray-100 shadow-lg"
+              >
+                <div className="flex flex-col gap-1 px-4 sm:px-6 py-4">
+                  {navLinks.map((link) => (
+                    <a
+                      key={link.href}
+                      href={link.href}
+                      onClick={() => setMenuOpen(false)}
+                      className="px-2 py-3 text-gray-700 hover:text-primary font-semibold transition-colors"
+                    >
+                      {link.label}
+                    </a>
+                  ))}
+                  <a
+                    href="#contact"
+                    onClick={() => setMenuOpen(false)}
+                    className="mt-3 px-6 py-4 bg-[#10b981] text-white rounded-full font-black text-center shadow-[0_8px_25px_rgba(16,185,129,0.35)]"
+                  >
+                    Get Your Custom Diet Plan
+                  </a>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </motion.nav>
 
@@ -168,7 +202,7 @@ export default function Home() {
       </section>
 
       {/* Trust Positioning Section (Above the fold/just below hero) */}
-      <section className="bg-white py-12 border-b border-gray-100 relative z-20 -mt-10 lg:-mt-24">
+      <section id="results" className="bg-white py-12 border-b border-gray-100 relative z-20 -mt-10 lg:-mt-24 scroll-mt-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-center font-bold text-gray-400 uppercase tracking-widest text-sm mb-8">Real results from real clients</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 relative">
@@ -193,7 +227,7 @@ export default function Home() {
       </section>
 
       {/* About Section (Meet Anjum) */}
-      <section id="about" className="bg-gradient-to-br from-green-50/30 to-white py-24 overflow-hidden relative">
+      <section id="about" className="bg-gradient-to-br from-green-50/30 to-white py-24 overflow-hidden relative scroll-mt-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="grid md:grid-cols-2 gap-16 items-center">
             <motion.div
@@ -271,7 +305,7 @@ export default function Home() {
       </section>
 
       {/* Differentiation Section */}
-      <section id="differentiation" className="bg-gray-50 py-24 overflow-hidden relative">
+      <section id="differentiation" className="bg-gray-50 py-24 overflow-hidden relative scroll-mt-24">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -311,7 +345,7 @@ export default function Home() {
       </section>
 
       {/* Packages Section */}
-      <section id="packages" className="bg-white py-24 relative overflow-hidden">
+      <section id="packages" className="bg-white py-24 relative overflow-hidden scroll-mt-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -374,7 +408,7 @@ export default function Home() {
       </section>
 
       {/* Why Us Section */}
-      <section id="why-us" className="bg-gradient-to-br from-green-50/50 via-white to-green-50/50 py-24 relative overflow-hidden">
+      <section id="why-us" className="bg-gradient-to-br from-green-50/50 via-white to-green-50/50 py-24 relative overflow-hidden scroll-mt-24">
         {/* Abstract Background Ring */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] border-[1px] border-primary/10 rounded-full -z-10"></div>
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] border-[1px] border-primary/10 rounded-full -z-10"></div>
@@ -431,7 +465,7 @@ export default function Home() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.6 }}
-            className="text-center bg-[#0a0f1a] px-6 py-40 rounded-[3.5rem] mt-24 shadow-2xl relative overflow-hidden border border-white/5"
+            className="text-center bg-[#0a0f1a] px-6 py-20 md:py-40 rounded-[3.5rem] mt-16 md:mt-24 shadow-2xl relative overflow-hidden border border-white/5"
           >
             <div className="absolute inset-0 bg-gradient-to-br from-primary/25 via-transparent to-emerald-950/30 opacity-60"></div>
             <div className="relative z-10 max-w-5xl mx-auto">
@@ -476,7 +510,7 @@ export default function Home() {
       </section>
 
       {/* FAQ Section */}
-      <section id="faq" className="bg-white py-24 overflow-hidden relative">
+      <section id="faq" className="bg-white py-24 overflow-hidden relative scroll-mt-24">
         <div className="absolute top-0 right-0 w-1/3 h-full bg-slate-50/50 -z-10 skew-x-12 transform origin-top-right"></div>
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
@@ -571,7 +605,7 @@ export default function Home() {
 
 
       {/* Application Form Section */}
-      <section id="contact" className="bg-white py-24 relative overflow-hidden">
+      <section id="contact" className="bg-white py-24 relative overflow-hidden scroll-mt-24">
         <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent"></div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-2 gap-12 lg:gap-20 items-start">
@@ -643,10 +677,10 @@ export default function Home() {
               <h4 className="font-bold mb-4">Quick Links</h4>
               <ul className="space-y-2 text-sm text-gray-400">
                 <li><a href="#about" className="hover:text-white transition-colors">About Us</a></li>
-                <li><a href="#services" className="hover:text-white transition-colors">Our Services</a></li>
+                <li><a href="#results" className="hover:text-white transition-colors">Client Results</a></li>
+                <li><a href="#differentiation" className="hover:text-white transition-colors">Why It Works</a></li>
                 <li><a href="#packages" className="hover:text-white transition-colors">Pricing Packages</a></li>
                 <li><a href="#why-us" className="hover:text-white transition-colors">Why Choose Us</a></li>
-                <li><a href="#testimonials" className="hover:text-white transition-colors">Testimonials</a></li>
                 <li><a href="#faq" className="hover:text-white transition-colors">FAQ</a></li>
                 <li><a href="#contact" className="hover:text-white transition-colors">Contact</a></li>
               </ul>
